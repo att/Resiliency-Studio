@@ -1,0 +1,135 @@
+<!--
+      BSD License
+       
+      Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+       
+      Redistribution and use in source and binary forms, with or without modification, are permitted
+      provided that the following conditions are met:
+       
+      1. Redistributions of source code must retain the above copyright notice, this list of conditions
+         and the following disclaimer.
+      2. Redistributions in binary form must reproduce the above copyright notice, this list of
+         conditions and the following disclaimer in the documentation and/or other materials provided
+         with the distribution.
+      3. All advertising materials mentioning features or use of this software must display the
+         following acknowledgement:  This product includes software developed by the AT&T.
+      4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+         promote products derived from this software without specific prior written permission.
+       
+      THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+      IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+      SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+      SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+      PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+      OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+      CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+      ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+      DAMAGE.
+ -->
+ 
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.att.tta.rs</groupId>
+		<artifactId>resiliency-studio</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<!-- SNAPSHOT added for RS -->
+	<groupId>com.att.tta.resiliency-studio</groupId>
+	<artifactId>resiliency-studio-ui</artifactId>
+	<packaging>war</packaging>
+
+	<build>
+		<finalName> ${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+	            <artifactId>maven-war-plugin</artifactId>
+	            <version>2.5</version>
+	            <configuration>
+	                <failOnMissingWebXml>false</failOnMissingWebXml>    
+	            </configuration>
+        	</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19.1</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.att.aft.swm</groupId>
+				<artifactId>swm-plugin</artifactId>
+				<version>1.4.4.5</version>
+				<configuration>
+					<distFilesRootDirPath>/opt/app/${project.artifactId}/${project.version}</distFilesRootDirPath>
+					<artifactIncludes>
+						<artifactIncludes>${project.artifactId}.war</artifactIncludes>
+					</artifactIncludes>
+					<dependencyExcludes>
+						<dependencyExcludes>**/*</dependencyExcludes>
+					</dependencyExcludes>
+					<versionFromReleasePlugin>true</versionFromReleasePlugin>
+					<autoApprove>true</autoApprove>
+					<skip>${skip_swm_deploy}</skip>
+				</configuration>
+				<executions>
+					<execution>
+						<id>pkgstage</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>pkgstage</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>pkgcreate</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>pkgcreate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+	
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.7.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.4</version>
+			</plugin>
+		</plugins>
+	</reporting>	
+	
+  <description>resiliency-studio-ui</description>
+</project>

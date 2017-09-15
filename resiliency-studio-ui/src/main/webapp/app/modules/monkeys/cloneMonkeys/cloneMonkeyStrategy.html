@@ -1,0 +1,341 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<ul class="breadcrumbs dark">
+			<li><a href="#/dashboard"><span class="icon mif-home"></span></a></li>
+			<li>Clone Monkey Strategy</li>
+		</ul>
+	</div>
+</div>
+<br />
+<div class="row">
+	<form role="form" name="cloneMonkey" id="cloneMonkey"
+		ng-submit="addCloneMonkeyStrategy()">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="heading bg-grayLight">
+					<span class="icon mif-alarm  bg-gray"></span> <span class="title">Clone
+						Monkey Strategy</span>
+				</div>
+				<div class="panel-body">
+					<div class="alert alert-success alert-dismissable"
+						ng-show="showSuccessMessage">
+						<a class="close" data-hide="alert" aria-label="close">&times;</a>
+						<strong>{{updatedStrategy}}&nbsp;</strong><span>{{message}}</span>
+						<a href="#/viewMonkeyStrategies" class="closed" ng-show="success">View
+							Monkey Strategy</a>
+
+					</div>
+					<div class="alert alert-danger alert-dismissable"
+						ng-show="showErrorMessage">
+						<a class="close" data-hide="alert" aria-label="close">&times;</a>
+						<strong>{{updatedStrategy}}&nbsp;</strong><span>{{message}}</span>
+
+					</div>
+					<tabset> <tab heading="Basic">
+					<div class="row">
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="versionId">Version:</label><a><span
+									title="Version"
+									class="glyphicon glyphicon-question-sign pull-right"></span></a> <input
+									ng-disabled="true" type="text" class="form-control"
+									name="version" id="versionId"
+									ng-model="fields.monkeyStrategyVersion">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="monkeyType">Monkey Type*:</label> <select
+									class="form-control" ng-model="fields.monkeyType"
+									id="monkeyType" required>
+									<option value="">Select Monkey Type</option>
+									<option ng-repeat="monkey in monkeys">{{monkey}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group has-feedback">
+								<label for="strategyName">Strategy Name*:</label> <input
+									class="form-control"
+									ng-pattern="/^[a-zA-Z0-9-():~+\/&.,_\s]*$/"
+									placeholder="Enter Strategy Name" type="text"
+									name="strategyName" id="strategyName"
+									ng-model="fields.monkeyStrategyName" ng-required=true>
+								<span title="Strategy Name" style="color: #2086bf;"
+									class="glyphicon glyphicon-question-sign form-control-feedback"></span>
+								<p style="color: #a94442;"
+									ng-show="cloneMonkey.strategyName.$error.pattern">Enter
+									Valid Strategy Name.</p>
+							</div>
+							<div class="form-group">
+								<label for="category">Script Type*:</label> <select
+									class="form-control" ng-model="fields.scriptTypeCategory"
+									name="category" id="category" required>
+									<option value="">Select Script</option>
+									<option ng-repeat="script in failures.scriptCategory">{{script}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="descriptionName">Description</label>
+								<textarea style="resize: none; height: 120px;"
+									class="form-control" type="text" name="descriptionName"
+									id="descriptionName" placeholder="Enter description"
+									ng-model="fields.strategyDescription"></textarea>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<label class="radio-inline" for="upload"> <input
+									id="upload" type="radio" value="upload" name="script"
+									ng-model="value" ng-change="radioCheck(value)"
+									ng-click="radioSwitch(value)">Upload Script
+								</label> <label class="radio-inline" style="margin-left: 15%;">
+									<input type="radio" value="code" name="script" ng-model="value"
+									ng-change="radioCheck(value)" ng-click="radioSwitch(value)">Code
+									Script
+								</label>
+							</div>
+							<hr style="background-color: transparent;">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+								ng-show="enableRadio">
+								<div class="form-group">
+									<label style="display: block;" for="file">Upload Script</label>
+									<div style="border-radius: 5px; width: 100%;"
+										class="input-control file" data-role="input">
+										<input placeholder="Upload Script" type="file" name="file"
+											id="file" ng-model="fields.monkeyStrategyScript"
+											on-read-file="displayFileContents(contents)"
+											onchange="angular.element(this).scope().uploadFile(this.files)"
+											accept=".sh,.yml">
+
+									</div>
+									<strong class="alert alert-danger" ng-show="invalidfile">Invalid
+										File Format</strong>
+									<p ng-show="scriptValidation" style="color: #a94442;">Please
+										Upload/Code Script.</p>
+									<hr style="background-color: transparent;">
+									<button
+										ng-disabled="scriptContent == '' || scriptContent == null"
+										data-ng-click="openScriptPopup()" type="button"
+										class="btn btn-primary">View Script</button>
+								</div>
+							</div>
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"
+								ng-hide="enableRadio">
+								<button data-ng-click="addCloneScript()" type="button"
+									class="btn btn-primary">{{btnScriptVal}}</button>
+								<p ng-show="scriptValidation" style="color: #a94442;">Please
+									Upload/Code Script.</p>
+							</div>
+						</div>
+					</div>
+					</tab> <tab heading="Advanced" id="advance"
+						disabled="UserPrivilege != 'admin'">
+					<div class="row">
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="version">Default :</label> <a><span
+									title="Default" class="glyphicon glyphicon-question-sign"></span></a>
+							</div>
+							<div class="input-control switch" data-role="input-control">
+								<label class="inline-block" for="defaultFlagId"> No
+									&#160; <input id="defaultFlagId" type="checkbox"
+									ng-change="defaultFlagSwitch()" ng-model="defaultFlagValue" />
+									<span class="check"></span> &#160; Yes
+								</label>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="generic">Generic :</label> <a><span
+									title="Generic" class="glyphicon glyphicon-question-sign"></span></a>
+							</div>
+							<div class="input-control switch" data-role="input-control">
+								<label class="inline-block" for="genericFlagId"
+									style="margin-right: 20px;"> No &#160; <input
+									id="genericFlagId" type="checkbox"
+									ng-click="genericFlagSwitch(GenericFlag)"
+									ng-model="GenericFlag" /> <span class="check"></span> &#160;
+									Yes
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<label for="osTypeName">OS Type<span
+								ng-show="mandatoryFields">*</span></label> <select class="form-control"
+								id="osTypeId" name="osTypeName" ng-model="fields.osType"
+								data-ng-change="getFlavors(true)">
+								<option value="" disabled selected hidden>Select OSType</option>
+								<option ng-repeat="os in failures.osType">{{os}}</option>
+							</select>
+						</div>
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="flavourAddFPId">Flavor<span
+									ng-show="mandatoryFields">*</span></label> <a><span title="Flavor"
+									class="glyphicon glyphicon-question-sign pull-right"></span></a> <select
+									id="flavourAddFPId" name="flavor" class="form-control"
+									ng-model="fields.flavor" ng-disabled="fields.osType">
+									<option value="" disabled selected hidden>Select Flavor</option>
+									<option ng-repeat="flavor in flavors">{{flavor}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="failureCategoryAddFPId">Failure Category<span
+									ng-show="mandatoryFields">*</span></label> <select
+									id="failureCategoryAddFPId" name="failureCategory"
+									class="form-control" ng-model="fields.failureCategory"
+									data-ng-change="getSubCategory()">
+									<option value="" disabled selected hidden>Select Category</option>
+									<option ng-repeat="category in failures.failureCategory">{{category}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+							<div class="form-group">
+								<label for="failureSubCategoryAddFPId">Failure Sub
+									Category<span ng-show="mandatoryFields">*</span>
+								</label> <select id="failureSubCategoryAddFPId"
+									name="failureSubCategory" class="form-control"
+									ng-model="fields.failureSubCategory"
+									ng-disabled="fields.failureCategory =='hardware'">
+									<option value="" disabled selected hidden>Select Failure Sub Category</option>
+									<option ng-repeat="subCategory in failureSubCategories">{{subCategory}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					</tab> </tabset>
+					<hr
+						style="border-top: 1px dotted #000; background-color: transparent;">
+					<div class="row">
+						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-right">
+							<div class="btn-group pull-right">
+								<button class="btn btn-primary pull-right"
+									id="addMonkeyStrategy" type="submit">Clone</button>
+								<button class="btn btn-link pull-right" id="resetMonkeyStrategy"
+									ng-click="resetCloneMonkeyForm()" type="reset">
+									<b>Reset</b>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div id="myModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<!-- dialog body -->
+			<div class="modal-body">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				Success
+			</div>
+			<!-- dialog buttons -->
+			<div class="modal-footer">
+				<p>
+				<h2>{{updatedStrategy}}</h2>
+				Monkey strategy is Cloned successfully.
+				</p>
+				<button type="button" id="close" class="closed">View Monkey
+					Strategies</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modalWriteScript" class="modal fade">
+	<div id="myDialog" class="modal-dialog"
+		style="height: 80%; width: 80%;">
+		<div id="myContent" class="modal-content">
+			<form name="addScript">
+				<!-- dialog body -->
+				<div class="modal-header" style="height: 15%">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h5 class="modal-title">View Script</h5>
+				</div>
+
+				<div id="myBody" class="modal-body">
+					<textarea ng-disabled="true" placeholder="Write Script"
+						ng-model="cloneScript"
+						style="height: 300px; width: 100%; resize: none;"></textarea>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" ng-click="scriptComplete()"
+						data-dismiss="modal">OK</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div id="modalCloneScript" class="modal fade">
+	<div id="myDialog" class="modal-dialog"
+		style="height: 80%; width: 80%;">
+		<div id="myContent" class="modal-content">
+			<form name="addScript">
+				<!-- dialog body -->
+				<div class="modal-header" style="height: 15%">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h5 class="modal-title">{{btnScriptVal}}</h5>
+				</div>
+
+				<div id="myBody" class="modal-body">
+					<textarea placeholder="Write Script" ng-model="cloneScript"
+						style="height: 300px; width: 100%; resize: none;"></textarea>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-link" data-dismiss="modal"
+						data-ng-click="cancelScript()">Cancel</button>
+					<button class="btn btn-primary" ng-click="scriptComplete()"
+						data-dismiss="modal">Save Script</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

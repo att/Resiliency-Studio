@@ -1,0 +1,444 @@
+ [
+	{
+		"applicationName": "AICTEST7",
+		"id": "AVYoYv7UfTHWIraRmH7w",
+		"category": "Application",
+		"environmentMap": {
+			"UAT": {
+				"name": "UAT",
+				"tierMap": {
+					"App": {
+						"name": "App",
+						"serverList": [
+							{
+								"hostName": "http://qaappserver.com/",
+								"instanceName": "AppServer1",
+								"userName": "you",
+								"password": "yourpassword",
+								"swComps": [
+									{
+										"serverComponentName": "sw1",
+										"processName": "p1"
+									}
+								],
+								"memory": "8GB",
+								"storage": "512GB",
+								"operatingSystem": "Linux",
+								"ipAddress": "1.0.0.1",
+								"operatingSystemType": "64bit",
+								"tier": "App",
+								"monitor": [
+									{
+										"counterType": "m1",
+										"monitorApi": "m4"
+									},
+									{
+										"counterType": "m3",
+										"monitorApi": "mm3"
+									},
+									{
+										"counterType": "m4",
+										"monitorApi": "mm4"
+									},
+									{
+										"counterType": "m5",
+										"monitorApi": "mm5"
+									},
+									{
+										"counterType": "m6",
+										"monitorApi": "mm6"
+									},
+									{
+										"counterType": "m7",
+										"monitorApi": "mm7"
+									},
+									{
+										"counterType": "m8",
+										"monitorApi": "mm8"
+									},
+									{
+										"counterType": "m9",
+										"monitorApi": "mm9"
+									},
+									{
+										"counterType": "m10",
+										"monitorApi": "mm10"
+									},
+									{
+										"counterType": "m11",
+										"monitorApi": "mm11"
+									},
+									{
+										"counterType": "m12",
+										"monitorApi": "mm12"
+									},
+									{
+										"counterType": "m13",
+										"monitorApi": "mm13"
+									},
+									{
+										"counterType": "m14",
+										"monitorApi": "mm14"
+									}
+								],
+								"log": [
+									{
+										"logType": "lt1",
+										"logLocation": "ltl4"
+									}
+								],
+								"discoveryApi": [
+									{
+										"discoveryApiDescription": "Discovery 3",
+										"discoveryApi": "https://discover/host?a=m"
+									},
+									{
+										"discoveryApiDescription": "Discovery 4",
+										"discoveryApi": "https://idiscovery/host?a=m"
+									}
+								]
+							}
+						]
+					},
+					"DB": {
+						"name": "DB",
+						"serverList": [
+							{
+								"hostName": "http://dbserver.com/",
+								"instanceName": "DBServer1",
+								"userName": "you",
+								"password": "yourpassword",
+								"swComps": [
+									{
+										"serverComponentName": "DB server",
+										"processName": "oracle"
+									}
+								],
+								"memory": "8GB",
+								"storage": "1TB",
+								"operatingSystem": "Linux",
+								"ipAddress": "1.0.0.1",
+								"operatingSystemType": "32bit",
+								"tier": "DB",
+								"monitor": [
+									{
+										"counterType": "m1",
+										"monitorApi": "m4"
+									}
+								],
+								"log": [
+									{
+										"logType": "l1",
+										"logLocation": "ll4"
+									}
+								],
+								"discoveryApi": [
+									{
+										"discoveryApiDescription": "Discovery 1",
+										"discoveryApi": "https://discovery/host?a=m"
+									},
+									{
+										"discoveryApiDescription": "Discovery 2",
+										"discoveryApi": "https://discovery/host?b=n"
+									}
+								]
+							}
+						]
+					}
+				}
+			}
+		},
+		"networkArchitectureDiagram": null
+	},
+	{
+		"applicationName": "AIC",
+		"id": "AVYicdQLfTHWIraRmH2T",
+		"category": "Platform",
+		"environmentMap": {
+			"QA": {
+				"name": "QA",
+				"tierMap": {
+					
+				}
+			},
+			"PRODUCTION": {
+				"name": "PRODUCTION",
+				"tierMap": {
+					
+				}
+			},
+			"DEV": {
+				"name": "DEV",
+				"tierMap": {
+					"Compute": {
+						"name": "Compute",
+						"serverList": [
+							{
+								"hostName": "compute01.com",
+								"instanceName": "compute01",
+								"userName": "admin",
+								"password": "admin",
+								"swComps": [
+									{
+										"serverComponentName": null,
+										"processName": "nova-agent"
+									},
+									{
+										"serverComponentName": null,
+										"processName": "kproc"
+									},
+									{
+										"serverComponentName": null,
+										"processName": "contrail-agent"
+									}
+								],
+								"memory": "32GB",
+								"storage": "1TB",
+								"operatingSystem": "Linux",
+								"ipAddress": "1.0.0.1",
+								"operatingSystemType": "64bit",
+								"tier": "Compute",
+								"monitor": [
+									{
+										"id": null,
+										"counterType": "CPU",
+										"monitorApi": "http://cpu.com"
+									},
+									{
+										"id": null,
+										"counterType": "Memory",
+										"monitorApi": "http://cpu.com"
+									}
+								],
+								"log": [
+									{
+										"id": null,
+										"logType": "Compute logs",
+										"logLocation": "http://logs"
+									},
+									{
+										"id": null,
+										"logType": "HAProxy logs",
+										"logLocation": "http://logs"
+									},
+									{
+										"id": null,
+										"logType": null,
+										"logLocation": "http://log"
+									}
+								],
+								"discoveryApi": [
+									{
+										"discoveryApiDescription": null,
+										"discoveryApi": "http://.com"
+									},
+									{
+										"discoveryApiDescription": null,
+										"discoveryApi": "http://.com"
+									},
+									{
+										"discoveryApiDescription": "discovery3",
+										"discoveryApi": "http://nova.com"
+									}
+								]
+							}
+						]
+					},
+					"Controller": {
+						"name": "Controller",
+						"serverList": [
+							{
+								"hostName": "mosc01.com",
+								"instanceName": "mosc01",
+								"userName": "root",
+								"password": "root",
+								"swComps": [
+									{
+										"serverComponentName": null,
+										"processName": "nova-agent"
+									},
+									{
+										"serverComponentName": null,
+										"processName": "contrail-agent"
+									}
+								],
+								"memory": "64GB",
+								"storage": "1TB",
+								"operatingSystem": "Linux",
+								"ipAddress": "1.8.1.2",
+								"operatingSystemType": "64bit",
+								"tier": "Controller",
+								"monitor": [
+									{
+										"id": null,
+										"counterType": "cpu",
+										"monitorApi": "http://.com"
+									},
+									{
+										"id": null,
+										"counterType": "memory",
+										"monitorApi": "http://memory.com"
+									}
+								],
+								"log": [
+									{
+										"id": null,
+										"logType": "controller logs",
+										"logLocation": "http://mosc01.com/app/logs"
+									},
+									{
+										"id": null,
+										"logType": "mosc logs",
+										"logLocation": "http://mosc02.com/app/logs"
+									}
+								],
+								"discoveryApi": [
+									{
+										"discoveryApiDescription": null,
+										"discoveryApi": "http://mosc01.com"
+									},
+									{
+										"discoveryApiDescription": null,
+										"discoveryApi": "http://mosc02.com"
+									}
+								]
+							}
+						]
+					}
+				}
+			}
+		},
+		"networkArchitectureDiagram": null
+	},
+	{
+		"applicationName": "AICTEST2",
+		"id": "AVYgo5STfTHWIraRmH08",
+		"category": "Application1",
+		"environmentMap": {
+			"UAT": {
+				"name": "UAT",
+				"tierMap": {
+					"App": {
+						"name": "App",
+						"serverList": [
+							{
+								"hostName": "http://qawebserver.com/",
+								"instanceName": "WebServer1",
+								"userName": "you",
+								"password": "yourpassword",
+								"swComps": [
+									{
+										"serverComponentName": null,
+										"processName": "nova-agent"
+									},
+									{
+										"serverComponentName": null,
+										"processName": "contrail-agent"
+									}
+								],
+								"memory": "8GB",
+								"storage": null,
+								"operatingSystem": "Linux",
+								"ipAddress": "1.0.0.1",
+								"operatingSystemType": null,
+								"tier": "App",
+								"monitor": null,
+								"log": null,
+								"discoveryApi": null
+							},
+							{
+								"hostName": "http://qawebserver.com/",
+								"instanceName": "WebServer2",
+								"userName": "you",
+								"password": "yourpassword",
+								"swComps": [
+									{
+										"serverComponentName": "web",
+										"processName": "nova-agent"
+									},
+									{
+										"serverComponentName": "tomcat",
+										"processName": "contrail-agent"
+									},
+									{
+										"serverComponentName": "tomcat1",
+										"processName": "contrail-agent"
+									}
+								],
+								"memory": "8GB",
+								"storage": null,
+								"operatingSystem": "Linux",
+								"ipAddress": "1.0.0.2",
+								"operatingSystemType": null,
+								"tier": "App",
+								"monitor": null,
+								"log": null,
+								"discoveryApi": null
+							}
+						]
+					}
+				}
+			}
+		},
+		"networkArchitectureDiagram": null
+	},
+	{
+		"applicationName": "RIC",
+		"id": "AVYgo5STfTHWIraRmH09",
+		"category": "Application1",
+		"environmentMap": {
+			"UAT": {
+				"name": "UAT",
+				"tierMap": {
+					"App": {
+						"name": "App",
+						"serverList": [
+							{
+								"hostName": "http://qawebserver.com/",
+								"instanceName": "WebServer1",
+								"userName": "you",
+								"password": "yourpassword",
+								"swComps": [
+									{
+										"serverComponentName": null,
+										"processName": "nova-agent"
+									},
+									{
+										"serverComponentName": null,
+										"processName": "contrail-agent"
+									}
+								],
+								"memory": "8GB",
+								"storage": null,
+								"operatingSystem": "Linux",
+								"ipAddress": "1.0.0.1",
+								"operatingSystemType": null,
+								"tier": "App",
+								"monitor": null,
+								"log": null,
+								"discoveryApi": null
+							},
+							{
+								"hostName": "http://qawebserver.com/",
+								"instanceName": "WebServer2",
+								"userName": "you",
+								"password": "yourpassword",
+								"swComps": null,
+								"memory": "8GB",
+								"storage": null,
+								"operatingSystem": "Linux",
+								"ipAddress": "1.0.0.1",
+								"operatingSystemType": null,
+								"tier": "App",
+								"monitor": null,
+								"log": null,
+								"discoveryApi": null
+							}
+						]
+					}
+				}
+			}
+		},
+		"networkArchitectureDiagram": null
+	}
+]

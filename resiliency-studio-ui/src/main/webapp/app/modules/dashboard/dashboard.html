@@ -1,0 +1,220 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+<style>
+body {
+	background: #fff;
+	background: #3c3f41;
+}
+</style>
+<div id="page-wrapper" class="dashboard-page">
+
+	<div class="container-fluid">
+
+		<div class="row">
+
+			<div class="content">
+				<div class="col-lg-3 col-custom-width">
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								<strong>Applications</strong>
+							</h3>
+						</div>
+						<div class="panel-body">
+							<div class="col-sm-6 col-lg-6"
+								ng-if="UserPrivilege=='power' || UserPrivilege=='admin'">
+								<a href="#/onboardApplication">
+									<div class="cards teal">
+										<div class="card-content">
+											<span class="mif-plus icon"></span>
+										</div>
+										<div class="footer">Onboard Application</div>
+									</div>
+								</a>
+							</div>
+							<div class="col-sm-6 col-lg-6">
+								<a href="#/viewApplication">
+									<div class="cards teal">
+										<div class="card-content">
+											<span class="badge">{{applicationCount}}</span> <span
+												class="icon mif-eye"></span>
+										</div>
+										<div class="footer">View Application</div>
+									</div>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-5 col-lg-5">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								<strong>Scenarios </strong>
+							</h3>
+						</div>
+						<div class="panel-body">
+							<div class="col-sm-6 col-md-4 col-lg-4"
+								ng-if="UserPrivilege=='power' || UserPrivilege=='admin'">
+								<a href="#/createScenario">
+									<div class="cards orange">
+										<div class="card-content">
+											<span class="mif-plus icon"></span>
+										</div>
+										<div class="footer">Create Scenario</div>
+									</div>
+								</a>
+							</div>
+							<div class="col-sm-6 col-md-4 col-lg-4">
+								<a href="#/viewScenario">
+									<div class="cards orange">
+										<div class="card-content">
+											<span class="badge">{{scenarioCount}}</span> <span
+												class="icon mif-eye"></span>
+										</div>
+										<div class="footer">View Scenario</div>
+									</div>
+								</a>
+							</div>
+							<div class="col-sm-6 col-md-4 col-lg-4">
+								<a href="#/executeScenario">
+									<div class="cards orange">
+										<div class="card-content">
+											<span class="icon mif-file-play"></span>
+										</div>
+										<div class="footer">Execute Scenario</div>
+									</div>
+								</a>
+							</div>
+							<div class="col-sm-6 col-md-4 col-lg-4">
+								<a href="#/executionDashboard">
+									<div class="cards orange">
+										<div class="card-content">
+											<span class="mif-chart-bars icon"></span>
+										</div>
+										<div class="footer">Execution Dashboard</div>
+									</div>
+								</a>
+							</div>
+							<div class="col-sm-6 col-md-4 col-lg-4">
+								<a href="#/scenariosRunYTD">
+									<div class="cards orange">
+										<div class="card-content">
+											<span class="badge">{{scenarioRunYTDCount}}</span> <span
+												class="icon mif-power"></span>
+										</div>
+										<div class="footer">Scenarios Run YTD</div>
+									</div>
+								</a>
+							</div>
+							<!-- <div class="col-sm-6 col-md-4 col-lg-4" ng-if="UserPrivilege=='admin'">
+								<a href="#/failurePoint">
+									<div class="cards blue">
+										<div class="card-content">
+											<span class="icon mif-unlink"></span>
+										</div>
+										<div class="footer">Failure Point</div>
+									</div>
+									</a>
+								</div> -->
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-3 col-custom-width">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								<strong>Monkey Strategies </strong>
+							</h3>
+						</div>
+						<div class="panel-body">
+
+							<div class="col-sm-6 col-lg-6">
+								<a id="chaosMonkey" data-role="tile"
+									ng-href="#/viewMonkeyStrategies/0">
+									<div class="cards blue">
+										<div class="card-content">
+											<span class="badge">{{ChaosLength}}</span> <span
+												class="icon mif-hammer"></span>
+										</div>
+										<div class="footer">CHAOS</div>
+									</div>
+								</a>
+							</div>
+
+
+							<div class="col-sm-6 col-lg-6">
+								<a id="doctorMonkey" data-role="tile"
+									ng-href="#/viewMonkeyStrategies/1">
+									<div class="cards blue">
+										<div class="card-content">
+											<span class="badge">{{DoctorLength}}</span> <span
+												class="icon mif-user-plus"></span>
+										</div>
+										<div class="footer">DOCTOR</div>
+									</div>
+								</a>
+							</div>
+							<div class="col-sm-6 col-lg-6">
+								<a id="latencyMonkey" data-role="tile"
+									ng-href="#/viewMonkeyStrategies/2">
+									<div class="cards blue">
+										<div class="card-content">
+											<span class="badge">{{LatencyLength}}</span> <span
+												class="icon mif-wifi-full"></span>
+										</div>
+										<div class="footer">LATENCY</div>
+									</div>
+								</a>
+							</div>
+							<div class="col-sm-6 col-lg-6"
+								ng-if="UserPrivilege=='power' || UserPrivilege=='admin'">
+								<a href="#/addMonkeyStrategy">
+									<div class="cards mauve">
+										<div class="card-content">
+											<span class="mif-plus icon"></span>
+										</div>
+										<div class="footer">Add Monkey Strategy</div>
+									</div>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.row -->
+
+	</div>
+	<!-- /.container-fluid -->
+
+</div>

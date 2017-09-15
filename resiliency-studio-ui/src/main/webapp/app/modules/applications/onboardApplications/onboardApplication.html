@@ -1,0 +1,893 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+<div class="row cells12  ">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<ul class="breadcrumbs dark">
+			<li><a href="#/dashboard"><span class="icon mif-home"></span></a></li>
+			<li>Add Application</li>
+			<li ng-if="isDelete">Delete Application</li>
+		</ul>
+	</div>
+</div>
+
+<div class="row cells12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<div class="panel " data-role="panel">
+			<div class="heading bg-grayLight">
+				<span class="icon mif-alarm  bg-gray"></span> <span class="title">Add
+					Application</span> <span class="title" ng-if="isDelete">Delete
+					Application</span>
+			</div>
+			<div class="content bg-white padding20">
+				<div class="container">
+					<div class="alert alert-danger alert-dismissable marginLeft3"
+						ng-show="showduplicateerrorAlert">
+						<a href="" class="close" data-hide="alert" aria-label="close">&times;</a>
+						<strong>Oops </strong> {{errormessage}}.
+					</div>
+					<div class="alert alert-success alert-dismissable marginLeft3"
+						ng-show="showSuccessAlert">
+						<a href="" class="close" data-hide="alert" aria-label="close">&times;</a>
+						<strong>{{onboardApp}} </strong> Application onboarded
+						successfully. <a href="#/viewApplication" class="closed"
+							ng-show="showSuccessAlert">View Application</a>
+
+					</div>
+
+					<form role="form" name="addAppForm" id="my-form"
+						ng-submit="submitMyForm()" novalidate>
+						<ul class="timeline">
+							<li>
+								<div class="timeline-badge">1</div>
+								<div class="timeline-panel">
+									<div class="timeline-body">
+
+
+										<fieldset>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group"
+														ng-class="{ 'has-error': addAppForm.applicationName.$touched && addAppForm.applicationName.$invalid }">
+														<label class="control-label" for="applicationNameTextbox">Application
+															Name*</label> <input class="form-control" name="applicationName"
+															ng-pattern="/^[a-zA-Z0-9-():~+/&.,_\s]*$/"
+															ng-model="appfields.applicationName"
+															id="applicationNameTextbox"
+															placeholder="Enter Application Name" type="text"
+															ng-disabled="isEdit" required>
+														<p class="help-block"
+															ng-show="addAppForm.applicationName.$invalid && !addAppForm.applicationName.$pristine">Application
+															Name is invalid.</p>
+													</div>
+												</div>
+
+											</div>
+											<div class="row">
+
+
+												<div class="col-md-3">
+													<div class="form-group">
+														<label for="environmentMOTSOFF">Environment*</label> <select
+															id="environmentMOTSOFF" name="environmentName"
+															class="form-control" ng-model="appfields.environmentName"
+															ng-change="selectEnvironmentName_LoadTab()"
+															ng-disabled="isEdit" required>
+															<option value="" disabled selected hidden>Select
+                                                   Environment
+                                                </option>
+															<option ng-repeat="x in applications.environmentMapLists">{{x}}</option>
+														</select>
+													</div>
+												</div>
+
+
+
+												<div class="col-md-3">
+													<div class="form-group">
+														<label for="category">Category*</label> <select
+															id="categoryMOTSOFF" name="category" class="form-control"
+															ng-model="appfields.category" required>
+															<option value="" disabled selected hidden>Select
+                                                   Category
+                                                </option>
+															<option ng-repeat="x in applications.categoryLists">{{x}}</option>
+														</select>
+													</div>
+												</div>
+												<div class="form-group col-md-3">
+													<label for="discoveryModeMOTSOFF">Discovery Mode</label> <select
+														id="discoveryModeMOTSOFF" class="form-control"
+														ng-disabled="true" ng-model="ToggleSwitch"
+														ng-options="option.name for option in optionsManuual">
+													</select>
+												</div>
+												<div class="col-md-3">
+													<div class="form-group"
+														ng-class="{ 'has-error': addAppForm.networkArchitectureURL.$touched && addAppForm.networkArchitectureURL.$invalid }">
+														<label for="networkArchitectureURL">Network
+															Architecture</label> <input type="url" class="form-control"
+															name="networkArchitectureURL"
+															ng-model="appfields.networkArchitectureURL"
+															placeholder="Enter Network URL">
+
+														<p class="help-block"
+															ng-show="addAppForm.networkArchitectureURL.$invalid && !addAppForm.networkArchitectureURL.$pristine">*Invalid
+															image url.</p>
+													</div>
+												</div>
+
+											</div>
+
+										</fieldset>
+										<div class="row">
+											<div class="col-xs-12 col-md-12">
+												<div class="pull-right marginB10"></div>
+												<div class="pull-right marginB10"></div>
+												<br>
+												<div></div>
+											</div>
+											<div class="clearfix"></div>
+										</div>
+									</div>
+								</div>
+							</li>
+
+
+
+							<li ng-hide="ToggleSwitch.value" ng-show="MetricsGrid">
+								<div class="timeline-badge">2</div>
+								<div class="timeline-badge" ng-show="ToggleSwitch.value">5</div>
+								<div class="timeline-panel">
+									<span ng-show="SDpanel" class="serverIcon"><span
+										role="button" data-target="#demo1"
+										class="pheading glyphicon glyphicon-plus-sign"
+										data-toggle="collapse" ng-click="serverpanel()"></span>&nbsp;Server
+										Details </span> <span ng-hide="SDpanel" class="serverIcon"><span
+										role="button" data-target="#demo1"
+										class="pheading glyphicon glyphicon-minus-sign"
+										data-toggle="collapse" ng-click="serverpanel()"></span>&nbsp;Server
+										Details </span>
+									<div id="demo1" class="collapse in">
+										<div class="panel-heading">
+
+											<div class="pull-right marginB10" id="clearServer">
+												<a id="addServerButton"
+													class="btn icon-btn btn-success btn-default pull-right"
+													ng-click="addServer();OutOfFocus()"><span
+													class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>Server</a>
+											</div>
+										</div>
+										<br> <br>
+										<div class="timeline-body">
+											<div class="panel-group" id="accordion" role="tablist"
+												aria-multiselectable="true">
+												<div class="panel panel-default template"
+													ng-repeat="fields in loadTab track by $index "
+													on-last-repeat>
+													<div class="panel-heading" role="tab"
+														id="heading{{$index}}">
+														<h4 class="panel-title">
+															<a class="collapsed accordion-toggle" role="button"
+																data-toggle="collapse" data-parent="#accordion"
+																style="display: block; cursor: pointer;"
+																href="addApplication#collapse{{$index}}"
+																aria-controls="collapse{{$index}}">Server
+																#{{$index+1}} - {{fields.hostName}}</a>
+														</h4>
+														<div class="pull-right marginNT20">
+
+															<a class="btn btn-sm icon-btn btn-info"
+																ng-click="tabReset(fields,$index+1,0)"
+																ng-disabled="addAppForm.instanceName{{$index}}.$invalid && addAppForm.hostName{{$index}}.$invalid && addAppForm.ipAddress{{$index}}.$invalid"><span
+																class="glyphicon btn-glyphicon glyphicon-refresh img-circle text-info"></span>Reset</a>
+															<a
+																class="btn btn-sm icon-btn btn-warning btn-delete-panel"
+																ng-click="removeServer($index);OutOfFocus()"
+																ng-disabled="loadTab.length == 1"><span
+																class="glyphicon btn-glyphicon glyphicon-minus img-circle text-warning"></span>Remove</a>
+														</div>
+														<div class="clearfix"></div>
+													</div>
+													<div id="collapse{{$index}}"
+														class="panel-collapse collapse in" role="tabpanel"
+														aria-labelledby="heading{{$index}}" aria-expanded="true">
+														<div class="panel-body">
+															<div class="step_21">
+																<div class="row">
+																	<div class="col-xs-12 col-md-12">
+																		<div class="wizard">
+																			<div class="wizard-inner">
+																				<div class="connecting-line"></div>
+																				<ul class="nav nav-tabs" role="tablist">
+																					<li class="active tab_{{$index}}"
+																						role="presentation">
+																						<p class="accdheading">Server</p> <a
+																						aria-controls="step1"
+																						id="serverTabstep1{{$index}}" data-toggle="tab"
+																						href="addApplication#step1{{$index}}" role="tab"
+																						title="Step 1"><span class="round-tab">1</span></a>
+																					</li>
+
+																					<li role="presentation">
+																						<p class="accdheading">Credentials</p> <a
+																						aria-controls="step2" data-toggle="tab"
+																						href="addApplication#step2{{$index}}" role="tab"
+																						title="Step 2"><span class="round-tab">2</span></a>
+																					</li>
+																					<li role="presentation">
+																						<p class="accdheading">S/W Components</p> <a
+																						aria-controls="step3" data-toggle="tab"
+																						href="addApplication#step3{{$index}}" role="tab"
+																						title="Step 3"><span class="round-tab">3</span></a>
+																					</li>
+																					<li role="presentation">
+																						<p class="accdheading">Discovery</p> <a
+																						aria-controls="step4" data-toggle="tab"
+																						href="addApplication#step4{{$index}}" role="tab"
+																						title="Step 4"><span class="round-tab">4</span></a>
+																					</li>
+																					<li role="presentation">
+																						<p class="accdheading">Monitor</p> <a
+																						aria-controls="step5" data-toggle="tab"
+																						href="addApplication#step5{{$index}}" role="tab"
+																						title="Step 5"><span class="round-tab">5</span></a>
+																					</li>
+																					<li role="presentation">
+																						<p class="accdheading">Logs</p> <a
+																						aria-controls="complete" data-toggle="tab"
+																						href="addApplication#complete{{$index}}"
+																						role="tab" title="Complete"><span
+																							class="round-tab">6</span></a>
+																					</li>
+																				</ul>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																<div class="tab-content" id="serverDetails">
+																	<div class="tab-pane active" id="step1{{$index}}"
+																		name="servertab" role="tabpanel">
+																		<div class="row">
+
+																			<div class="col-md-6">
+																				<div class="form-group"
+																					ng-class="{ 'has-error': addAppForm.instanceName{{$index}}.$touched && addAppForm.instanceName{{$index}}.$invalid }">
+																					<label class="control-label"
+																						for="serverNameText{{$index}}">Server
+																						Name*</label> <input class="form-control"
+																						id="serverNameText{{$index}}"
+																						placeholder="Enter Server Name"
+																						name="instanceName{{$index}}" type="text"
+																						ng-pattern="/^[+a-zA-Z0-9-():/&.,_\s]*$/"
+																						ng-model="fields.instanceName"
+																						ng-change="OutOfFocus()" required>
+																					<p class="help-block"
+																						ng-show="addAppForm.instanceName{{$index}}.$invalid && !addAppForm.instanceName{{$index}}.$pristine">Invalid
+																						ServerName.</p>
+																				</div>
+																			</div>
+
+																			<div class="col-md-6">
+																				<div class="form-group"
+																					ng-class="{ 'has-error': addAppForm.ipAddress{{$index}}.$touched && addAppForm.ipAddress{{$index}}.$invalid }">
+																					<label class="control-label"
+																						for="ipAddressText{{$index}}">IP Address*</label>
+																					<input id="ipAddressText{{$index}}"
+																						class="form-control"
+																						placeholder="Enter IP Address" type="text"
+																						name="ipAddress{{$index}}"
+																						ng-pattern="/^([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})[.]([0-9]{1,3})$/"
+																						ng-model="fields.ipAddress"
+																						ng-change="OutOfFocus($index,fields.ipAddress)"
+																						required>
+																					<p class="help-block"
+																						ng-show="addAppForm.ipAddress{{$index}}.$invalid && !addAppForm.ipAddress{{$index}}.$pristine">Invalid
+																						IP Address.</p>
+																				</div>
+																			</div>
+																		</div>
+																		<div class="row">
+																			<div class="col-md-6">
+																				<div class="form-group"
+																					ng-class="{ 'has-error': addAppForm.hostName{{$index}}.$touched && addAppForm.hostName{{$index}}.$invalid }">
+																					<label for="hostNameText{{$index}}">Host
+																						Name*</label> <input class="form-control"
+																						id="hostNameText{{$index}}"
+																						placeholder="Enter Host Name" type="text"
+																						name="hostName{{$index}}"
+																						ng-pattern="/^[a-zA-Z0-9-.\s]*$/"
+																						ng-model="fields.hostName"
+																						ng-change="OutOfFocus($index,fields.hostName)"
+																						required>
+																					<p class="help-block"
+																						ng-show="addAppForm.hostName{{$index}}.$invalid && !addAppForm.hostName{{$index}}.$pristine">*Invalid
+																						HostName</p>
+																				</div>
+																			</div>
+																			<div class="col-md-6">
+
+																				<div class="form-group">
+																					<label for="cpuSelect{{$index}}">CPU</label> <select
+																						id="cpuSelect{{$index}}" class="form-control"
+																						ng-model="fields.cpu">
+																						<ul aria-labelledby="dropdownMenu1"
+																							class="dropdown-menu">
+																							<option value="" disabled selected hidden>Select
+                        CPU</option>
+																							<option ng-repeat="x in applications.cpu">{{x}}</option>
+																							<option
+																								ng-repeat="x in autoDisCPU track by $index">{{x}}</option>
+																						</ul>
+																					</select>
+																				</div>
+																			</div>
+																		</div>
+																		<div class="row">
+
+
+																			<div class="col-md-6">
+																				<div class="form-group">
+																					<label for="osSelect{{$index}}">Operating
+																						System</label> <select id="osSelect{{$index}}"
+																						class="form-control"
+																						ng-model="fields.operatingSystem">
+																						<ul aria-labelledby="dropdownMenu1"
+																							class="dropdown-menu">
+																							<option value="" disabled selected hidden>Select
+                        Operating System</option>
+
+																							<option
+																								ng-repeat="x in applications.operatingSystem">{{x}}</option>
+																						</ul>
+																					</select>
+																				</div>
+																			</div>
+																			<div class="col-md-6">
+																				<div class="form-group">
+																					<label for="storageSelect{{$index}}">Storage</label>
+
+																					<input class="form-control"
+																						placeholder="Enter Storage" type="text"
+																						id="storageSelect{{$index}}"
+																						name="storage{{$index}}"
+																						ng-pattern="/^[0-9.]+(GB|TB|gb|Gb|gB|tb|Tb|tB)$/"
+																						ng-model="fields.storage"
+																						style="text-transform: uppercase">
+																					<p
+																						ng-show="addAppForm.storage{{$index}}.$invalid && !addAppForm.storage{{$index}}.$pristine">*Invalid
+																						Storage, should ends with GB or TB</p>
+																				</div>
+																			</div>
+																		</div>
+																		<div class="row">
+																			<div class="col-md-6">
+																				<div class="form-group">
+																					<label for="osTypeSelect{{$index}}">Operating
+																						System Type</label> <select id="osTypeSelect{{$index}}"
+																						class="form-control"
+																						ng-model="fields.operatingSystemType">
+																						<ul aria-labelledby="dropdownMenu1"
+																							class="dropdown-menu">
+																							<option value="" disabled selected hidden>Select
+                        Operating System Type</option>
+																							<option
+																								ng-repeat="x in applications.operatingSystemType">{{x}}</option>
+																						</ul>
+																					</select>
+																				</div>
+																			</div>
+																			<div class="col-md-6">
+																				<div class="form-group">
+																					<label for="memorySelect{{$index}}">Memory</label>
+
+																					<input class="form-control"
+																						placeholder="Enter Memory" type="text"
+																						id="memorySelect{{$index}}"
+																						name="memory{{$index}}"
+																						ng-pattern="/^[0-9]+(GB|gb|Gb|gB)$/"
+																						ng-model="fields.memory"
+																						style="text-transform: uppercase">
+																					<p
+																						ng-show="addAppForm.memory{{$index}}.$invalid && !addAppForm.memory{{$index}}.$pristine">*Invalid
+																						Memory, should ends with GB</p>
+																				</div>
+																			</div>
+																		</div>
+																		<div class="row">
+																			<div class="col-md-6">
+																				<div class="form-group">
+																					<label for="roleSelect{{$index}}">Role</label> <input
+																						class="form-control" placeholder="Enter Role"
+																						type="text" id="roleSelect{{$index}}"
+																						name="role{{$index}}" ng-model="fields.roles">
+																				</div>
+																			</div>
+																			<div class="col-md-2"></div>
+																		</div>
+																		<ul class="list-inline pull-right">
+																			<li ng-hide="ToggleSwitchMots"><button
+																					id="nextButton" class="btn btn-primary next-step"
+																					ng-click="serverClick($index,true)" type="button"
+																					ng-disabled="addAppForm.instanceName{{$index}}.$invalid || (addAppForm.hostName{{$index}}.$invalid && addAppForm.ipAddress{{$index}}.$invalid) || addAppForm.tier{{$index}}.$invalid">Next</button></li>
+																			<li ng-show="ToggleSwitchMots"><button
+																					id="nextButton" class="btn btn-primary next-step"
+																					ng-click="serverClick($index,true)" type="button"
+																					ng-disabled="addAppForm.instanceName{{$index}}.$invalid ||(addAppForm.hostName{{$index}}.$invalid && addAppForm.ipAddress{{$index}}.$invalid) || addAppForm.tier{{$index}}.$invalid">Next</button></li>
+																		</ul>
+																	</div>
+																	<div class="tab-pane" id="step2{{$index}}"
+																		role="tabpanel">
+																		<div class="row">
+																			<div class="col-xs-12 col-md-12">
+																				<div class="row">
+																					<div class="col-md-6">
+																						<div class="form-group"
+																							ng-class="{ 'has-error': addAppForm.userName{{$index}}.$touched && addAppForm.userName{{$index}}.$invalid }">
+																							<label class="control-label"
+																								for="userNameText{{$index}}">User Name*</label>
+																							<input class="form-control"
+																								id="userNameText{{$index}}"
+																								placeholder="Enter User Name" type="text"
+																								name="userName{{$index}}"
+																								ng-pattern="/^[a-zA-Z0-9-_\s]*$/"
+																								ng-model="fields.userName"
+																								ng-change="OutOfFocus($index,fields.userName)"
+																								required>
+																							<p class="help-block"
+																								ng-show="addAppForm.userName{{$index}}.$invalid && !addAppForm.userName{{$index}}.$pristine">*Invalid
+																								Username.</p>
+																						</div>
+
+
+																					</div>
+																					<div class="col-md-6">
+																						<label for="password{{$index}}">Password</label> <input
+																							class="form-control" id="password{{$index}}"
+																							placeholder="Enter Password Here" type="password"
+																							ng-model="fields.password"
+																							ng-focus="$scope.password=true"
+																							ng-blur="$scope.password=false"
+																							ng-disabled="$scope.privatekey || fields.privatekey.length >0 || fields.rsaLogin">
+																					</div>
+																				</div>
+																				<div class="row">
+																					<div class="col-md-6">
+																						<label for="privateKey{{$index}}">Private
+																							Key</label>
+																						<textarea class="form-control"
+																							id="privateKey{{$index}}"
+																							placeholder="Enter Private Key" rows="5"
+																							ng-model="fields.privatekey"
+																							ng-focus="$scope.privatekey=true"
+																							ng-blur="$scope.privatekey=false"
+																							ng-disabled="$scope.password || fields.password.length > 0 || fields.rsaLogin"></textarea>
+																					</div>
+																					<div class="col-md-6">
+																						<input type="checkbox" id="rsaLogin{{$index}}"
+																							ng-model="fields.rsaLogin"
+																							ng-change="rsaLoginSwitch()"> <label
+																							for="rsaLogin{{$index}}"> &#160;RSA Login</label>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																		<ul class="list-inline pull-right">
+																			<li><button class="btn btn-primary prev-step"
+																					id="previousButton"
+																					ng-click="serverClick($index,false)" type="button">Previous</button></li>
+
+																			<li><button class="btn btn-primary next-step"
+																					ng-click="serverClick($index,true)" id="nextButton"
+																					type="button"
+																					ng-disabled=" addAppForm.userName{{$index}}.$invalid">Next</button></li>
+																		</ul>
+																	</div>
+																	<div class="tab-pane" id="step3{{$index}}"
+																		role="tabpanel">
+																		<div class="row">
+																			<div class="col-xs-12 col-md-12">
+																				<div class="pull-right marginB10">
+																					<a class="btn icon-btn btn-success"
+																						id="addSoftwareCompBtn"
+																						ng-click="addSoftwareComponents(fields)"><span
+																						class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>Software
+																						Components</a>
+																				</div>
+																			</div>
+																			<div class="clearfix"></div>
+																		</div>
+																		<div class="row">
+																			<div class="col-xs-12 col-md-12">
+																				<div class="panel-group" id="accordion2{{$index}}">
+																					<div class="panel panel-default templateSC"
+																						ng-repeat="sctab in fields.swComps track by $index ">
+																						<div class="panel-heading"
+																							ng-init="isScTab = false">
+																							<h4 class="panel-title">
+																								<a class="collapsed accordion-toggle"
+																									role="button" data-toggle="collapse"
+																									data-parent="#accordion2"
+																									href="addApplication#collapseInnerOne{{$index}}"
+																									aria-expanded="false"
+																									aria-controls="collapseInnerOne{{$index}}">Software
+																									Component #{{$index+1}} </a>
+																							</h4>
+																							<div class="pull-right marginNT20">
+																								<a class="btn btn-sm icon-btn btn-info"
+																									ng-click="tabReset(sctab,$index+1,1)"
+																									ng-disabled="!sctab.serverComponentName && !sctab.processName"><span
+																									class="glyphicon btn-glyphicon glyphicon-refresh img-circle text-info"></span>Reset</a>
+																								<a
+																									class="btn btn-sm icon-btn btn-warning btn-delete-panel-SC"
+																									ng-click="removeSoftwareComponents(fields,$index)"><span
+																									class="glyphicon btn-glyphicon glyphicon-minus img-circle text-warning"></span>Remove</a>
+																							</div>
+																							<div class="clearfix"></div>
+																						</div>
+																						<div id="collapseInnerOne{{$index}}"
+																							class="panel-collapse collapse in">
+																							<div class="panel-body">
+																								<div class="row">
+																									<div class="col-md-6 form-group"
+																										id="fromGroup{{$index}}">
+																										<label for="softwareComponentText{{$index}}">Software
+																											Component Name</label> <input class="form-control"
+																											id="softwareComponentText{{$index}}"
+																											name="serverComponentName{{$index}}"
+																											ng-change="softwareComponentChanged($index)"
+																											placeholder="Enter Software Component Name"
+																											type="text"
+																											ng-model="sctab.serverComponentName">
+
+																									</div>
+																									<div class="col-md-6">
+																										<label for="processNameText{{$index}}">Process
+																											Name</label> <input class="form-control"
+																											id="processNameText{{$index}}"
+																											name="processName{{$index}}"
+																											ng-change="processValueChanged($index)"
+																											placeholder="Enter Process Name" type="text"
+																											ng-model="sctab.processName">
+																										<p class="hide"
+																											ng-if="sctab.processName.length > 0 || sctab.serverComponentName.length > 0"
+																											ng-init="bindNext('isScTab')"></p>
+																										<p class="hide"
+																											ng-if="!sctab.processName.length > 0 && !sctab.serverComponentName.length > 0"
+																											ng-init="removeNext('isScTab')"></p>
+																									</div>
+																								</div>
+																							</div>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																		<ul class="list-inline pull-right">
+																			<li><button class="btn btn-primary prev-step"
+																					id="previousButton" type="button"
+																					ng-click="serverClick($index,false)">Previous</button></li>
+																			<li><button class="btn btn-primary next-step"
+																					type="button" id="nextButton"
+																					ng-click="serverClick($index,true)">Next</button></li>
+																		</ul>
+																	</div>
+																	<div class="tab-pane" id="step4{{$index}}"
+																		role="tabpanel">
+																		<div class="row">
+																			<div class="col-xs-12 col-md-12">
+																				<div class="pull-right marginB10">
+																					<a class="btn icon-btn btn-success "
+																						ng-click="addDiscovery(fields)"><span
+																						class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>Discovery</a>
+																				</div>
+																			</div>
+																			<div class="clearfix"></div>
+																		</div>
+																		<div class="step_33">
+																			<div class="row">
+																				<div class="col-xs-12 col-md-12">
+																					<div class="panel-group" id="accordion3{{$index}}">
+																						<div class="panel panel-default templateD"
+																							ng-repeat="dtab in fields.discoveryApi track by $index ">
+																							<div class="panel-heading">
+																								<h4 class="panel-title">
+																									<a class="collapsed accordion-toggle"
+																										role="button" data-toggle="collapse"
+																										data-parent="#accordion3"
+																										href="addApplication#collapseInnerTwo{{$index}}"
+																										aria-expanded="false"
+																										aria-controls="collapseInnerTwo">Discovery
+																										#{{$index+1}} </a>
+																								</h4>
+																								<div class="pull-right marginNT20">
+																									<a class="btn btn-sm icon-btn btn-info"
+																										ng-click="tabReset(dtab,$index+1,2)"
+																										ng-disabled="!dtab.discoveryApiDescription && !dtab.discoveryApi"><span
+																										class="glyphicon btn-glyphicon glyphicon-refresh img-circle text-info"></span>Reset</a>
+																									<a
+																										class="btn btn-sm icon-btn btn-warning  btn-delete-panel-D"
+																										ng-click="removeDiscovery(fields,$index)"><span
+																										class="glyphicon btn-glyphicon glyphicon-minus img-circle text-warning"></span>Remove</a>
+																								</div>
+																								<div class="clearfix"></div>
+																							</div>
+																							<div id="collapseInnerTwo{{$index}}"
+																								class="panel-collapse collapse in">
+																								<div class="panel-body">
+																									<div class="row">
+																										<div class="col-md-6">
+																											<label for="discoveryNameText{{$index}}">Name</label>
+																											<input class="form-control"
+																												id="discoveryNameText{{$index}}"
+																												name="discoveryApiDescription{{$index}}"
+																												placeholder="Enter Name" type="text"
+																												ng-model="dtab.discoveryApiDescription">
+																										</div>
+																										<div class="col-md-6">
+																											<label for="discoveryApi{{$index}}">API</label>
+																											<input class="form-control"
+																												id="discoveryApi{{$index}}"
+																												name="discoveryApi{{$index}}"
+																												placeholder="Enter API" type="text"
+																												ng-model="dtab.discoveryApi">
+																											<p
+																												ng-show="addAppForm.discoveryApi{{$index}}.$invalid && !addAppForm.discoveryApi{{$index}}.$pristine">*Invalid
+																												URL</p>
+																										</div>
+																									</div>
+																								</div>
+																							</div>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																		<ul class="list-inline pull-right">
+																			<li><button class="btn btn-primary prev-step"
+																					type="button" id="previousButton"
+																					ng-click="serverClick($index,false)">Previous</button></li>
+
+																			<li><button class="btn btn-primary next-step"
+																					type="button" id="nextButton"
+																					ng-click="serverClick($index,true)"
+																					ng-disabled="addAppForm.discoveryApi{{$index}}.$invalid">Next</button></li>
+																		</ul>
+																	</div>
+																	<div class="tab-pane" id="step5{{$index}}"
+																		role="tabpanel">
+																		<div class="row">
+																			<div class="col-xs-12 col-md-12">
+																				<div class="pull-right marginB10">
+																					<a class="btn icon-btn btn-success"
+																						ng-click="addMonitor(fields)"><span
+																						class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>Monitor</a>
+																				</div>
+																			</div>
+																			<div class="clearfix"></div>
+																		</div>
+																		<div class="step_33">
+																			<div class="row">
+																				<div class="col-xs-12 col-md-12">
+																					<div class="panel-group" id="accordion4{{$index}}">
+																						<div class="panel panel-default templateM"
+																							ng-repeat="mtab in fields.monitor track by $index">
+																							<div class="panel-heading">
+																								<h4 class="panel-title">
+																									<a class="collapsed accordion-toggle"
+																										role="button" data-toggle="collapse"
+																										data-parent="#accordion4"
+																										href="addApplication#collapseInnerThree{{$index}}"
+																										aria-expanded="false"
+																										aria-controls="collapseInnerThree">Monitor
+																										#{{$index+1}} </a>
+																								</h4>
+																								<div class="pull-right marginNT20">
+																									<a class="btn btn-sm icon-btn btn-info"
+																										ng-click="tabReset(mtab,$index+1,3)"
+																										ng-disabled="!mtab.counterType && !mtab.monitorApi"><span
+																										class="glyphicon btn-glyphicon glyphicon-refresh img-circle text-info"></span>Reset</a>
+																									<a class="btn btn-sm icon-btn btn-warning"
+																										ng-click="removeMonitor(fields,$index)"><span
+																										class="glyphicon btn-glyphicon glyphicon-minus img-circle text-warning"></span>Remove</a>
+																								</div>
+																								<div class="clearfix"></div>
+																							</div>
+																							<div id="collapseInnerThree{{$index}}"
+																								class="panel-collapse collapse in">
+																								<div class="panel-body">
+																									<div class="step44">
+																										<div class="row">
+																											<div class="col-md-6">
+																												<label for="counterType{{$index}}">Counter
+																													Type</label> <input class="form-control"
+																													id="counterType{{$index}}"
+																													placeholder="Enter Counter Type"
+																													type="text" ng-model="mtab.counterType">
+																											</div>
+																											<div class="col-md-6">
+																												<label for="monitorApi{{$index}}">API</label>
+																												<input class="form-control"
+																													id="monitorApi{{$index}}"
+																													name="monitorApi{{$index}}"
+																													placeholder="Enter API" type="text"
+																													ng-model="mtab.monitorApi">
+																												<p
+																													ng-show="addAppForm.monitorApi{{$index}}.$invalid && !addAppForm.monitorApi{{$index}}.$pristine">*Invalid
+																													URL</p>
+																											</div>
+																										</div>
+																									</div>
+																								</div>
+																							</div>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																		<ul class="list-inline pull-right">
+																			<li><button class="btn btn-primary prev-step"
+																					id="previousButton" type="button"
+																					ng-click="serverClick($index,false)">Previous</button></li>
+
+																			<li><button class="btn btn-primary next-step"
+																					id="nextButton" type="button"
+																					ng-click="serverClick($index,true)"
+																					ng-disabled="addAppForm.monitorApi{{$index}}.$invalid">Next</button></li>
+																		</ul>
+																	</div>
+																	<div class="tab-pane" id="complete{{$index}}"
+																		role="tabpanel">
+																		<div class="row">
+																			<div class="col-xs-12 col-md-12">
+																				<div class="pull-right marginB10">
+																					<a class="btn icon-btn btn-success"
+																						ng-click="addLogs(fields)"><span
+																						class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>Logs</a>
+																				</div>
+																			</div>
+																			<div class="clearfix"></div>
+																		</div>
+																		<div class="step_33">
+																			<div class="row">
+																				<div class="col-xs-12 col-md-12">
+																					<div class="panel-group" id="accordion5{{$index}}">
+																						<div class="panel panel-default templateL"
+																							ng-repeat="ltab in fields.log track by $index">
+																							<div class="panel-heading">
+																								<h4 class="panel-title">
+																									<a class="collapsed accordion-toggle"
+																										role="button" data-toggle="collapse"
+																										data-parent="#accordion5"
+																										href="addApplication#collapseInnerFour{{$index}}"
+																										aria-expanded="false"
+																										aria-controls="collapseInnerFour">Logs
+																										#{{$index+1}} </a>
+																								</h4>
+																								<div class="pull-right marginNT20">
+																									<a class="btn btn-sm icon-btn btn-info"
+																										ng-click="tabReset(ltab,$index+1,4)"
+																										ng-disabled="!ltab.logType && !ltab.logLocation"><span
+																										class="glyphicon btn-glyphicon glyphicon-refresh img-circle text-info"></span>Reset</a>
+																									<a
+																										class="btn btn-sm icon-btn btn-warning  btn-delete-panel-L"
+																										ng-click="removeLogs(fields,$index)"><span
+																										class="glyphicon btn-glyphicon glyphicon-minus img-circle text-warning"></span>Remove</a>
+																								</div>
+																								<div class="clearfix"></div>
+																							</div>
+																							<div id="collapseInnerFour{{$index}}"
+																								class="panel-collapse collapse in">
+																								<div class="panel-body">
+																									<div class="step55">
+																										<div class="row">
+																											<div class="col-md-6">
+																												<label for="logType{{$index}}">Logs
+																													Type</label> <input class="form-control"
+																													id="logType{{$index}}"
+																													placeholder="Enter Logs Type" type="text"
+																													ng-model="ltab.logType">
+																											</div>
+																											<div class="col-md-6">
+																												<label for="logLocation{{$index}}">Location</label>
+																												<input class="form-control"
+																													name="logLocation{{$index}}"
+																													id="logLocation{{$index}}"
+																													placeholder="Enter Location" type="text"
+																													ng-model="ltab.logLocation">
+																												<p
+																													ng-show="addAppForm.logLocation{{$index}}.$invalid && !addAppForm.logLocation{{$index}}.$pristine">*Invalid
+																													URL</p>
+																											</div>
+																										</div>
+																									</div>
+																								</div>
+																							</div>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																		<ul class="list-inline pull-right">
+																			<li><button class="btn btn-primary prev-step"
+																					type="button" id="previousButton"
+																					ng-click="serverClick($index,false)">Previous</button></li>
+																		</ul>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+													<p class="hide" ng-if="isEdit && $last"
+														ng-init="loadEditServerTab()"></p>
+													<p class="hide" ng-if="isDelete && $last"
+														ng-init="loadEditServerTab()"></p>
+													<p class="hide" ng-if="isaddForServer && $last"
+														ng-init="loadFirestServerTab()"></p>
+												</div>
+											</div>
+										</div>
+										<div class="panel-heading">
+											<div class="pull-right marginB10">
+												<a id="addServerButton"
+													class="btn icon-btn btn-success btn-default pull-right"
+													ng-click="addServer();OutOfFocus()"><span
+													class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>Server</a>
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</li>
+							<div class="row">
+								<div class="col-md-12">
+									{{addAppForm['instanceName' + $index].$valid}}
+									<ul class="list-inline pull-right">
+										<li><button id="resetButton" ng-click="resetForm()"
+												class="btn btn-warning btn-info-full" type="reset"
+												ng-model="disbale"
+												ng-disabled="addAppForm.category.$invalid ||addAppForm.applicationName.$invalid">Reset</button></li>
+										<li><button id="submitButton" class="btn btn-primary"
+												ng-disabled="addAppForm.category.$invalid ||addAppForm.applicationName.$invalid || addAppForm.environmentName.$invalid || ServerOrIP "
+												type="submit">Submit</button></li>
+										<li><button id="submitButton"
+												class="btn btn-primary next-step pull-right" type="submit"
+												ng-if="isDelete">Confirm to Delete</button></li>
+									</ul>
+								</div>
+							</div>
+							<div class="clearfix"></div>
+						</ul>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

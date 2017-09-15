@@ -1,0 +1,197 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Resiliencystudio">
+<meta name="keywords" content="Resiliencystudio">
+<meta name="author" content="Resiliencystudio">
+
+<link rel='shortcut icon' type='image/x-icon'
+	href='app/components/lib/css/images/faviconATT.ico' />
+<title>Resiliency Studio</title>
+
+<link href="app/components/lib/css/bootstrap.min.css" rel="stylesheet">
+<link href="app/components/lib/css/sb-admin.css" rel="stylesheet">
+<link href="app/components/lib/css/dataTableCustom.css" rel="stylesheet">
+<link href="app/components/lib/css/jquery.dataTables.css"
+	rel="stylesheet">
+<link href="app/components/lib/css/dataTables.bootstrap.css"
+	rel="stylesheet">
+
+<link href="app/components/lib/css/font-awesome.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/metro/3.0.17/css/metro-icons.css"
+	rel="stylesheet" type="text/css">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+
+<link rel="stylesheet" href="app/components/lib/css/simple-sidebar.css">
+<link rel="stylesheet" href="app/components/lib/css/login.css">
+<link rel="stylesheet" href="app/components/lib/css/style.css">
+<link rel="stylesheet" href="app/components/lib/css/style_new.css">
+<link href="app/components/angular-dialog-service/dialogs.css"
+	rel="stylesheet">
+</head>
+<body ng-app="loginApp">
+
+	<div navigation id="navigation"></div>
+
+
+	<div id="wrapper" class="{{sideBar}}">
+		<div id="sidebar-wrapper">
+			<ul class="sidebar-nav">
+				<li><a href="#/dashboard" title="Dashboard"><span
+						class="mif-home icon"></span><label>Dashboard</label></a></li>
+				<li class="title">Applications</li>
+				<li ng-if="UserPrivilege=='power' || UserPrivilege=='admin'"><a
+					href="#/onboardApplication" title="Onboarding Application"><span
+						class="mif-plus icon"></span><label>Onboarding Application</label></a>
+				</li>
+				<li><a href="#/viewApplication" title="View Application"><span
+						class="icon mif-eye"></span><label>View Application</label></a></li>
+				<li class="title">Scenarios</li>
+				<li ng-if="UserPrivilege=='power' || UserPrivilege=='admin'"><a
+					href="#/createScenario" title="Create Scenario"><span
+						class="mif-plus icon"></span><label>Create Scenario</label></a></li>
+				<li><a href="#/viewScenario" title="View Scenario"><span
+						class="icon mif-eye"></span><label>View Scenario</label></a></li>
+				<li><a href="#/executeScenario" title="Execute Scenario"><span
+						class="icon mif-file-play"></span><label>Execute Scenario</label></a>
+				</li>
+
+				<li><a href="#/executionDashboard" title="Execution Dashboard"><span
+						class="mif-chart-bars icon"></span><label>Execution
+							Dashboard</label></a></li>
+				<li><a href="#/scenariosRunYTD" title="Scenarios Run YTD"><span
+						class="icon mif-power"></span><label>Scenarios Run YTD</label></a></li>
+				<!-- <li ng-if="UserPrivilege=='admin'">
+                    <a href="#/failurePoint" title="Failure Point"><span class="icon mif-unlink"></span><label>Failure Point</label></a>
+                </li> -->
+				<li class="title">Strategies</li>
+				<li><a href="#/viewMonkeyStrategies" title="Monkey Strategies"><span
+						class="icon mif-hammer"></span><label>Monkey Strategies</label></a></li>
+				<li ng-if="UserPrivilege=='power' || UserPrivilege=='admin'"><a
+					href="#/addMonkeyStrategy" title="Add Monkey Strategy"><span
+						class="mif-plus icon"></span><label>Add Monkey Strategy</label></a></li>
+			</ul>
+		</div>
+		<div id="page-content-wrapper">
+			<ng-view></ng-view>
+		</div>
+	</div>
+	<div id="SessionModal" class="modal fade" ng-show="ShowSessionPopup">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					Session Expiration Alert
+				</div>
+				<div class="modal-footer">
+					<p>session going to expire in 15 seconds</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript"
+		src="app/components/lib/js/scripts/jquery-3.2.1.min.js"></script>
+	<script src="app/components/lib/js/bootstrap.min.js"></script>
+	<script src="app/components/lib/js/scripts/angular.js"></script>
+	<script src="app/components/lib/js/polyfill.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-datatables/0.6.1/angular-datatables.js"></script> -->
+
+	<!--<script src="app/directive/angularjs-dropdown-multiselect.js"></script>-->
+	<script src="app/components/lib/js/bootstrap-multiselect.min.js"></script>
+	<script
+		src="app/components/lib/js/scripts/ui-bootstrap-tpls-0.11.0.min.js"></script>
+
+	<!-- <script src="app/components/angular-dialog-service/dialogs-default-translations.js"></script> -->
+	<script src="app/components/lib/js/jquery.dataTables.min.js"></script>
+	<script src="app/components/lib/js/scripts/angular-datatables.min.js"></script>
+	<script src="app/components/lib/js/scripts/angular-route.js"></script>
+	<script src="app/components/lib/js/scripts/angular-cookies.js"></script>
+	<script src="app/components/angular-sanitize.js"></script>
+	<script src="app/components/dropdown/angularjs-dropdown-multiselect.js"></script>
+	<script src="app/components/dropdown/lodash.min.js"></script>
+	<script src="app/components/lib/js/scripts/angular-idle.js"></script>
+	<script src="app/app.js"></script>
+	<script src="app/services/resiliencystudio-service.js"></script>
+	<script src="app/services/resiliencystudio-provider.js"></script>
+	<script src="app/components/angular-dialog-service/dialogs.js"></script>
+	<script src="app/directive/restrict.js"></script>
+	<script src="app/modules/login/authController.js"></script>
+	<script src="app/modules/login/logoutCtrl.js"></script>
+	<script
+		src="app/modules/applications/onboardApplications/onboardApplicationCtrl.js"></script>
+	<script
+		src="app/modules/applications/editApplications/editApplicationServerCtrl.js"></script>
+	<script src="app/modules/dashboard/dashboardCtrl.js"></script>
+	<script
+		src="app/modules/scenarios/createScenarios/createScenarioCtrl.js"></script>
+	<script
+		src="app/modules/scenariosExecution/scenariosRunYtd/scenariosRunYTDCtrl.js"></script>
+	<script
+		src="app/modules/scenariosExecution/executeScenario/executeScenarioCtrl.js"></script>
+	<script
+		src="app/modules/scenariosExecution/executionDashboard/executionDashboardCtrl.js"></script>
+	<script src="app/modules/monkeys/addMonkeys/addMonkeyStrategyCtrl.js"></script>
+	<script
+		src="app/modules/monkeys/viewMonkeys/viewMonkeyStrategiesCtrl.js"></script>
+	<script src="app/modules/monkeys/editMonkeys/editMonkeyStrategyCtrl.js"></script>
+	<script
+		src="app/modules/monkeys/cloneMonkeys/cloneMonkeyStrategyCtrl.js"></script>
+	<script src="app/directive/navigation.js"></script>
+	<script src="app/directive/onReadFile.js"></script>
+	<script src="app/services/appEnvironment.js"></script>
+	<script src="app/services/applicationServices.js"></script>
+	<script src="app/services/appConstans.js"></script>
+	<script
+		src="app/modules/applications/viewApplications/viewApplicationCtrl.js"></script>
+	<script src="app/modules/scenarios/viewScenarios/viewScenarioCtrl.js"></script>
+	<script src="app/modules/scenarios/editScenarios/editScenarioCtrl.js"></script>
+	<script src="app/modules/failurePoint/failurePointCtrl.js"></script>
+	<script src="app/modules/failurePoint/addFailurePointCtrl.js"></script>
+</body>
+</html>

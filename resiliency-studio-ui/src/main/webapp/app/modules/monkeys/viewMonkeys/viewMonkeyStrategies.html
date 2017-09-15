@@ -1,0 +1,865 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+<style>
+#myDialog {
+	margin-top: 8px;
+	height: 60%;
+	overflow: auto;
+}
+
+.switch input:checked ~ .check {
+	background-color: green;
+}
+
+.notify {
+	min-width: 90% !important;
+	max-width: 100% !important;
+	position: relative;
+}
+
+.link {
+	cursor: pointer;
+}
+
+.settings li {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+input[type="checkbox"] {
+	width: 15px; /*Desired width*/
+	height: 15px; /*Desired height*/
+}
+
+.dropdown label {
+	font-size: 12px;
+	font-weight: normal;
+}
+</style>
+
+
+
+<div class="row cells12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<ul class="breadcrumbs dark">
+			<li><a href="#/dashboard"><span class="icon mif-home"></span></a></li>
+			<li>Monkey Strategies</li>
+
+		</ul>
+	</div>
+</div>
+
+<div class="row cells12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<div class="panel " data-role="panel">
+			<div class="heading bg-grayLight">
+				<span class="icon mif-alarm  bg-gray"></span> <span class="title">Monkey
+					Strategies</span>
+			</div>
+			<div class="content bg-white padding20">
+				<div class="alert alert-danger alert-dismissable"
+					style="margin-left: 3%;" ng-show="errorAlert">
+					<a class="close" data-hide="alert" aria-label="close">&times;</a> <strong>Oops
+					</strong> some error occured while retrieving monkey strategies
+				</div>
+				<div class="table-responsive">
+					<ul class="nav nav-tabs"
+						style="display: inline-block; width: 95.5%;">
+						<li class="active"><a href="/#frame_chaos" data-toggle="tab">CHAOS
+								({{ChaosLength}})</a></li>
+						<li><a href="/#frame_doctor" data-toggle="tab">DOCTOR
+								({{DoctorLength}})</a></li>
+						<li><a href="/#frame_latency" data-toggle="tab">LATENCY
+								({{LatencyLength}})</a></li>
+						<li><a href="/#frame_janitor" data-toggle="tab"
+							ng-show="janitorMonkey" ng-if="JanitorLength!=0">JANITOR
+								({{JanitorLength}})</a></li>
+						<li><a href="/#frame_security" data-toggle="tab"
+							ng-show="securityMonkey" ng-if="SecurityLength!=0">SECURITY
+								({{SecurityLength}})</a></li>
+						<li><a href="/#frame_confirmity" data-toggle="tab"
+							ng-show="confirmityMonkey" ng-if="ConfirmityLength!=0">CONFORMITY
+								({{ConfirmityLength}})</a></li>
+						<li><a href="/#frame_gorilla" data-toggle="tab"
+							ng-show="chaosGorillaMonkey" ng-if="ChaosGorillaLength!=0">CHAOS
+								GORILLA ({{ChaosGorillaLength}})</a></li>
+						<li><a href="/#frame_monkey" data-toggle="tab"
+							ng-show="monkey" ng-if="MonkeyLength!=0">10 - 18 Monkey
+								({{MonkeyLength}})</a></li>
+
+					</ul>
+					<div class="dropdown" style="display: inline-block;">
+						<button class="btn btn-default" type="button"
+							data-toggle="dropdown">
+							<span class="glyphicon glyphicon-cog"></span>
+						</button>
+						<ul class="dropdown-menu settings">
+							<li ng-show="UserPrivilege == 'admin'"><a><label
+									ng-click="$event.stopPropagation();"> <input
+										ng-click="osTypeToggle = !osTypeToggle" type="checkbox" />&nbsp;OS
+										Type</a></li>
+
+							<li ng-show="UserPrivilege == 'admin'"><a><label
+									ng-click="$event.stopPropagation();"> <input
+										ng-click="flavorToggle = !flavorToggle" type="checkbox" />&nbsp;Flavor
+								</label></a></li>
+
+							<li ng-show="UserPrivilege == 'admin'"><a><label
+									ng-click="$event.stopPropagation();"> <input
+										ng-click="failureCategoryToggle = !failureCategoryToggle"
+										type="checkbox" />&nbsp;Failure Category
+								</label></a></li>
+
+							<li ng-show="UserPrivilege == 'admin'"><a><label
+									ng-click="$event.stopPropagation();"> <input
+										ng-click="failureSubToggle = !failureSubToggle"
+										type="checkbox" />&nbsp;Failure Sub Category
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="scriptTypeToggle = !scriptTypeToggle"
+										type="checkbox" />&nbsp;Script Type
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="versionToggle = !versionToggle"
+										type="checkbox" />&nbsp;Version
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="defaultToggle = !defaultToggle"
+										type="checkbox" />&nbsp;Default Flag
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="genericToggle = !genericToggle"
+										type="checkbox" />&nbsp;Generic Flag
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="createdBy = !createdBy" type="checkbox" />&nbsp;Created
+										By
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="createDate = !createDate" type="checkbox" />&nbsp;Created
+										Date
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="lastModifyBy = !lastModifyBy" type="checkbox" />&nbsp;LastModified
+										By
+								</label></a></li>
+
+							<li><a><label ng-click="$event.stopPropagation();">
+										<input ng-click="lastModifyDate = !lastModifyDate"
+										type="checkbox" />&nbsp;LastModified Date
+								</label></a></li>
+						</ul>
+					</div>
+
+					<div class="tab-content clearfix">
+						<!-- Choas Monkey strategy starts -->
+						<div class="tab-pane fade in active" id="frame_chaos">
+							<div class="cell" ng-if="ChaosLength==0">
+								<div class="notify">
+									<span class="notify-icon mif-traffic-cone"></span><span
+										class="notify-title"> Chaos Strategies</span><span
+										class="notify-text"> No Chaos monkey strategy available
+										to view. <a href="#/addMonkeyStrategy">Click here to add
+											new monkey strategy</a>
+									</span>
+								</div>
+							</div>
+							<table ng-if="ChaosLength!=0"
+								class="table table-bordered striped hovered cell-hovered ">
+								<tbody>
+									<tr>
+										<th width="20%">Strategy Name</th>
+
+										<th>Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.Chaos.slice((currentChaosPage-1)*10,currentChaosPage*10) | orderBy : 'monkeyStrategyName'">
+										<td>{{monkey.monkeyStrategyName}}</td>
+
+										<td>{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span id="editMonkeyStrategy"
+													class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span id="deleteMonkeyStrategy"
+													class="glyphicon glyphicon-trash"></span>
+											</button></td>
+
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" ng-click="cloneMonkey(monkey)"><u>Clone</u></a></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="ChaosLength" ng-model="currentChaosPage"
+								ng-change="pageChanged()" class="pagination" items-per-page="10"></pagination>
+						</div>
+						<!-- Choas Monkey strategy ends -->
+						<!-- Doctor Monkey strategy starts -->
+						<div class="tab-pane fade" id="frame_doctor">
+							<div class="cell" ng-if="DoctorLength==0">
+								<div class="notify">
+									<span class="notify-icon mif-traffic-cone"></span> <span
+										class="notify-title">Doctor Strategies</span> <span
+										class="notify-text">No Doctor monkey strategy available
+										to view. <a href="#/addMonkeyStrategy">Click here to add
+											new monkey strategy</a>
+									</span>
+								</div>
+							</div>
+							<table ng-if="DoctorLength!=0"
+								class="table table-bordered striped hovered cell-hovered border bordered">
+								<tbody>
+									<tr>
+										<th ng-hide="stategyNameToggle"
+											class="sortable-column sort-asc" width="20%">Strategy
+											Name</th>
+
+										<th ng-hide="strategyDescToggle">Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">
+											Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.Doctor.slice((currentDoctorPage-1)*10,currentDoctorPage*10) | orderBy : 'monkeyStrategyName'">
+										<td ng-hide="stategyNameToggle">{{monkey.monkeyStrategyName}}</td>
+										<td ng-hide="strategyDescToggle">{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span class="glyphicon glyphicon-trash"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" value="Clone" ng-click="cloneMonkey(monkey)"><u>Clone</u>
+											</button></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="DoctorLength"
+								ng-model="currentDoctorPage" ng-change="pageChanged()"
+								class="pagination" items-per-page="10"></pagination>
+						</div>
+						<!-- Doctor Monkey strategy ends -->
+						<!-- Latency Monkey strategy starts -->
+						<div class="tab-pane fade" id="frame_latency">
+							<div class="cell" ng-if="LatencyLength==0">
+								<div class="notify">
+									<span class="notify-icon mif-traffic-cone"></span> <span
+										class="notify-title">Latency Strategies</span> <span
+										class="notify-text">No Latency monkey strategy
+										available to view. <a href="#/addMonkeyStrategy">Click
+											here to add new monkey strategy</a>
+									</span>
+								</div>
+							</div>
+							<table ng-if="LatencyLength!=0"
+								class="table table-bordered striped hovered cell-hovered border bordered">
+								<tbody>
+									<tr>
+										<th class="sortable-column sort-asc" width="20%">Strategy
+											Name</th>
+										<th>Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">
+											Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.Latency.slice((currentLatencyPage-1)*10,currentLatencyPage*10) | orderBy : 'monkeyStrategyName'">
+										<td>{{monkey.monkeyStrategyName}}</td>
+										<td>{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span class="glyphicon glyphicon-trash"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" value="Clone" ng-click="cloneMonkey(monkey)"><u>Clone</u></a></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="LatencyLength"
+								ng-model="currentLatencyPage" ng-change="pageChanged()"
+								class="pagination" items-per-page="10"></pagination>
+						</div>
+						<!-- Latency Monkey strategy ends -->
+						<!-- Janitor Monkey strategy starts -->
+						<div class="tab-pane fade" id="frame_janitor"
+							ng-show="janitorMonkey">
+
+							<div class="cell" ng-if="JanitorLength!=0"></div>
+							<table ng-if="JanitorLength!=0"
+								class="table table-bordered striped hovered cell-hovered border bordered">
+								<tbody>
+									<tr>
+										<th class="sortable-column sort-asc" width="20%">Strategy
+											Name</th>
+										<th>Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">
+											Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.Janitor.slice((currentJanitorPage-1)*10,currentJanitorPage*10) | orderBy : 'monkeyStrategyName'">
+										<td>{{monkey.monkeyStrategyName}}</td>
+										<td>{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span class="glyphicon glyphicon-trash"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" value="Clone" ng-click="cloneMonkey(monkey)"><u>Clone</u></a></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="JanitorLength"
+								ng-model="currentJanitorPage" ng-change="pageChanged()"
+								class="pagination" items-per-page="10"></pagination>
+						</div>
+						<!-- Janitor Monkey strategy ends -->
+						<!-- Security Monkey strategy starts -->
+						<div class="tab-pane fade" id="frame_security"
+							ng-show="securityMonkey">
+							<div class="cell" ng-if="SecurityLength!=0"></div>
+							<table ng-if="SecurityLength!=0"
+								class="table table-bordered striped hovered cell-hovered border bordered">
+								<tbody>
+									<tr>
+										<th class="sortable-column sort-asc" width="20%">Strategy
+											Name</th>
+										<th>Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">
+											Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.Security.slice((currentSecurityPage-1)*10,currentSecurityPage*10) | orderBy : 'monkeyStrategyName'">
+										<td>{{monkey.monkeyStrategyName}}</td>
+										<td>{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span class="glyphicon glyphicon-trash"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" value="Clone" ng-click="cloneMonkey(monkey)"><u>Clone</u></a></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="SecurityLength"
+								ng-model="currentSecurityPage" ng-change="pageChanged()"
+								class="pagination" items-per-page="10"></pagination>
+						</div>
+						<!-- Security Monkey strategy ends -->
+						<!-- Confirmity Monkey strategy starts -->
+						<div class="tab-pane fade" id="frame_confirmity"
+							ng-show="confirmityMonkey">
+
+							<div class="cell" ng-if="ConfirmityLength!=0"></div>
+							<table ng-if="ConfirmityLength!=0"
+								class="table table-bordered striped hovered cell-hovered border bordered">
+								<tbody>
+									<tr>
+										<th class="sortable-column sort-asc" width="20%">Strategy
+											Name</th>
+										<th>Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">
+											Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.Confirmity.slice((currentConfirmityPage-1)*10,currentConfirmityPage*10) | orderBy : 'monkeyStrategyName'">
+										<td>{{monkey.monkeyStrategyName}}</td>
+										<td>{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span class="glyphicon glyphicon-trash"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" value="Clone" ng-click="cloneMonkey(monkey)"><u>Clone</u></a></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="ConfirmityLength"
+								ng-model="currentConfirmityPage" ng-change="pageChanged()"
+								class="pagination" items-per-page="10"></pagination>
+						</div>
+						<!-- Confirmity Monkey strategy ends -->
+						<!-- Gorilla Monkey strategy starts -->
+						<div class="tab-pane fade" id="frame_gorilla"
+							ng-show="chaosGorillaMonkey">
+							<div class="cell" ng-if="ChaosGorillaLength!=0"></div>
+							<table ng-if="ChaosGorillaLength!=0"
+								class="table table-bordered striped hovered cell-hovered border bordered">
+								<tbody>
+									<tr>
+										<th class="sortable-column sort-asc" width="20%">Strategy
+											Name</th>
+										<th>Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">
+											Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.ChaosGorilla.slice((currentChaosGorillaPage-1)*10,currentChaosGorillaPage*10) | orderBy : 'monkeyStrategyName'">
+										<td>{{monkey.monkeyStrategyName}}</td>
+										<td>{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span class="glyphicon glyphicon-trash"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" value="Clone" ng-click="cloneMonkey(monkey)"><u>Clone</u></a></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="ChaosGorillaLength"
+								ng-model="currentChaosGorillaPage" ng-change="pageChanged()"
+								class="pagination" items-per-page="10"></pagination>
+						</div>
+						<!-- Gorilla Monkey strategy ends -->
+						<div class="tab-pane fade" id="frame_monkey" ng-show="monkey">
+							<div class="cell" ng-if="MonkeyLength==0"></div>
+							<table ng-if="MonkeyLength!=0"
+								class="table table-bordered striped hovered cell-hovered border bordered">
+								<tbody>
+									<tr>
+										<th ng-hide="stategyNameToggle"
+											class="sortable-column sort-asc" width="20%">Strategy
+											Name</th>
+										<th ng-hide="strategyDescToggle">Strategy Description</th>
+										<th ng-hide="versionToggle">Version</th>
+										<th ng-hide="defaultToggle">Default</th>
+										<th ng-hide="genericToggle">Generic</th>
+										<th ng-hide="scriptTypeToggle">Script Type</th>
+										<th>Script</th>
+										<th ng-hide="osTypeToggle">OS Type</th>
+										<th ng-hide="flavorToggle">Flavor</th>
+										<th ng-hide="failureCategoryToggle">Failure Category</th>
+										<th ng-hide="failureSubToggle">Failure Sub Category</th>
+										<th ng-show="UserPrivilege=='admin' || UserPrivilege=='power'">
+											Edit</th>
+										<th ng-show="UserPrivilege=='admin'">Delete</th>
+										<th ng-show="UserPrivilege=='admin'"><span>Clone</span></th>
+										<th ng-hide="createdBy">CreatedBy</th>
+										<th ng-hide="createDate">CreatedDate</th>
+										<th ng-hide="lastModifyBy">LastModifiedBy</th>
+										<th ng-hide="lastModifyDate">LastModifiedDate</th>
+									</tr>
+									<tr
+										ng-repeat="monkey in Strategies.Monkey.slice((currentMonkeyPage-1)*10,currentMonkeyPage*10) | orderBy : 'monkeyStrategyName'">
+										<td ng-hide="stategyNameToggle">{{monkey.monkeyStrategyName}}</td>
+										<td ng-hide="strategyDescToggle">{{monkey.strategyDescription}}</td>
+										<td ng-hide="versionToggle">{{monkey.monkeyStrategyVersion}}</td>
+										<td ng-hide="defaultToggle">{{monkey.defaultFlag}}</td>
+										<td ng-hide="genericToggle">{{monkey.generic}}</td>
+										<td ng-hide="scriptTypeToggle">{{monkey.scriptTypeCategory}}</td>
+										<td><a
+											ng-hide="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'"
+											ng-click="ViewScript(monkey.monkeyStrategyScript)"
+											style="cursor: pointer;"><u>View Script</u></a> <span
+											ng-show="monkey.monkeyStrategyScript.trim() == '' || monkey.monkeyStrategyScript == null || monkey.monkeyStrategyScript.trim() == 'null'">No
+												Script Available</span></td>
+										<td ng-hide="osTypeToggle">{{monkey.osType}}</td>
+										<td ng-hide="flavorToggle">{{monkey.flavor}}</td>
+										<td ng-hide="failureCategoryToggle">{{monkey.failureCategory}}</td>
+										<td ng-hide="failureSubToggle">{{monkey.failureSubCategory}}</td>
+
+										<td ng-show="UserPrivilege=='admin' || UserPrivilege=='power'"><button
+												title="Edit" class="btn btn-default btn-xs " value="Edit"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="Edit(monkey)">
+												<span class="glyphicon glyphicon-pencil"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><button
+												title="Delete" class="btn btn-default btn-xs "
+												value="Delete"
+												ng-mouseover="deleteData.OneStrategy = monkey"
+												ng-click="deleteMonkeyStrategy()">
+												<span class="glyphicon glyphicon-trash"></span>
+											</button></td>
+										<td ng-show="UserPrivilege=='admin'"><a title="Clone"
+											class="link" value="Clone" ng-click="cloneMonkey(monkey)"><u>Clone</u>
+											</button></td>
+										<td ng-hide="createdBy">{{monkey.createdBy}}</td>
+										<td ng-hide="createDate">{{monkey.createDate}}</td>
+										<td ng-hide="lastModifyBy">{{monkey.lastModifyBy}}</td>
+										<td ng-hide="lastModifyDate">{{monkey.lastModifyDate}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<pagination total-items="MonkeyLength"
+								ng-model="currentMonkeyPage" ng-change="pageChanged()"
+								class="pagination" items-per-page="10"></pagination>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="myModal" class="modal fade">
+	<div id="myDialog" class="modal-dialog" style="width: 80%; height: 80%">
+		<div id="myContent" class="modal-content">
+			<!-- dialog body -->
+			<div class="modal-header" style="height: 15%">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h5 class="modal-title">View Script</h5>
+			</div>
+			<div id="myBody" class="modal-body">
+				<pre>{{ monkeyScript }}</pre>
+			</div>
+			<div class="modal-footer"></div>
+		</div>
+	</div>
+</div>
+
+<div id="deleteModal" class="modal fade">
+	<div id="" class="modal-dialog" style="width: 80%; height: 80%">
+		<div id="myContent" class="modal-content">
+
+			<div class="modal-header" style="height: 15%">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">
+					<span class="glyphicon glyphicon-check"></span>&nbsp; Delete
+				</h4>
+			</div>
+			<div id="strategyBody" class="modal-body">
+				<pre>{{ deleteStrategyMsg }}</pre>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal"
+					ng-click="gotoDeleteMonkeyStrategy()">Yes</button>
+				<button class="btn btn-primary" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>

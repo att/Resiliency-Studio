@@ -1,0 +1,103 @@
+  {
+	"categoryLists": [
+		"Application",
+		"Platform"
+	],
+	"environmentMapLists": [
+		"QA",
+		"PRODUCTION",
+		"DEV",
+		"UAT"
+	],
+	"memory": [
+		"252GB",
+		"64GB",
+		"32GB",
+		"16GB",
+		"8GB"
+	],
+	"roles": [
+		"aic-identity",
+		"mongo",
+		"aic-swift-storage",
+		"aic-dbng",
+		"aic-controller",
+		"aic-swift-proxy",
+		"contrail-config",
+		"contrail-control",
+		"contrail-db",
+		"aic-haproxy",
+		"aic-compute"
+	],
+	"cpu": [
+		"Intel Core2 Quad Core @3.80GHz",
+		"Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz",
+		"Intel(R) Xeon(R) CPU E5-2680 v3 @ 2.50GHz",
+		"Intel Core i7-3770 @3.40GHz",
+		"Intel Core2 Quad Core @2.50GHz",
+		"Intel Xeon E312xx (Sandy Bridge)",
+		"QEMU Virtual CPU version 2.0.0"
+	],
+	"operatingSystem": [
+		"ACLI",
+		"ACME FIRMWARE",
+		"ACME",
+		"CATBIRD_OS",
+		"CISCO",
+		"COREOS",
+		"ERCD",
+		"F5",
+		"FIRMWARE",
+		"FORCE10 IOM",
+		"FORTIOS",
+		"JUNO",
+		"MARLIN",
+		"MCP",
+		"Microsoft Windows 2000 Server 5.00",
+		"MP-RAS",
+		"MTEX",
+		"NCR",
+		"NETBSD",
+		"NONE",
+		"NTO_OS",
+		"OpenVMS 7.32",
+		"OS1100/Unix",
+		"OS2200",
+		"OS400",
+		"SCREENOS",
+		"SGME",
+		"SOLARIS",
+		"SYSTEM V",
+		"LINUX",
+		"UNIX",
+		"VAOS",
+		"VMWARE",
+		"VYATTA",
+		"Windows",
+		"WINDOWS 2003",
+		"Windows 2003/XP",
+		"Windows 2008 R2",
+		"Windows NT Server  4.00",
+		"WINDOWS NT SERVER",
+		"Windows Server 2012",
+		"Windows XP",
+		"Windows Server 2008 R2",
+		"z/OS"
+	],
+	"storage": [
+		"1TB",
+		"512GB",
+		"320GB"
+	],
+	"operatingSystemType": [
+		"64bit",
+		"32bit"
+	],
+	"tier": [
+		"Web",
+		"App",
+		"DB",
+		"Controller",
+		"Compute"
+	]
+}

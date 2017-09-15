@@ -1,0 +1,117 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+<div class="row cells12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<ul class="breadcrumbs dark">
+			<li><a href="#/dashboard"><span class="icon mif-home"></span></a></li>
+			<li>Scenarios Run YTD</li>
+		</ul>
+	</div>
+</div>
+
+
+
+
+
+<div class="row cells12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<div class="panel " data-role="panel">
+			<div class="heading bg-grayLight">
+				<span class="icon mif-alarm  bg-gray"></span> <span class="title">Scenarios
+					Run YTD</span>
+			</div>
+			<div class="content bg-white padding20">
+
+
+
+				<table class="table table-striped table-bordered"
+					id="scenarioYtdTable">
+					<tbody>
+					<thead>
+						<tr>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 70px">Scenario</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 91px">Application</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 93px">Environment</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 92px">Server</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 92px">Component</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 70px">Monkey Type</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 73px">Monkey Strategy</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 50px">Execution Status</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 50px">Execution Result</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 60px">Date &amp; Time</th>
+							<th class="bg-darkTeal fg-white padding10 text-shadow"
+								style="width: 64px">Remarks</th>
+
+
+						</tr>
+					</thead>
+
+
+
+
+
+
+					</tbody>
+				</table>
+
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="myModal" class="modal fade">
+	<div id="myDialog" class="modal-dialog" style="width: 80%; height: 80%">
+		<div id="myContent" class="modal-content">
+			<!-- dialog body -->
+			<div class="modal-header" style="height: 15%">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h5 class="modal-title">View Remarks</h5>
+			</div>
+			<div id="myBody" class="modal-body">
+				<pre>{{ viewRemarks }}</pre>
+			</div>
+			<div class="modal-footer"></div>
+		</div>
+	</div>
+</div>

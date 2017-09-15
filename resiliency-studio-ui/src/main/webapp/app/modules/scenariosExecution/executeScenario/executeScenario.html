@@ -1,0 +1,398 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+<div class="row cells12  ">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<ul class="breadcrumbs dark">
+			<li><a href="#/dashboard"><span class="icon mif-home"></span></a></li>
+			<li>Execute Scenario</li>
+		</ul>
+	</div>
+</div>
+
+
+<div class="row cells12">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<div class="panel " data-role="panel">
+			<div class="heading bg-grayLight">
+				<span class="icon mif-alarm  bg-gray"></span> <span class="title">Execute
+					Scenarios</span>
+			</div>
+			<div class="content bg-white padding20 paddingBottom35">
+				<div class="container">
+					<!-- form tag starts here -->
+					<form role="form" name="exeScenarioForm" id="my-form" novalidate>
+
+						<div class="row" ng-if="errorMessage">
+							<div class="alert alert-danger">
+								<strong>{{errorMessage}}</strong>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4" data-role="input">
+								<label for="applicationListDiv">Application Name*</label>
+								<div class="select">
+									<div id="applicationListDiv" ng-dropdown-multiselect=''
+										options='scenariosFilterData' button-label='Applications'
+										selected-model='scenariosFilterModel'
+										extra-settings='scenariosFilterSettings'
+										translation-texts='scenariosFilterCustomTexts'
+										events="{onItemSelect:applicationChange}"
+										title="{{scenariosFilterModel.id}}"></div>
+
+								</div>
+							</div>
+							<div class="col-md-4">
+								<label for="categorySelect">Environment*</label> <select
+									id="categorySelect" class="form-control" name="environmentName"
+									ng-model="appfields.environmentName"
+									ng-options="x as x.name  for (key,x) in environmentMap"
+									required>
+									<option value="" disabled selected hidden>Select
+													Environment</option>
+
+								</select>
+							</div>
+
+							<div class="col-md-4">
+								<br>
+								<br>
+								<button id="submitButton"
+									class="btn btn-primary next-step pull-right" type="button"
+									ng-disabled="exeScenarioForm.$invalid && {{applicationSelected}}"
+									ng-click="getScenariosList()">LIST</button>
+							</div>
+						</div>
+						<div ng-show="loader.loading" class="ng-hide">
+							<center>
+								Please wait...<span
+									class="mif-spinner4 mif-ani-spin fg-amber mif-4x"></span>
+							</center>
+						</div>
+
+					</form>
+					<div id="scenarioList" ng-if="exeScen">
+
+
+						<!-- Table starts from here -->
+
+
+						<div class="container" id="userList">
+							<span style="color: #00aff0">Please select any one
+								scenario to proceed execution.<!--  -->
+							</span>
+
+							<table
+								class="table table-striped table-condensed table-bordered vertical">
+								<thead>
+									<tr ng-show="filterTr">
+										<td class="col-md-1"><label><button type="button"
+													class="close" title="close filter" ng-click="closeFilter()">&times;</button></label></td>
+										<td class="col-md-1"></td>
+										<td class="col-md-1"></td>
+										<td class="col-md-1"><input ng-model="search.serverName"
+											class="input-block-level"></td>
+										<td class="col-md-1"><input
+											ng-model="search.softwareComponentName"
+											class="input-block-level" ng-change="clearSCName()"></input></td>
+										<td class="col-md-1"><input ng-model="search.processName"
+											class="input-block-level" ng-change="clearProcessName()"></input></td>
+										<td class="col-md-1"><input
+											ng-model="search.failureTenet" class="input-block-level"
+											ng-change="clearFailureTenet()"></input></td>
+										<td class="col-md-1"><input
+											ng-model="search.monkeyStrategy" class="input-block-level"
+											ng-change="clearmonkeyStrategy()"></input></td>
+										<td class="col-md-1"><input ng-model="search.status"
+											class="input-block-level" ng-change="clearStatus()"></input></td>
+
+									</tr>
+									<tr>
+										<th class="col-md-1"><a href="" ng-click="showFilter()"><span
+												class="glyphicon glyphicon-filter"
+												title="Click To Filter On"> </span></a></th>
+										<th class="col-md-2" style="width: 110px">Select
+											Scenario(s)</th>
+										<th class="col-md-2" style="width: 70px">S.No</th>
+										<th class="col-md-2">Server Name</th>
+										<th class="col-md-3">Software Component</th>
+										<th class="col-md-2">Process Name</th>
+										<th class="col-md-2">Failure Tenet</th>
+										<th class="col-md-2">Monkey Strategy</th>
+										<th class="col-md-2">Last Execution Status</th>
+
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat-start="u in data | filter:search:strict"
+										ng-class-odd="'alt'">
+										<td>
+											<button title="Click to expand/collapse"
+												class="btn btn-default btn-xs" ng-click="showDetail($index)">
+												<span ng-hide="active==$index"
+													class="glyphicon glyphicon-plus"></span><i
+													ng-show="active==$index" class="glyphicon glyphicon-minus"></i>
+											</button>
+										</td>
+										<td><input type="checkbox" ng-model="u.selected"
+											ng-change="checkboxClick(u.selected)" id="markScenario"
+											ng-click="updateSelection($index,data)"></td>
+
+
+
+										<td>{{$index+1}}</td>
+										<td>{{u.serverName}}</td>
+										<td>{{u.softwareComponentName}}</td>
+										<td>{{u.processName}}</td>
+										<td>{{u.failureTenet}}</td>
+										<td>{{u.monkeyStrategy}}</td>
+										<td>
+											<div ng-if="u.status == 'Completed'">
+												<span id="completed" class="badge">Completed</span>
+											</div>
+											<div ng-if="u.status == 'Failed'">
+												<span id="failed" class="badge">Failed</span>
+											</div>
+											<div ng-if="u.status == 'Submitted'">
+												<span id="submitted" class="badge">Submitted</span>
+											</div>
+											<div ng-if="u.status == 'Scheduled'">
+												<span id="scheduled" class="badge">Scheduled</span>
+											</div>
+											<div ng-if="u.status == 'In Progress'">
+												<font color="red"><span
+													class="mif-spinner4 mif-ani-spin"></span></font>
+											</div>
+											<div ng-if="u.status == 'Success'">
+												<span id="success" class="badge">Success</span>
+											</div>
+											<div ng-if="u.status == 'Rejected'">
+												<div>
+													<span id="rejected" class="badge">Rejected</span>
+												</div>
+											</div>
+
+										</td>
+
+									</tr>
+									<tr ng-repeat-end="" ng-show="active==$index"
+										ng-class-odd="'alt'">
+
+										<td class="col-md-3 col-xs-6 small"><label></label></td>
+										<td class="col-md-3 col-xs-6 small"><label></label></td>
+										<td class="col-md-3 col-xs-6 small"><label>Role </label>
+											{{u.role}}</td>
+										<td class="col-md-3 col-xs-6 small"><label>Failure
+												Mode</label><br>{{u.failureMode}}</td>
+										<td class="col-md-3 col-xs-6 small"><label>Current
+												Controls</label><br> {{u.currentControls}}</td>
+										<td class="col-md-3 col-xs-6 small"><label>Detection
+												Mechanism</label><br> {{u.detectionMechanism}}</td>
+										<td class="col-md-3 col-xs-6 small"><label>Recovery
+												Mechanism</label><br> {{u.recoveryMechanism}}<br></td>
+										<td class="col-md-3 col-xs-6 small"><label>System
+												Behavior</label><br> {{u.systemBehavior}}</td>
+										<td class="col-md-3 col-xs-6 small"><label>User
+												Behavior</label><br> {{u.userBehavior}}</td>
+
+									</tr>
+								</tbody>
+							</table>
+							<div class="row">
+								<div class="col-xs-12 col-md-12">
+
+
+									<ul class="list-inline pull-right">
+
+										<li><button id="runScenario" class="btn btn-primary"
+												type="button"
+												ng-click="runScenario();checkSelectedSecenarios($index, data)">Run
+												Now</button></li>
+
+									</ul>
+
+
+								</div>
+							</div>
+						</div>
+
+
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+<div id="eventId" class="row cells12" ng-if="showTable">
+	<div class="row cells12">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<ul class="breadcrumbs dark">
+				<li><a href="#/dashboard"><span class="icon mif-home"></span></a></li>
+				<li>Events</li>
+			</ul>
+		</div>
+	</div>
+	<div>
+
+		<div id="executeScenarioContent" class="box"
+			style="border-radius: 23px;">
+			<div class="box-header panel" style="border-radius: 17px;">
+				<div class="heading bg-grayLight"
+					style="border-top-left-radius: 19px; border-top-right-radius: 16px;">
+					<span class="icon mif-alarm  bg-gray"
+						style="border-top-left-radius: 17px;"></span><span class="title">Execution
+						Events </span>
+				</div>
+			</div>
+			<div class="box-content">
+
+				<div id="eventDiv"
+					style="background-color: black !important; color: greenyellow; height: 194px !important; overflow: auto; margin-top: -20px; border-bottom-left-radius: 23px; border-bottom-right-radius: 23px;">
+
+					<ul style="list-style: none; margin-left: -39px !important;">
+						<li><span ng-bind-html="events | to_trusted" id="eventSpan"></span></li>
+
+					</ul>
+
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="box" ng-if="hystrix || hystrix !=''"
+			style="border-radius: 23px;" ng-repeat="hystrixWidget in monitor">
+			<div class="box-header panel" style="border-radius: 17px;">
+				<div class="heading bg-grayLight"
+					style="border-top-left-radius: 19px; border-top-right-radius: 16px;">
+					<span class="icon mif-alarm  bg-gray"
+						style="border-top-left-radius: 17px;"></span> <span class="title">Monitoring
+						Events</span>
+				</div>
+
+
+			</div>
+			<div class="box-content">
+
+				<div style="padding-left: 1px;">
+
+
+
+					<table class="table table-striped table-bordered" id="fdAppTable"
+						style="width: 100% !important">
+						<tbody>
+							<tr>
+								<td><iframe src="{{hystrix | trustAsResourceUrl}}"
+										frameborder="0" allowfullscreen
+										style="width: 100.5%; height: 179px !important; margin-top: -38px; padding-left: -30px !important;"></iframe></td>
+							</tr>
+						</tbody>
+					</table>
+
+
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="kibanabox" ng-if="kibanaApp || kibanaApp!=''"
+			style="border-radius: 23px;" ng-repeat="kibanaAppWidget in log">
+			<div class="box-header panel" style="border-radius: 17px;">
+				<div class="heading bg-grayLight"
+					style="border-top-left-radius: 19px; border-top-right-radius: 16px;">
+					<span class="icon mif-alarm  bg-gray"
+						style="border-top-left-radius: 17px;"></span> <span class="title">Logging
+						Events</span>
+				</div>
+
+
+			</div>
+			<div class="box-content">
+
+				<div style="padding-left: 1px;">
+
+
+
+					<table class="table table-striped table-bordered" id="fdAppTable"
+						style="width: 100% !important">
+						<tbody>
+							<tr>
+								<td><iframe src="{{kibanaApp | trustAsResourceUrl}}"
+										frameborder="0" allowfullscreen
+										style="width: 100.5%; height: 250px !important; margin-top: -40px;"></iframe></td>
+							</tr>
+						</tbody>
+					</table>
+
+
+				</div>
+
+			</div>
+
+		</div>
+
+
+	</div>
+</div>
+
+
+
+
+
+<div id="RSAmodal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form name="rsaForm">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<label>Enter RSA Token:</label> <input type="text"
+						id="rsaLoginToken" ng-model="rsa" required>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" id="rsaLoginCancel"
+						ng-click="rsa=null">Reset</button>
+					<button class="btn btn-success" id="rsaLoginSubmit"
+						ng-click="executeWithRSA()" data-dismiss="modal"
+						ng-disabled="rsaForm.$invalid">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
