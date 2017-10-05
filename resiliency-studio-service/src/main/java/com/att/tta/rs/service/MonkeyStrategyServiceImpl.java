@@ -198,17 +198,20 @@ public class MonkeyStrategyServiceImpl implements MonkeyStrategyService {
 			}
 			List<FailurePoint> fpList = new ArrayList<>();
 			String osType = server.getOperatingSystem();
-			if (CUROSTYPE.equalsIgnoreCase(osType)) {
-				osType = CHANGEDOSTYPE;
-			}
-			osType = osType != null ? osType.toLowerCase() : osType;
-			fpList.addAll(setFailurePointMetaData(monkeyStrategyRepository
-					.findByOsTypeAndDefaultFlagAndGenericAndFlavorAndFailureCategoryAndFailureSubCategory(osType, "Y",
-							"Y", "all", HARDWAREFAILURECAT, "all"),
-					null, null, role));
+			if(null != osType){
+				if (CUROSTYPE.equalsIgnoreCase(osType)) {
+					osType = CHANGEDOSTYPE;
+				}
+				osType = osType != null ? osType.toLowerCase() : osType;
+				
+				fpList.addAll(setFailurePointMetaData(monkeyStrategyRepository
+						.findByOsTypeAndDefaultFlagAndGenericAndFlavorAndFailureCategoryAndFailureSubCategory(osType, "Y",
+								"Y", "all", HARDWAREFAILURECAT, "all"),
+						null, null, role));
 
-			if (server.getSwComps() != null && !server.getSwComps().isEmpty()) {
-				findMonkeyStrategyByProcessName(server, fpList, osType, role);
+				if (server.getSwComps() != null && !server.getSwComps().isEmpty()) {
+					findMonkeyStrategyByProcessName(server, fpList, osType, role);
+				}				
 			}
 			serverFailurePointMap.put(server.getInstanceName(), fpList);
 		}
@@ -239,6 +242,7 @@ public class MonkeyStrategyServiceImpl implements MonkeyStrategyService {
 			String componentName, String role) {
 		FailurePoint failurePoint;
 		List<FailurePoint> fpList = new ArrayList<>();
+		
 		for (MonkeyStrategy monkeyStrategy : monkeyList) {
 			failurePoint = new FailurePoint();
 			failurePoint.setRole(role);

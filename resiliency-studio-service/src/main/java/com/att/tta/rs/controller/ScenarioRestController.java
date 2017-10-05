@@ -89,6 +89,9 @@ import com.google.gson.Gson;
 @RestController
 public class ScenarioRestController {
 	private static EELFLogger logger = AjscEelfManager.getInstance().getLogger(ScenarioRestController.class);
+	private static final String APPNAME = " and application name";
+	private static final String NOTFOUND = " not found";
+	private static final String SCENARIO = "A scenario with name ";
 
 	@Autowired
 	org.springframework.core.env.Environment env;
@@ -235,7 +238,7 @@ public class ScenarioRestController {
 				new PageRequest(0, 9999));
 		List<Scenario> scenarioList = scenarioPage.getContent();
 		if (scenarioList == null || scenarioList.isEmpty()) {
-			String error = "Scenario with name " + name + " not found";
+			String error = "Scenario with name " + name + NOTFOUND;
 			logger.debug(error);
 			MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -260,7 +263,7 @@ public class ScenarioRestController {
 		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();
 
 		if (scenarioService.isScenarioExistForTeamName(scenario, teamName)) {
-			final String error = "A scenario with name " + scenario.getName() + " already exist";
+			final String error = SCENARIO + scenario.getName() + " already exist";
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.CONFLICT, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -289,7 +292,7 @@ public class ScenarioRestController {
 
 		Scenario currentScenario = scenarioService.findOne(id);
 		if (currentScenario == null) {
-			final String error = "Scenario with id " + id + " not found";
+			final String error = "Scenario with id " + id + NOTFOUND;
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -299,7 +302,7 @@ public class ScenarioRestController {
 		toModifyScenario.setTeamName(currentScenario.getTeamName());
 
 		if (scenarioService.isScenarioExistForTeamName(toModifyScenario, teamName)) {
-			final String error = "A scenario with name " + toModifyScenario.getName() + " already exist";
+			final String error = SCENARIO + toModifyScenario.getName() + " already exist";
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.CONFLICT, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -336,7 +339,7 @@ public class ScenarioRestController {
 		logger.debug("Deleting Scenario with id " + id);
 		Scenario scenario = scenarioService.findOne(id);
 		if (scenario == null) {
-			final String error = "Unable to delete. Scenario with id " + id + " not found";
+			final String error = "Unable to delete. Scenario with id " + id + NOTFOUND;
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -359,8 +362,8 @@ public class ScenarioRestController {
 		logger.debug("Deleting all Scenarios for application " + applicationName);
 		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();
 		List<Scenario> scenarioList = scenarioService.findByApplicationNameByTeamName(applicationName, teamName);
-		if (scenarioList == null) {
-			final String error = "Unable to delete. Scenario for application " + applicationName + " not found";
+		if (scenarioList == null || scenarioList.isEmpty()) {
+			final String error = "Unable to delete. Scenario for application " + applicationName + NOTFOUND;
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -378,7 +381,7 @@ public class ScenarioRestController {
 	 * @return
 	 */
 	@RequestMapping(value = "/api/scenarios/", method = RequestMethod.DELETE, produces = "application/json")
-	public ResponseEntity<Scenario> deleteAllScenarios() {
+	public ResponseEntity<Object> deleteAllScenarios() {
 		logger.debug("Deleting All Scenarios");
 		scenarioService.deleteAllScenarios();
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -402,7 +405,7 @@ public class ScenarioRestController {
 		for (Scenario scenario : scenarioAdapter.getScenarios()) {
 			scenario.setTeamName(teamName);
 			if (scenarioService.isScenarioExistForTeamName(scenario, teamName)) {
-				logger.debug("A scenario with name " + scenario.getName() + " already exists.");
+				logger.debug(SCENARIO + scenario.getName() + " already exists.");
 			} else {
 				toBeInertScenarios.add(scenario);
 			}
@@ -780,7 +783,7 @@ public class ScenarioRestController {
 		if (excServer == null) {
 			final String error = "server with host name " + execScenario.getServerName()
 					+ " not found in environment with name " + execScenario.getEnvironmentName()
-					+ " and application name" + execScenario.getApplicationName();
+					+ APPNAME + execScenario.getApplicationName();
 
 			logger.debug(error);
 			scenarioService.finalizeEvent(eventId, error, EventStatus.REJECTED, teamName);
@@ -807,7 +810,7 @@ public class ScenarioRestController {
 		if (swComp == null) {
 			final String error = "SoftwareComponent with  name " + execScenario.getProcessName() + " not found in host "
 					+ execServer.getHostName() + " and in environment " + execScenario.getEnvironmentName()
-					+ " and application name" + execScenario.getApplicationName();
+					+ APPNAME + execScenario.getApplicationName();
 			logger.debug(error);
 			evt.setEventStatus(evt.getEventStatus() + "\n" + error);
 			scenarioService.recordEvent(eventId, error, EventStatus.SUBMITTED, teamName);
@@ -819,7 +822,7 @@ public class ScenarioRestController {
 			final String error = "SoftwareComponent with  name " + execScenario.getSoftwareComponentName()
 					+ " has no process with name " + execScenario.getProcessName() + " in host "
 					+ execServer.getHostName() + " and in environment " + execScenario.getEnvironmentName()
-					+ " and application name" + execScenario.getApplicationName();
+					+ APPNAME + execScenario.getApplicationName();
 			logger.debug(error);
 			evt.setEventStatus(evt.getEventStatus() + "\n" + error);
 			scenarioService.recordEvent(eventId, error, EventStatus.SUBMITTED, teamName);

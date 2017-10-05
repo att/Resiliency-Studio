@@ -648,7 +648,8 @@ app
 											$("#tab2default" + length)
 													.find('table')
 													.DataTable(
-															{
+															{	"order":[],
+																"aaSorting": [],
 																data : softwareComponents,
 																columns : [
 																		{
@@ -734,7 +735,8 @@ app
 																} ],
 																"scrollCollapse" : true,
 																"searching" : false,
-																"paging" : false
+																"paging" : false,
+																"order":[]
 															});
 
 											// Monitor tab level implementation
@@ -777,7 +779,8 @@ app
 																} ],
 																"scrollCollapse" : true,
 																"searching" : false,
-																"paging" : false
+																"paging" : false,
+																"order":[]
 															});
 
 											// Log tab level implementation
@@ -819,7 +822,8 @@ app
 																} ],
 																"scrollCollapse" : true,
 																"searching" : false,
-																"paging" : false
+																"paging" : false,
+																"order":[]
 															});
 										}
 									}

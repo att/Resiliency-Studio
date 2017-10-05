@@ -90,6 +90,11 @@ app
 							 * To reset onBoard Application form on click of
 							 * RESET button
 							 */
+							
+							$scope.serverReset = function() {
+								$scope.loadTab = [];
+								$scope.addServer();
+							}
 							$scope.resetForm = function() {
 								$scope.addAppForm.$setPristine();
 								$scope.addAppForm.$setUntouched();
@@ -444,10 +449,12 @@ app
 										"Are you sure you want to reset "
 												+ mssageArr[tabPosition] + " #"
 												+ index, "yes");
+								
 								confirmdialog.result.then(function(btn) {
 									var keys = Object.keys(obj);
 									keys.forEach(function(key) {
 										if (typeof obj[key] === 'string') {
+											$scope.ServerOrIP = true;
 											obj[key] = null;
 										}
 									});

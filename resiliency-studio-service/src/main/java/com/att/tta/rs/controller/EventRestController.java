@@ -67,6 +67,7 @@ import com.google.common.collect.Lists;
 public class EventRestController {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventRestController.class);
+	private static final String TIMESTAMP = "@timestamp"; 
 
 	/**
 	 * instance of EventService
@@ -111,10 +112,10 @@ public class EventRestController {
 			final String error = "No events found for team " + teamName;
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
-		}		
+		}	
 		for (EventRecorder eventRecorder : events){
-			org.joda.time.DateTime dt = new org.joda.time.DateTime(eventRecorder.field("@timestamp"));
-			eventRecorder.fields().put("@timestamp", dt.toString("yyyy-MM-dd HH:mm:ss.SSS"));
+			org.joda.time.DateTime dt = new org.joda.time.DateTime(eventRecorder.field(TIMESTAMP));
+			eventRecorder.fields().put(TIMESTAMP, dt.toString("yyyy-MM-dd HH:mm:ss.SSS"));
 		}		
 		return new ResponseEntity<>(events, HttpStatus.OK);
 	}
@@ -225,8 +226,8 @@ public class EventRestController {
 		Date prevEventDt;
 		Date curEventDt;
 		try {
-			prevEventDt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(prevEvent.field("@timestamp"));
-			curEventDt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(event.field("@timestamp"));
+			prevEventDt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(prevEvent.field(TIMESTAMP));
+			curEventDt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(event.field(TIMESTAMP));
 			if (null != prevEventDt && null != curEventDt && (curEventDt.getTime() - prevEventDt.getTime()) > 0) {
 				latestEventMap.put(event.field("name"), event);
 			}

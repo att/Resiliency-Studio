@@ -39,7 +39,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +70,7 @@ public class AuthenticationTokenFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
 		try {
-			HttpServletResponse resp = (HttpServletResponse) res;
 			HttpServletRequest request = (HttpServletRequest) req;
-			setResponseHeader(resp, request);
 
 			if (request.getRequestURI() != null && !request.getRequestURI().contains("/api/execJob/")) {
 				fc.doFilter(req, res);
@@ -93,15 +90,6 @@ public class AuthenticationTokenFilter implements Filter {
 		}
 
 		fc.doFilter(req, res);
-	}
-
-	private void setResponseHeader(HttpServletResponse resp, HttpServletRequest request) {
-		resp.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-		resp.setHeader("Access-Control-Allow-Credentials", "true");
-		resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-		resp.setHeader("Access-Control-Max-Age", "3600");
-		resp.setHeader("Access-Control-Allow-Headers",
-				"Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
 	}
 
 	private void validateUser(SecurityContext context) throws IOException, ServletException {

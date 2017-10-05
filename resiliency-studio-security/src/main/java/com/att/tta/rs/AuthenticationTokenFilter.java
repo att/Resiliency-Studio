@@ -67,7 +67,6 @@ public class AuthenticationTokenFilter implements Filter {
 		try {
 			HttpServletResponse resp = (HttpServletResponse) res;
 			HttpServletRequest request = (HttpServletRequest) req;
-			setResponseHeader(resp, request);
 
 			if ("OPTIONS".equals(request.getMethod())) {
 				resp.setStatus(HttpStatus.OK.value());
@@ -86,15 +85,6 @@ public class AuthenticationTokenFilter implements Filter {
 		}
 
 		fc.doFilter(req, res);
-	}
-
-	private void setResponseHeader(HttpServletResponse resp, HttpServletRequest request) {
-		resp.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-		resp.setHeader("Access-Control-Allow-Credentials", "true");
-		resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-		resp.setHeader("Access-Control-Max-Age", "3600");
-		resp.setHeader("Access-Control-Allow-Headers",
-				"Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
 	}
 
 	private void validateUser() throws ServletException {

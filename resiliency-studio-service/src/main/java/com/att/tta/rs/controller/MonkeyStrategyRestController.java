@@ -356,11 +356,8 @@ public class MonkeyStrategyRestController {
 				&& "Y".equals(monkeyStrategy.getDefaultFlag().trim())) {
 			return true;
 		}
-		if (monkeyStrategyService.insertForTeam(monkeyStrategy, teamName) == null) {
-			return true;
-		}
 
-		return false;
+		return monkeyStrategyService.insertForTeam(monkeyStrategy, teamName) == null;
 	}
 
 	/**

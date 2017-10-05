@@ -132,6 +132,7 @@ app
 							$scope.getScenariosList = function() {
 
 								$scope.modelNames = [];
+								
 								var applicationName = $scope.scenariosFilterModel.id;
 								$scope.appName = applicationName;
 								envName = $scope.appfields.environmentName.name;
@@ -564,17 +565,25 @@ app
 																						app,
 																						index) {
 																					if (app.applicationName == $scope.appName) {
-																						ScenariowithAppData.application = app;
+																						ScenariowithAppData.scenario.applicationName = $scope.appName;
 																						for (var i = 0; i < app.environmentMap[envName].serverList.length; i++) {
 																							if (app.environmentMap[envName].serverList[i].instanceName == ScenariowithAppData.scenario.serverName
 																									&& app.environmentMap[envName].serverList[i].rsaLogin) {
 																								loadRSAPopup();
 																							} else if (app.environmentMap[envName].serverList[i].instanceName == ScenariowithAppData.scenario.serverName
 																									&& !(app.environmentMap[envName].serverList[i].rsaLogin)) {
+																							
+																								$scope.executeSingleScenario();
+																							}
+																							else{
+																								
 																								$scope.executeSingleScenario();
 																							}
 																						}
-																					}
+																					} /*else{
+																						
+																						$scope.executeSingleScenario();
+																					}*/
 																				});
 															}),
 											(function(error) {
@@ -618,10 +627,10 @@ app
 																			.replace(
 																					/@#/g,
 																					"<br/>");
-																	document
-																			.getElementById("eventSpan").innerHTML = eventStatus
-																			+ "<br/>"
-																			+ eventData;
+																
+																	$scope.events=eventStatus+ "<br/>"+ eventData;
+																	//document.getElementById("eventSpan").innerHTML = eventStatus+ "<br/>"+ eventData;
+																	
 																	var myDiv = document
 																			.getElementById("eventDiv");
 																	myDiv.scrollTop = myDiv.scrollHeight;

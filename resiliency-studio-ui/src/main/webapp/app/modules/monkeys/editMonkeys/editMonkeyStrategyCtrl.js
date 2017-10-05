@@ -191,17 +191,40 @@ app
 
 							// Script File Validation which allowing specific
 							// format only.
-							$scope.uploadFile = function(files) {
-								var ext = files[0].name.match(/\.(.+)$/)[1];
-								if (angular.lowercase(ext) === 'sh'
-										|| angular.lowercase(ext) === 'yml') {
-									$scope.invalidfile = false;
-									var fd = new FormData();
-									fd.append("file", files[0]);
-								} else {
-									$scope.invalidfile = true;
+							$scope.uploadScript=function(){
+								$scope.invalidfile = false;
+								$('.input-file-wrapper').val('');
 								}
-							}
+								$scope.uploadFile = function(files) {
+
+								var ext = files[0].name.match(/\.(.+)$/)[1];
+
+								if($scope.fields.scriptTypeCategory=="UNIX Script" || $scope.fields.scriptTypeCategory=="Windows/DOS Script"){
+
+								if (angular.lowercase(ext) === 'sh') {
+								$scope.invalidfile = false;
+								var fd = new FormData();
+								fd.append("file", files[0]);
+								} else {
+									$scope.scriptValidation = false;
+								$scope.invalidfile = true;
+								}
+
+								}
+								else if($scope.fields.scriptTypeCategory=="Ansible Script"){
+
+								if (angular.lowercase(ext) === 'yml') {
+								$scope.invalidfile = false;
+								var fd = new FormData();
+								fd.append("file", files[0]);
+								} else {
+									$scope.scriptValidation = false;
+								$scope.invalidfile = true;
+								}
+
+								}
+
+								}
 
 							// Display script content when view script button
 							// clicks

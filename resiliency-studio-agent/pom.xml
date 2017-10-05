@@ -64,6 +64,12 @@
 			<groupId>com.att.ajsc</groupId> 
 			<artifactId>sdk-java-rest</artifactId> 
 			<version>6.2.0.4-oss</version> 
+			<exclusions>
+        		<exclusion>
+          			<groupId>org.mockito</groupId> 
+          			<artifactId>mockito-all</artifactId>
+        		</exclusion>
+      		</exclusions>
 		</dependency> 
 		
 		<dependency>
@@ -133,7 +139,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<version>1.4.0.RELEASE</version>
 		</dependency>
 	</dependencies>
 
@@ -143,7 +148,7 @@
 			    <groupId>org.springframework.boot</groupId>
 			    <artifactId>spring-boot-maven-plugin</artifactId>
 			    <configuration>
-			      <fork>true</fork>
+			      <fork>false</fork>
 			      <mainClass>com.att.tta.rs.Application</mainClass>
 			    </configuration>
 			    <executions>
@@ -154,6 +159,43 @@
 			      </execution>
 			    </executions>
   			</plugin>
+  			 			<!--  added for Jacoco -->
+  			<plugin>
+				<groupId>org.jacoco</groupId>
+			 	<artifactId>jacoco-maven-plugin</artifactId>
+ 				<version>0.7.9</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>post-unit-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<!-- Sets the path to the file which contains the execution data. -->
+
+							<dataFile>target/jacoco.exec</dataFile>
+							<!-- Sets the output directory for the code coverage report. -->
+							<outputDirectory>target/jacoco-ut</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+				
+			</plugin>
+  			<!--  end jacoco -->
 		</plugins>
 		<resources>
 			<resource>

@@ -65,7 +65,8 @@ public class EventJobServiceImpl implements EventJobService {
 	private static final String PORTSTR = " and port: 22 and user: ";
 	private static final String DISCOVERSTR = "No password and No key present executing on the discovery server ";
 	private static final String DISCERR = "No UserId or password found for Discovery Server";
-
+	private static final String IPADD = " IP Address ";
+	
 	@Autowired
 	Environment env;
 
@@ -97,11 +98,11 @@ public class EventJobServiceImpl implements EventJobService {
 
 		if (eventJobDTO.getPrivateKey() != null && !eventJobDTO.getPrivateKey().trim().isEmpty()) {
 			logger.debug(PRVKEYSTR);
-			execStatus = PRVKEYSTR + eventJobDTO.getHostName() + " IP Address " + eventJobDTO.getIpAdd();
+			execStatus = PRVKEYSTR + eventJobDTO.getHostName() + IPADD + eventJobDTO.getIpAdd();
 			pdExecution = false;
 		} else if (checkPwdCondition(eventJobDTO)) {
 			logger.debug(PDKEYSTR);
-			execStatus = PDKEYSTR + eventJobDTO.getHostName() + " IP Address " + eventJobDTO.getIpAdd();
+			execStatus = PDKEYSTR + eventJobDTO.getHostName() + IPADD + eventJobDTO.getIpAdd();
 			pdExecution = true;
 		} else {
 			if (eventJobDTO.getDiscoverUserId() == null || eventJobDTO.getDiscoverPassword() == null) {
@@ -114,13 +115,13 @@ public class EventJobServiceImpl implements EventJobService {
 				conParam = (eventJobDTO.getDiscoverHostName() != null && eventJobDTO.getDiscoverHostName().trim() != "")
 						? eventJobDTO.getDiscoverHostName() : eventJobDTO.getDiscoverHostIpAddress();
 				logger.debug(DISCOVERSTR);
-				execStatus = DISCOVERSTR + eventJobDTO.getDiscoverHostName() + " IP Address "
+				execStatus = DISCOVERSTR + eventJobDTO.getDiscoverHostName() + IPADD
 						+ eventJobDTO.getDiscoverHostIpAddress();
 				pdExecution = true;
 				discoverExecution = true;
 			}
 		}
-		List<String> params = setParam(pdExecution, discoverExecution, eventJobDTO);
+		List<String> params = setParam(pdExecution, eventJobDTO);
 		appUtil = setAppUtilObj(eventJobDTO, pdExecution, discoverExecution, execStatus, eventData, conParam,
 				statusStringBuilder);
 		executeScript(params, appUtil, eventJobDTO, statusStringBuilder, eventData, true);
@@ -139,7 +140,7 @@ public class EventJobServiceImpl implements EventJobService {
 		List<String> params = new ArrayList<>();
 		AppUtil appUtil;
 		if (eventJobDTO.getPrivateKey() != null && !eventJobDTO.getPrivateKey().trim().isEmpty()) {
-			execStatus = PRVKEYSTR + eventJobDTO.getHostName() + " IP Address " + eventJobDTO.getIpAdd();
+			execStatus = PRVKEYSTR + eventJobDTO.getHostName() + IPADD + eventJobDTO.getIpAdd();
 			logger.debug(execStatus);
 			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + execStatus);
 			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus());
@@ -148,7 +149,7 @@ public class EventJobServiceImpl implements EventJobService {
 
 		} else if (checkPwdCondition(eventJobDTO)) {
 
-			execStatus = PDKEYSTR + eventJobDTO.getHostName() + " IP Address " + eventJobDTO.getIpAdd();
+			execStatus = PDKEYSTR + eventJobDTO.getHostName() + IPADD + eventJobDTO.getIpAdd();
 			logger.debug(execStatus);
 
 			String conParam = (eventJobDTO.getHostName() != null && eventJobDTO.getHostName().trim() != "")
@@ -166,7 +167,7 @@ public class EventJobServiceImpl implements EventJobService {
 				String conParam = (eventJobDTO.getDiscoverHostName() != null
 						&& eventJobDTO.getDiscoverHostName().trim() != "") ? eventJobDTO.getDiscoverHostName()
 								: eventJobDTO.getDiscoverHostIpAddress();
-				execStatus = DISCOVERSTR + eventJobDTO.getDiscoverHostName() + " IP Address "
+				execStatus = DISCOVERSTR + eventJobDTO.getDiscoverHostName() + IPADD
 						+ eventJobDTO.getDiscoverHostIpAddress();
 				logger.debug(execStatus);
 
@@ -217,11 +218,10 @@ public class EventJobServiceImpl implements EventJobService {
 	 * This method sets the script execution parameter.
 	 * 
 	 * @param pdExecution
-	 * @param discoverExecution
 	 * @param eventJobDTO
 	 * @return
 	 */
-	private List<String> setParam(boolean pdExecution, boolean discoverExecution, EventJobDTO eventJobDTO) {
+	private List<String> setParam(boolean pdExecution, EventJobDTO eventJobDTO) {
 		List<String> params = new ArrayList<>();
 		if (!pdExecution) {
 			if (eventJobDTO.getProcessName() != null)
@@ -297,10 +297,7 @@ public class EventJobServiceImpl implements EventJobService {
 	}
 
 	private boolean checkPwdCondition(EventJobDTO eventJobDTO) {
-		if (eventJobDTO.getPassword() != null && !eventJobDTO.getPassword().trim().isEmpty()
-				&& !eventJobDTO.getPassword().trim().equals(eventJobDTO.getUserName().trim())) {
-			return true;
-		}
-		return false;
+		return eventJobDTO.getPassword() != null && !eventJobDTO.getPassword().trim().isEmpty()
+				&& !eventJobDTO.getPassword().trim().equals(eventJobDTO.getUserName().trim());
 	}
 }

@@ -245,15 +245,25 @@ ul.alert-dropdown {
     font-size: 55px;
     color: #fff;
     top: 0;
+        position: absolute;
+    width: 64px;
+    height: 64px;
+    font-size: 64px;
+    top: 50%;
+    margin-top: -40px;
+    left: 50%;
+    margin-left: -32px;
+    text-align: center;
 }
 
 .cards .footer {
 	position: absolute;
-    bottom: 5px;
-    margin-left: 10px;
+    bottom: 10px;
+    margin-left: 12px;
     margin-right: 13px;
 	color: #fff;
-	line-height: 16px
+	line-height: 17px;
+	font-size: 15px;
 }
 
 .teal {
@@ -290,10 +300,16 @@ ul.alert-dropdown {
     background: none;
 }
 .panel-title {
-	margin-left: 15px;
+	margin-left: 10px;
+	font-family: "Segoe UI", "Open Sans", sans-serif, serif !important;
+	    font-weight: normal;
+	    font-size: 18px;
 }
 .panel-body > div {
     margin-bottom: 10px;
+}
+.dashboard-page .panel-body > div {
+    margin-bottom: 2px;
 }
 .badge {
 	position: absolute;
@@ -324,7 +340,12 @@ ul.alert-dropdown {
 .dropdown .icon {
 	margin-top: -5px;
 }
-
+.dashboard-page .panel-heading {
+    padding-bottom: 0px;
+}
+.dashboard-page .panel-body {
+    padding-top: 8px;
+}
 @media screen and (max-width: 768px){
 	.content{
 		margin-top: 0;

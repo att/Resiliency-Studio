@@ -1,37 +1,7 @@
-/*!
-******************************************************************************
- *   BSD License
- *    
- *   Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
- *    
- *   Redistribution and use in source and binary forms, with or without modification, are permitted
- *   provided that the following conditions are met:
- *    
- *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
- *      and the following disclaimer.
- *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
- *      conditions and the following disclaimer in the documentation and/or other materials provided
- *      with the distribution.
- *   3. All advertising materials mentioning features or use of this software must display the
- *      following acknowledgement:  This product includes software developed by the AT&T.
- *   4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
- *      promote products derived from this software without specific prior written permission.
- *    
- *   THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
- *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- *   SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
- *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- *   DAMAGE.
- ******************************************************************************
- */
- 
+
 body {
 	background-color: rgba(118, 96, 138, 0.7);
+	font-family: "Segoe UI", "Open Sans", sans-serif, serif;
 }
 
 
@@ -255,7 +225,7 @@ font-size:12px;
 }
 /*Add Scanrio css styling End*/
 
-/*ADD Monkeys CSS Styling Start*/
+/*ADD Siminarmy/Monkeys CSS Styling Start*/
 
 .no-responsive-future{
 	display:block !important;
@@ -305,7 +275,7 @@ color: #7AA3CC;
   background-color: green;
 }
 
-/*ADD Monkeys CSS Styling End*/
+/*ADD Siminarmy/Monkeys CSS Styling End*/
 
 
 /*Applications.html Css Styling Start*/
@@ -361,7 +331,7 @@ opacity:1;
 } */
 
 
-/*Edit CSS Styling*/
+/*Edit Simianarmy CSS Styling*/
 
 /* #myDialog {
 margin-top: 8px;
@@ -2135,7 +2105,7 @@ ul.breadcrumbs.dark li {
 .panel > .content {
   background-color: #fff;
   z-index: 1;
-  font-size: 0.875rem;
+  font-size: 14px;
 }
 .panel.collapsible > .heading {
   cursor: pointer;
@@ -2243,7 +2213,7 @@ label{
 
 
 .margin-bottom20 {margin-bottom: 20px;}
-#addresiliencystudio .panel{
+#addsimianarmy .panel{
 	margin-bottom: 20px;
     background-color: #fff;
     border: 1px solid transparent;
@@ -2423,10 +2393,38 @@ div#fdApplicationTable_info {
 /* Dashborad Custom CSS */
 .col-custom-width {
     width: 27.778%;
-    float: left
+    float: left;
+    max-width: 467px;
+   // min-width: 361px;
 }
 .cards {
-	min-height: 150px;
+	    min-height: 150px;
+    width: 150px;
+    height: 150px;
+    display: block;
+    float: left;
+    margin: 5px;
+    /* background-color: #eeeeee; */
+    box-shadow: inset 0 0 1px #FFFFCC;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    transition: .3s;
+    transform: scale(1);
+}
+.cards:hover {
+    outline: #999999 solid 3px;
+}
+.dashboard-page .content {
+	    width: fit-content;
+    margin: 3% auto;
+}
+.col-5-custom {
+	    max-width: 542px;
 }
 
 /* Modal Dialog */
@@ -2637,7 +2635,15 @@ table.table.table-striped.table-condensed.table-bordered.vertical td {
 table#viewscen th {
     word-break: break-all;
 }
-
+#userList table#viewscen th,
+#userList table#viewscen td label,
+#scenarioList table th,
+#scenarioList table td label {
+    word-break: break-word;
+}
+#scenarioYtdTable tr.odd td, #scenarioYtdTable tr.even td {
+    word-break: break-word;
+}
 /* Monkeys */
  .table-responsive .tab-content div[id^="frame_"] > table {
 	overflow: auto;
@@ -2683,6 +2689,185 @@ td {
 div[id^="frame_"] table th {
 	font-size: 14px;
 }
+/* Monkeys */
+.monkeySr {
+	text-align: center;
+    font-weight: 100;
+    background: #ccc;
+    border-radius: 50%;
+    font-size: 20px;
+    padding: 10px;
+}
+.customWidth-md-3 {
+	width: 29%;
+}
+/* div#monkeyWrapper .test:nth-child(even) > .row {
+    background: #f8f8f8;
+}
+div#monkeyWrapper .test:nth-child(odd) > .row {
+    background: #ebebeb;
+} */
+/* div#monkeyWrapper div[id^="monkeys"]:not(#monkeys0) label {
+	visibility: hidden
+
+} */
+.panel-body > div#monkeyWrapper {
+	margin-bottom: 0
+}
+.sequence-panel .panel-body {
+	    padding: 13px 15px 0 15px;
+	    max-height: 145px;
+    overflow-y: auto;
+}
+.test .form-group {
+    margin-bottom: 10px;
+}
+.col-md-custom {
+	width: 39%
+}
+.paddingTop20 {
+	padding-top: 20px;
+}
+#btnDeleteMonkey a,#btnAddMonkey a {
+	width: 35px;
+	    padding: 0;
+}
+#btnDeleteMonkey a.btn:hover,
+#btnDeleteMonkey a.btn:active,
+#btnDeleteMonkey a.btn:focus,
+#btnAddMonkey a.btn:hover,
+#btnAddMonkey a.btn:active,
+#btnAddMonkey a.btn:focus,
+#btnAddMonkey a.btn.active,
+#btnDeleteMonkey a.btn.active {
+    background-image: none;
+    outline: 0;
+    -webkit-box-shadow: none;
+   box-shadow: none;
+	background: none;
+	cursor: pointer
+}
+#btnDeleteMonkey a.btn .text-warning {
+    color: #e69811;
+}
+/* View multiple monkeys */
+select.form-control:focus {
+border-color: #ccc;
+box-shadow: none;
+outline: none
+}
+
+.pointerHand {
+cursor: pointer;
+}
+
+ul.multipleMonkeys {
+	list-style: none;
+	padding: 0
+}
+ul.multipleMonkeys li:after {
+    content: ",";
+}
+ul.multipleMonkeys li:last-child:after {
+    content: "";
+}
+
+div#executeScenarioContent .panel > .heading {
+    z-index: 0 !important;
+}
+
+/* #accordion.panel-group .panel {
+    display: table;
+    width: 100%
+} */
+
+
+/* Add Monkey and Edit Monkey Input File Control */
+.input-control {
+    display: inline-block;
+    min-height: 35px;
+    height: 35px;
+    position: relative;
+    vertical-align: middle;
+    margin: .325rem 0;
+    line-height: 1;
+    border-radius: 5px;
+}
+ input#file {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 35px;
+    border-radius: 5px;
+}
+input.input-file-wrapper {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    border: 1px #d9d9d9 solid;
+    width: 100%;
+    height: 100%;
+    padding: 6px 12px;
+    color: #555;
+    z-index: 0;
+    border-radius: 5px;
+} 
+.button {
+    padding: 0 20px;
+    height: 35px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    display: inline-block;
+    outline: none;
+    font-size: 15px;
+    line-height: 100%;
+    margin: .15625rem 0;
+    position: relative;
+    border-style: none;
+    border-radius:5px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    margin: 0;
+}
+
+.sequence-panel {
+	border: 1px solid #ddd;
+	box-shadow: 0 1px 1px rgba(0,0,0,.05)
+}
+
+.margin-bottom0 {
+	margin-bottom: 0
+}
+table#serverTable th.theadSim {
+    word-break: break-word;
+}
+
+.wizard-inner li[disabled],
+.wizard-inner li[disabled] a {
+    pointer-events: none;
+    color: #ccc;
+}
+
+/* Defect fixes */
+.dataTables_wrapper .dataTables_scroll {
+	overflow: auto
+}
+.editFile input#file:after {
+    width: 150px;
+    height: 35px;
+    content: "No file choosen";
+    background: #fff;
+    background-image: aqua;
+    color: #fff;
+}
+#alert-msg {
+	padding: 3px 10px;
+    font-size: 12px !important;
+}
 @media screen and (min-width: 768px) {
 	.modal-dialog {
 		width: 242px;
@@ -2694,14 +2879,39 @@ div[id^="frame_"] table th {
 	}
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1281px) {
 	.cards {
 		min-height: 135px;
+		height: 135px;
+		width: 135px;
 	}
+}
+
+@media screen and (max-width: 1200px) {
 	.modal-dialog {
 		width: 662px;
 	} 
+	.dashboard-page .panel-body {
+		padding-left: 0
+	}
 	
+}
+@media screen and (max-width: 1140px) {
+	.cards {
+	    min-height: 125px;
+	    height: 125px;
+	    width: 115px;
+	}
+	.cards .footer {
+		font-size: 13px;
+	}
+	.card-content i.glyphicon, .card-content i.fa, .card-content span.icon {
+		width: 50px;
+		height: 50px;
+		font-size: 50px;
+		margin-top: -32px;
+ 	   margin-left: -25px;
+	}
 }
 @media screen and (max-width: 1024px) {
 	.modal-dialog {
@@ -2710,9 +2920,18 @@ div[id^="frame_"] table th {
 	
 }
 @media screen and (max-width: 991px) {
-	.col-custom-width {
+	.col-custom-width,.col-5-custom {
 		width: 100%;
-		float: none	
+		float: none	;
+		max-width: inherit;
+	}
+	.dashboard-page .content {
+		width: auto
+	}
+	.cards {
+		width: 100%;
+		height: auto;
+		min-height: 135px;
 	}
 	#fdApplicationTable_wrapper table.dataTable {
 		overflow: auto;	

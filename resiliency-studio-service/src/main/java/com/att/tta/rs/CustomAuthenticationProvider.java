@@ -83,7 +83,7 @@ public class CustomAuthenticationProvider
 	 */
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		Authentication auth = null;
+		Authentication auth;
 		String userString = authentication.getName();
 		logger.debug("UserString : %s", userString);
 		String pkey = authentication.getCredentials().toString();

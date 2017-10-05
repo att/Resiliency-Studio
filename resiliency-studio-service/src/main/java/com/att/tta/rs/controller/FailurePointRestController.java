@@ -135,7 +135,7 @@ public class FailurePointRestController {
 	@RequestMapping(value = "/api/failurepoints/category/{category}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getFailurePointByCategory(@PathVariable("category") String category) {
 		List<FailurePoint> failurePoints = Lists.newArrayList(failurePointService.findByCategory(category));
-		if (failurePoints == null) {
+		if (failurePoints == null || failurePoints.isEmpty()) {
 			final String error = "failurePoints not found with category " + category;
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
@@ -153,7 +153,7 @@ public class FailurePointRestController {
 	@RequestMapping(value = "/api/failurepoints/role/{role}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getFailurePointByRole(@PathVariable("role") String role) {
 		List<FailurePoint> failurePoints = Lists.newArrayList(failurePointService.findByRole(role));
-		if (failurePoints == null) {
+		if (failurePoints == null || failurePoints.isEmpty()) {
 			final String error = "failurePoints not found for  role " + role;
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);

@@ -171,6 +171,9 @@ app
 								if (tabId == 1)
 									$('.nav-tabs a[href="/#frame_doctor"]')
 											.tab('show');
+								else if (tabId ==2)
+									$('.nav-tabs a[href="/#frame_latency"]')
+											.tab('show');
 							}
 
 							// Delete a Monkey Strategy Starts

@@ -102,7 +102,7 @@
 								<label for="category">Script Type*:</label> <select
 									class="form-control" ng-model="fields.scriptTypeCategory"
 									name="category" id="category"
-									ng-options="option for option in failures.scriptCategory"
+									ng-options="option for option in failures.scriptCategory" ng-change="uploadScript();"
 									required>
 									<option value="" disabled selected hidden>Select Script</option>
 								</select>
@@ -127,7 +127,7 @@
 									ng-click="radioSwitch(value)">Upload Script
 								</label> <label class="radio-inline" style="margin-left: 15%;">
 									<input type="radio" value="code" name="script" ng-model="value"
-									ng-change="radioCheck(value)" ng-click="radioSwitch(value)">Code
+									ng-change="radioCheck(value)" id="radioSwitch" ng-click="radioSwitch(value)">Code
 									Script
 								</label>
 
@@ -139,7 +139,7 @@
 								ng-show="enableRadio">
 								<div class="form-group"
 									ng-class="{ 'has-error' : fields.file == '' || monkeyWriteScript == '' }">
-									<label style="display: block;" for="file">Upload Script</label>
+									<label style="display: block;" for="file">Upload Script{{fields.file}}</label>
 									<div style="border-radius: 5px; width: 100%;"
 										class="input-control file" data-role="input">
 										<input placeholder="Upload Script" type="file" name="file"
@@ -147,9 +147,12 @@
 											on-read-file="displayFileContents(contents)"
 											onchange="angular.element(this).scope().uploadFile(this.files)"
 											accept=".sh,.yml">
-
+										
+											<button class="button browse" type="button">
+												<span>Browse</span>
+											</button>
 									</div>
-									<strong class="alert alert-danger" ng-show="invalidfile">Invalid
+									<strong class="alert alert-danger" id="alert-msg" ng-show="invalidfile">Invalid
 										File Format</strong>
 									<p ng-show="scriptValidation" class="help-block">Please
 										Upload/Code Script.</p>
@@ -258,7 +261,7 @@
 						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-right">
 							<div class="btn-group pull-right">
 								<button class="btn btn-primary pull-right"
-									id="addMonkeyStrategy" type="submit">Add</button>
+									id="addMonkeyStrategy" type="submit" ng-disabled="invalidfile==true">Add</button>
 								<button class="btn btn-link pull-right" id="resetMonkeyStrategy"
 									ng-click="resetAddMonkeyForm()" type="reset">
 									<b>Reset</b>
@@ -301,7 +304,7 @@
 				<h5 class="modal-title">{{btnScriptTxt}}</h5>
 			</div>
 			<div id="myBody" class="modal-body">
-				<textarea ng-model="monkeyWriteScript"
+				<textarea ng-model="monkeyWriteScript" id="monkeyWriteScript"
 					style="height: 300px; width: 100%; resize: none;"></textarea>
 			</div>
 			<!-- dialog buttons -->
@@ -324,7 +327,7 @@
 				<h5 class="modal-title">View Script</h5>
 			</div>
 			<div id="myBody" class="modal-body">
-				<textarea data-ng-disabled="true" ng-model="monkeyWriteScript"
+				<textarea data-ng-disabled="true" id="monkeyViewScript" ng-model="monkeyWriteScript"
 					style="height: 300px; width: 100%; resize: none;"></textarea>
 			</div>
 			<!-- dialog buttons -->

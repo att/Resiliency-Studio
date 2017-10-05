@@ -85,7 +85,7 @@ public class Application implements Serializable {
 	private String role;
 
 	/** Map of Environment names, Environments **/
-	private LinkedHashMap<String, Environment> environmentMap;
+	private Map<String, Environment> environmentMap;
 
 	/** Environment Network Architecture Diagram **/
 	private File networkArchitectureDiagram;

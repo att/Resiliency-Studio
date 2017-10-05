@@ -55,6 +55,7 @@
 								<strong>{{errorMessage}}</strong>
 							</div>
 						</div>
+						
 						<div class="row">
 							<div class="col-md-4" data-role="input">
 								<label for="applicationListDiv">Application Name*</label>
@@ -83,11 +84,10 @@
 
 							<div class="col-md-4">
 								<br>
-								<br>
 								<button id="submitButton"
 									class="btn btn-primary next-step pull-right" type="button"
 									ng-disabled="exeScenarioForm.$invalid && {{applicationSelected}}"
-									ng-click="getScenariosList()">LIST</button>
+									ng-click="getScenariosList()" style="margin-top:5px">LIST</button>
 							</div>
 						</div>
 						<div ng-show="loader.loading" class="ng-hide">
@@ -208,7 +208,7 @@
 										<td class="col-md-3 col-xs-6 small"><label></label></td>
 										<td class="col-md-3 col-xs-6 small"><label></label></td>
 										<td class="col-md-3 col-xs-6 small"><label>Role </label>
-											{{u.role}}</td>
+											<br>{{u.role}}</td>
 										<td class="col-md-3 col-xs-6 small"><label>Failure
 												Mode</label><br>{{u.failureMode}}</td>
 										<td class="col-md-3 col-xs-6 small"><label>Current

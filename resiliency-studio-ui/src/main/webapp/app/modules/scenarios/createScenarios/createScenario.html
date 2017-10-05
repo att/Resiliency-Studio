@@ -59,7 +59,7 @@
 						<div class="alert alert-danger alert-dismissable"
 							ng-show="showerrorAlert" style="margin-left: 3%;">
 							<a class="close" data-hide="alert" aria-label="close">&times;</a>
-							<strong>Oops</strong> {{errorMessage}}
+							<strong></strong>{{errorMessage}}
 
 						</div>
 						<form role="form" name="addScenarioForm" id="my-form"
@@ -254,8 +254,8 @@
 												</div>
 												<div class="row">
 													<div class="col-md-12">
-														<div class="form-group">
-															<label for="name">Scenario Name</label> <input
+														<div class="form-group" id="scenarioNameToDisplay">
+															<label for="name">Scenario Name{{scenarioNameToDisplay}}</label> <input
 																type="text"
 																value="{{scenariosFilterModel.id}}.{{appfields.environmentName.name}}.{{appfields.tierName.name}}.{{appfields.serverName.instanceName}}.{{appfields.softwareComponentName.serverComponentName}}.{{appfields.softwareComponentName.processName}}.{{appfields.failureTenet}}.{{appfields.failureMode}}.1.0"
 																class="form-control" id="name" disabled>

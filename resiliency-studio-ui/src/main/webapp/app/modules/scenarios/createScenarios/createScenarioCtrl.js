@@ -294,6 +294,8 @@ app
 								addData.monkeyStrategyId = $scope.appfields.monkeyStrategy.value;
 								addData.version = "1.0";
 
+								var scenarioName = $('#scenarioNameToDisplay').find('#name').val();
+								
 								// Create Scenario Service Call
 								resiliencyStudioService
 										.addScenario(addData)
@@ -315,7 +317,11 @@ app
 													$('.alert').show();
 													$scope.successAlert = false;
 													$scope.showerrorAlert = true;
-													$scope.errorMessage = error.message;
+													$scope.errorMessage = "Scenario with name"
+															+ " "
+															+ scenarioName
+															+ " "
+															+ "already exist.";
 													$('body, html')
 															.animate(
 																	{

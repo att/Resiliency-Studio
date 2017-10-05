@@ -70,7 +70,7 @@ public class TeamUserController {
 	public ResponseEntity<Object> getAllUsers() {
 		logger.debug("Fetching All Users ");
 		List<TeamUser> userList = Lists.newArrayList(userDetailsService.findAll());
-		if (userList == null) {
+		if (userList == null || userList.isEmpty()) {
 			final String error = " No User Found in TeamUser repository";
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);

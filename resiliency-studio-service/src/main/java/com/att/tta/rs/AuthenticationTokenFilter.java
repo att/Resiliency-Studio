@@ -71,7 +71,7 @@ import com.att.tta.rs.service.TeamUserService;
 public class AuthenticationTokenFilter implements Filter {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationTokenFilter.class);
-	
+
 	private static final String ERROR = "Unauthorized user name present in Basic auth Header!! ";
 	private static final String SESSCONTEXTERR = "Unauthorized user access session context not present !! ";
 	private static final String SESSCONTEXTFALSEERR = "Unauthorized user access. Context.getAuthentication().isAuthenticated() is false !! ";
@@ -96,7 +96,7 @@ public class AuthenticationTokenFilter implements Filter {
 		SecurityContext context = SecurityContextHolder.getContext();
 		HttpServletResponse resp = (HttpServletResponse) res;
 		HttpServletRequest request = (HttpServletRequest) req;
-		setResponseHeader(request, resp);
+
 		if ("OPTIONS".equals(request.getMethod())) {
 			resp.setStatus(HttpStatus.OK.value());
 			return;
@@ -119,24 +119,6 @@ public class AuthenticationTokenFilter implements Filter {
 			return;
 		}
 		fc.doFilter(req, res);
-	}
-
-	/**
-	 * This function set the response header.
-	 * 
-	 * @param request
-	 * @param resp
-	 */
-	private void setResponseHeader(HttpServletRequest request, HttpServletResponse resp) {
-		resp.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-		resp.setHeader("Access-Control-Allow-Credentials", "true");
-		resp.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
-		resp.setHeader("Access-Control-Max-Age", "3600");
-		resp.setHeader("Access-Control-Allow-Headers",
-				"Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
-		if ("OPTIONS".equals(request.getMethod())) {
-			resp.setStatus(HttpStatus.OK.value());
-		}
 	}
 
 	/**

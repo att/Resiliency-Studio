@@ -177,9 +177,6 @@ public class EventJobExecutionController {
 	}
 
 	private boolean checkCondition() {
-		if (retry > 90 || (retry > 5 && !entryFlag)) {
-			return true;
-		}
-		return false;
+		return retry > 90 || (retry > 5 && !entryFlag);
 	}
 }

@@ -54,7 +54,7 @@ app
 								resiliencyStudioService) {
 
 							$rootScope.sideBar = "toggled";// For sidebar(Left) Navigation
-							
+							$scope.flag1=true;
 							/* initialize required object and varibale on top */
 							$scope.appfields = {};
 							var parentRowId = $routeParams.appId;
@@ -316,7 +316,7 @@ app
 
 												});
 							}
-
+							
 							// Load active server Accordion and Active Component Tab
 							$scope.loadEditServerTab = function() {
 								if (!isAddServer) {
@@ -331,6 +331,7 @@ app
 												.trigger('click');
 									}
 								}
+								
 							}
 
 							// Get method to display application details
@@ -393,9 +394,19 @@ app
 									"environmentName" : {}
 								};
 							}
-
+							$scope.flag1 = false;
 							// To add a new Component
 							$scope.addServer = function() {
+								$('#accordion > .panel > div.collapse').removeClass('in').attr('aria-expanded',false);
+								/*if($scope.flag1) {
+									alert('hi')
+									$('#accordion > .panel:last').find('div[id^="collapse"]').addClass('in').attr('aria-expanded',true);
+								} else {
+									alert('by')
+									$('#accordion > .panel:first').find('div[id^="collapse"]').addClass('in').attr('aria-expanded',true);
+									$scope.flag1=true;
+								
+								}*/
 								var newServer = angular.copy(serverfields);
 								newServer.swComps.push(angular.copy(sfComps));
 								newServer.discoveryApi.push(angular.copy(discovery));
@@ -403,6 +414,8 @@ app
 								newServer.log.push(angular.copy(logs));
 								$scope.loadTab.push(newServer);
 								isAddServer = true;
+								
+								
 							}
 
 							$scope.addSoftwareComponents = function(fields) {
@@ -605,9 +618,11 @@ app
 												+ index, "yes");
 								confirmdialog.result.then(function(btn) {
 									var keys = Object.keys(obj);
+									
 									keys.forEach(function(key) {
-										if (typeof obj[key] === 'string') {
-											obj[key] = null;
+										if (typeof obj[key]) {
+											$scope.ServerOrIP = true;
+											obj[key] = "";
 										}
 									});
 								});
