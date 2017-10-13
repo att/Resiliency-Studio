@@ -1,5 +1,9 @@
 ## Resiliency Studio ##
 
+### Release Notes ###
+
+* Unit Test cases and BDD Test Cases are added in the application. 
+
 ### Overview ###
 
 In today's digital age, as the systems and services are becoming extremely distributed and hosted on cloud, "failures" are bound to happen and this is going to be the new normal. Systems are expected to be resilient to ensure no/minimal degradation of user experience in the event of failures. Popular solutions like Netflix's SimianArmy created healthy awareness and need for resiliency in SDLC. However, they are mostly service based, focus on Chaos injection and lacks holistic resilience validation dimension. This created an opportunity to build a self-service Studio style platform for failure strategy development and collaboration, with simple, yet, effective user interface easy enough for everyone to use. Our invention "AT&T Resiliency Studio" is a self-service Resilience Validation Platform, which helps to identify failure points within a system, aids to engineer applications to be fault-tolerant with self-healing capabilities.

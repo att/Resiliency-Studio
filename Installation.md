@@ -19,6 +19,8 @@
 	Tomcat 7.x or later
 	
 	Elastic search 2.3.12
+	
+	Chrome Driver exe (chromedriver.exe)
 
 ### Software Installation ###
 ##### Java 1.8 
@@ -40,7 +42,7 @@
 *	Download 2.3.1 version of Elastic Searchh
 *	Next step is to configure 'Cluster Name'. Pls give a proper specific name which will be used throughout application 
 *	Open 'elasticsearch.yml' property file available under '\elasticsearch-2.3.1\config\' folder
-*	Update the 'cluster.name' property with value as 'attsa21'
+*	Update the 'cluster.name' property with value as 'rsdevdatarepo'
 *	To start elastic search use the batch file elasticsearch.bat
 
 ##### GIT
@@ -48,11 +50,15 @@
 * After installation, add below path to the system properties.
 * C:\Program Files\Git\bin
 
+##### Chrome Driver Exe
+* Refer below link to download Chrome Driver Exe file applicable to your OS.
+* https://sites.google.com/a/chromium.org/chromedriver/downloads
+
 ### Resiliency Studio Application Installation ###
 
 #### Clone Resiliency Studio Application from GIT Repository 
 
-URL: https://codecloud.web.att.com/scm/st_rs/resiliency_studio.git 
+URL: https://github.com/att/Resiliency-Studio.git
 
 	resiliency-studio-ui   [UI]
 	resiliency-studio-service  [Service]
@@ -102,27 +108,27 @@ This will clone a repository under given directory
 
 Please follow below steps to setup RS Application configuration. 
 
-**Note:**  *DON'T use of 'localhost' in the Service URL. Instead of using 'localhost', use full computer name. Full computer name can be found in the 'Computer' properties*
+**Note:**  *DON'T use of 'localhost' in the Service URL. Instead use full computer name/ip address.*
 
 #### RS Secure Project (resiliency-studio-security)
 
-Look out for *application.properties* file available under *src/main/resources/* folder, server port and context root is configured as '8083' and */resiliency-studio-security* respectively.  
+Application configuration are with property files. Those are available under *src/main/resources/* folder, server port and context root is configured as '8083' and */resiliency-studio-security* respectively.  
 
 **Note:** If there is a need to change in the port or context root then change in the application.properties file and refer it in the UI project accordingly.
 
 	Service URL:  http://<server_name>:8083/resiliency-studio-security/
 
-Here server_name will be either actual server name where application is deployed or if it is deployed in local machine then it will be 'Full Computer Name'. 
+Here server_name could be Local Machine name/IP Address/DNS Name or localhost
 
 #### RS Agent (resiliency-studio-agent)
 
-Look out for *application.properties* file under *src/main/resources/* folder, server port and context root is configured as '8084' and */resiliency-studio-agent* respectively.  
+Application configuration are with property files. Those are available under *src/main/resources/* folder, server port and context root is configured as '8084' and */resiliency-studio-agent* respectively.  
 
 **Note:** If there is a need to change in the port or context root then change in the application.properties file and refer it in the UI project accordingly.
 
 	Service URL:  http://<server_name>:8084/resiliency-studio-agent/
 
-Here server_name will be either actual server name where application is deployed or if it is deployed in local machine then it will be 'Full Computer Name'.
+Here server_name could be Local Machine name/IP Address/DNS Name or localhost
 
 #### RS Service  (resiliency-studio-service)
 
@@ -132,11 +138,11 @@ Look out for *application.properties* file available under */src/main/resources/
 
 	Service URL:  http://<server_name>:8085/resiliency-studio-service/
 
-Here server_name will be either actual server name where application is deployed or if it is deployed in local machine then it will be 'Full Computer Name'.
+Here server_name could be Local Machine name/IP Address/DNS Name or localhost
 
 In the *resiliencystudio-dev.properties* file available under *src/main/resources/* folder,
  
-i.	Update 'resiliencystudio.recorder.elasticsearch.cluster' property with a 'attsa21'  [it is same as we have configured in Elastic Search configuration file 'elasticsearch.yml']
+i.	Update 'resiliencystudio.recorder.elasticsearch.cluster' property with a 'rsdevdatarepo'  [it is same as we have configured in Elastic Search configuration file 'elasticsearch.yml']
 
 ii.	Update 'resiliencystudio.agentURL' property with a proper RS Agent URL which is configured in Step 2.5.b.
 
@@ -318,7 +324,7 @@ Here replace <user_ID> with actual user ID present into AuthUser.json file.  <te
 
 	For e.g.
 	POST /resiliencystudio/TeamUser/esadmin
-	{"id":"esadmin","teamName":"test","userName":"esadmin","defaultFlag":"Y","roles":"admin"}
+	{"id":"esadmin","teamName":"EnterpriseService","userName":"esadmin","defaultFlag":"Y","roles":"admin"}
 
 Note:  Each User ID configured in AuthUser.json file has to be configured in Elastic Search Database as well if it will be used to login into RS UI application. 
 
@@ -342,3 +348,9 @@ DELETE /resiliencystudio/
 All modules are deployed on respective container and ready to use.  Hit below URL to access RS UI application.
 
 	http://<server-name>:8080/resiliency-studio-ui/#/dashboard  
+
+#### BDD Test Case Execution
+To run BDD Test Case, follow below steps:
+* Update chromeDriverURL property present in config.properties file (src/test/resources/) with the Chrom Driver Executable file location
+* Open FeatureRunner.java class present in com.att.tta.rs.cucumber.framework.runners package.
+* Run this Java class as a TestNG Test to execute BDD test case.
