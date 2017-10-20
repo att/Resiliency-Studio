@@ -118,16 +118,7 @@ Feature: Resiliency studio Application section
    When I click the submit button on add application page for Private Key
    And I click view application link on add application page for Private Key
    #################################View Application#####################################
-   	 Then I am going to another feature of resiliency studio application
-   	Given I am on the dash board page for view application page
-    Then I search for an application "CUCUMBERTEST" that is present in the list of aplications
-    Then I click on the expand button to evaluate the mandatory fileds of application are filled with expected values
-   |applicationName|environmentIndex|categoryIndex|
-   |CUCUMBERTEST|QA|Application|
-    Then I click on the server section expand button to evaluate the mandatory fields are filled with expected values
-    |serverName|hostName|ipAddress|userName|
-    |server-update|hostname       |1.0.0.0|sensk|
-    Then I search for an application which is not there in the applications list
+   
     ################################Add MonkeyStartegy######################################
     Then I am going to another feature of resiliency studio application
     Given I am on the dashboard page for Add MonkeyStrategy

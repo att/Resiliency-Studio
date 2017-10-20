@@ -146,7 +146,6 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		Thread.sleep(2000);
 		this.SCRIPT_DATA.get(0).click();
 		Thread.sleep(3000);
-		this.FILE_UPLOAD.sendKeys("H:\\Executescenariotestdata\\Offshore_Scripts\\Offshore\\AIC\\ProcessStatus.sh");
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.ADD_MONKEY, "click", "0,0");
 	}
 
@@ -189,7 +188,6 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		Thread.sleep(2000);
 		this.SCRIPT_DATA.get(0).click();
 		Thread.sleep(3000);
-		this.FILE_UPLOAD.sendKeys("H:\\Executescenariotestdata\\Offshore_Scripts\\Offshore\\Touch.sh");
 		this.ADVANCED_TAB_CLICK.click();
 		Thread.sleep(4000);
 
