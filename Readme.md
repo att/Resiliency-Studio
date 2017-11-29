@@ -36,6 +36,38 @@ This software enables every engineering team to look at this as primary goal.
 
 The above features are delivered to the user by means of a simple, user-friendly dashboard which helps users to navigate between onboarding applications and ultimately viewing execution metrics. 
 
+
+**Future Features?**
+
+* Multi-strategy based scenario execution
+
+* Pluggable security framework
+
+* Enhanced security and encryption
+
+* Automated hardware discovery
+
+* Resiliency metrics - Run duration, execution status and execution result
+
+* Jump server based execution
+
+* Guided experience and one-touch resiliency validation
+
+* Externalized repository for resiliency strategies
+
+* Scheduled and Randomized execution
+
+* Enhanced integration with externalizable Ansible execution controller
+
+* CI / CD integration and support
+
+* Scenario visual modeling
+
+* AUT - Architecture topology view and network relationship map
+
+* Pluggable automated environment discovery mechanism
+
+
 ### Architecture ###
 
 ![Image](media/readme/RSArchitecture.jpg)
