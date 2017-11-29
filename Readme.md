@@ -20,7 +20,7 @@ In today's organization customers are becoming the key members to decide whether
 
 This software enables every engineering team to look at this as primary goal. 
  
-**Features of Resiliency Studio?**
+**Features of Resiliency Studio**
 
 * Extensible Architecture to any application/ domain
 
@@ -37,7 +37,7 @@ This software enables every engineering team to look at this as primary goal.
 The above features are delivered to the user by means of a simple, user-friendly dashboard which helps users to navigate between onboarding applications and ultimately viewing execution metrics. 
 
 
-**Future Features?**
+**Future Features**
 
 * Multi-strategy based scenario execution
 
