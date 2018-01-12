@@ -34,6 +34,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,6 +49,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.att.tta.rs.model.EventJobDTO;
+import com.att.tta.rs.model.EventMonkeyStrategyDTO;
 import com.att.tta.rs.service.EventJobServiceImpl;
 
 @RunWith(SpringRunner.class)
@@ -59,7 +62,7 @@ public class EventJobExecutionControllerTest {
 	@InjectMocks
 	EventJobExecutionController eventJobController;
 
-	private String startString = "Job Execution has been started at Agent Controller.";
+	private String startString = "Job Execution has been started at Agent Controller for Monkey Strategy: ";
 
 	@Before
 	public void setupMock() {
@@ -74,17 +77,19 @@ public class EventJobExecutionControllerTest {
 	@Test
 	public void testExecuteJobErrCndtn() {
 		EventJobDTO eventDTO = createEventJobDTO();
-		eventDTO.setMonkeyScriptType("");
+		eventDTO.getEventMonkeyList().get(0).setMonkeyScriptType("");
 
 		EventJobDTO returnDTO = (EventJobDTO) eventJobController.executeJob(eventDTO).getBody();
-		assertEquals("Monkey Script Type is blank.", returnDTO.getExecStatus());
-		assertEquals("1", returnDTO.getReturnCode());
+		System.out.println("return ");
+		
+		assertEquals("Monkey Script Type is blank for Monkey Strategy : "+ eventDTO.getEventMonkeyList().get(0).getMonkeyStrategy() +" . So Scenario Execution is terminated.", returnDTO.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals("000", returnDTO.getEventMonkeyList().get(0).getReturnCode());
 
 		eventDTO = createEventJobDTO();
-		eventDTO.setMonkeyScriptContent("");
+		eventDTO.getEventMonkeyList().get(0).setMonkeyScriptContent("");
 		returnDTO = (EventJobDTO) eventJobController.executeJob(eventDTO).getBody();
-		assertEquals("Monkey Script Content is blank.", returnDTO.getExecStatus());
-		assertEquals("1", returnDTO.getReturnCode());
+		assertEquals("Monkey Script Content is empty for Monkey Strategy : "+ eventDTO.getEventMonkeyList().get(0).getMonkeyStrategy() +" . So Scenario Execution is terminated.", returnDTO.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals("000", returnDTO.getEventMonkeyList().get(0).getReturnCode());
 	}
 
 	/**
@@ -96,6 +101,7 @@ public class EventJobExecutionControllerTest {
 		EventJobDTO eventDTO = createEventJobDTO();
 		ConcurrentMap<String, String> eventData = new ConcurrentHashMap<>();
 		eventData.put(eventDTO.getEventId(), startString);
+		eventDTO.getEventMonkeyList().forEach(eventMonkeyDTO -> eventMonkeyDTO.setExecStatus(startString + eventMonkeyDTO.getMonkeyStrategy()));
 		EventJobDTO returnDTO = (EventJobDTO) eventJobController.executeJob(eventDTO).getBody();
 		verify(eventService, times(1)).executeJob(eventDTO, eventData);
 
@@ -129,6 +135,20 @@ public class EventJobExecutionControllerTest {
 		eventDTO.setExecStatus("status");
 		eventDTO.setReturnCode("0");
 
+		List<EventMonkeyStrategyDTO> eventMonkeyStrategyDTOs = new ArrayList<>();
+		EventMonkeyStrategyDTO dto = new EventMonkeyStrategyDTO();
+		
+		dto.setEventId("eventID");
+		dto.setExecSequence("1");
+		dto.setMonkeyStrategy("testMonkeyStrategy");
+		dto.setMonkeyStrategyId("testMonkeyStrategyId");
+		dto.setMonkeyScriptContent("echo test");
+		dto.setMonkeyScriptType("UNIX Script");
+		dto.setMonkeyStrategyVersion("1");
+		
+		eventMonkeyStrategyDTOs.add(dto);
+		eventDTO.setEventMonkeyList(eventMonkeyStrategyDTOs);
+		
 		return eventDTO;
 	}
 }

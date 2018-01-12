@@ -32,6 +32,7 @@ package com.att.tta.rs.cucumber.framework.glue;
 import java.util.List;
 
 import com.att.tta.rs.cucumber.framework.ParentScenario;
+import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.att.tta.rs.cucumber.framework.page.objects.AddApplicationUITab1Data;
 import com.att.tta.rs.cucumber.framework.page.objects.LoginPage;
 import com.att.tta.rs.cucumber.framework.page.objects.ViewApplicationPage;
@@ -58,7 +59,8 @@ public class StepDefinitionsViewApplications extends ParentScenario{
 	
 	@Given("^I am on the dash board page for view application page$")
     public void display_view_application_page() throws InterruptedException {
-		
+		navigateTo("/resiliency-studio-ui/#/dashboard");Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
+		navigateTo("/resiliency-studio-ui/#/dashboard");
 		new ViewApplicationPage(driver).click_on_view_application_link();
     }
 	@Then("^I search for an application \"([^\"]*)\" that is present in the list of aplications$")
@@ -87,7 +89,7 @@ public class StepDefinitionsViewApplications extends ParentScenario{
 	
     @After
     public void afterScenario() {
-        closeBrowser();
+        //closeBrowser();
     }
 	
 }

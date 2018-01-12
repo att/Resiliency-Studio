@@ -36,6 +36,12 @@ package com.att.tta.rs.model;
  * @author ak983d
  *
  */
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.time.DateTime;
+
 public class EventJobDTO {
 
 	private String eventId;
@@ -46,31 +52,64 @@ public class EventJobDTO {
 	private String monkeyStrategyVersion;
 	private String monkeyStrategyId;
 	private String monkeyScriptContent;
-		
+
 	private String serverName;
 	private String hostName;
 	private String ipAdd;
+
 	private String discoverHostName;
 	private String discoverHostIpAddress;
 	private String discoverHostPort;
 	private String discoverUserId;
 	private String discoverPassword;
-	
+
 	private String userName;
 	private String privateKey;
 	private String password;
-	
-	private String failureMode;
+
 	private String processName;
+	private String failureMode;
 	private String scenarioServerName;
-	
+
 	private String connectionType;
 	private String configFile;
-	
+
 	private String execStatus;
-	private String returnCode; 
+	private String returnCode;
 	
+	private DateTime startTS;
+	private DateTime endTS;
 	
+	private String execDuration;
+	private String filePath;
+	
+	public String getExecDuration() {
+		return execDuration;
+	}
+
+	public void setExecDuration(String execDuration) {
+		this.execDuration = execDuration;
+	}
+
+	public DateTime getStartTS() {
+		return startTS;
+	}
+
+	public void setStartTS(DateTime startTS) {
+		this.startTS = startTS;
+	}
+
+	public DateTime getEndTS() {
+		return endTS;
+	}
+
+	public void setEndTS(DateTime endTS) {
+		this.endTS = endTS;
+	}
+
+	/** The List of Monkey Strategies tagged to this Scenario.*/
+	private List<EventMonkeyStrategyDTO> eventMonkeyList;
+
 	public String getExecStatus() {
 		return execStatus;
 	}
@@ -269,5 +308,55 @@ public class EventJobDTO {
 
 	public void setConnectionType(String connectionType) {
 		this.connectionType = connectionType;
+	}
+	
+
+	public List<EventMonkeyStrategyDTO> getEventMonkeyList() {
+		return eventMonkeyList;
+	}
+
+	public void setEventMonkeyList(List<EventMonkeyStrategyDTO> eventMonkeyList) {
+		this.eventMonkeyList = eventMonkeyList;
+	}
+
+	public void addEventMonkey(EventMonkeyStrategyDTO strategy) {
+		if (this.eventMonkeyList == null)
+			this.eventMonkeyList = new ArrayList<>();
+		this.eventMonkeyList.add(strategy);
+	}
+	
+
+	/**
+	 * @return the filePath
+	 */
+	public String getFilePath() {
+		return filePath;
+	}
+
+	/**
+	 * @param filePath the filePath to set
+	 */
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public EventMonkeyStrategyDTO getStrategyWithName(String strategyName) {
+		if (this.eventMonkeyList != null) {
+			for (EventMonkeyStrategyDTO eventMonkeyStrategy : this.eventMonkeyList) {
+				if (eventMonkeyStrategy.getMonkeyStrategy().trim().equalsIgnoreCase(strategyName))
+					return eventMonkeyStrategy;
+			}
+		}
+		return null;
+	}
+
+	public EventMonkeyStrategyDTO getStrategyWithId(String strategyId) {
+		if (this.eventMonkeyList != null) {
+			for (EventMonkeyStrategyDTO eventMonkeyStrategy : this.eventMonkeyList) {
+				if (eventMonkeyStrategy.getMonkeyStrategyId().trim().equalsIgnoreCase(strategyId))
+					return eventMonkeyStrategy;
+			}
+		}
+		return null;
 	}
 }

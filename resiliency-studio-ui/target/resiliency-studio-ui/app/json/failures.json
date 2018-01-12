@@ -1,0 +1,54 @@
+  {
+	"id": "AVXnOZDffTHWIraRmHPk",
+	"name": "fp1",
+	"category": "AIC",
+	"role": "aic-compute",
+	"osType": [
+		"unix",
+		"windows"
+	],
+	"flavors": [
+		[
+			"all"
+		],
+		[
+			"all"
+		]
+	],
+	"failureCategory": [
+		"software",
+		"hardware"
+	],
+	"failureSubCateogy": [
+		[
+			"java",
+			"tomcat",
+			"jboss",
+			"all"
+		],
+		[
+			"all"
+		]
+	],
+	"component": "vRouter",
+	"processName": "contrail-vrouter-agent ",
+	"failureTenet": "Fault",
+	"failureMode": "ProcessFailure",
+	"causeOfFailure": "contrail-vrouter-agent process failure",
+	"currentControls": "supervisor process initiates recovery procedure",
+	"detection": "Supervisor vRouter automatically detects process failure",
+	"recoveryAction": "Supervisor vRouter detects the vrouter agent failure and spaw",
+	"recommendation": "None",
+	"mttd": "1 sec",
+	"mttr": "3 sec ",
+	"userBehavior": "Increase in response time to end user during recovery",
+	"systemBehavior": "Leads to increase in thread wait time during recovery",
+	"monkeyType": "Chaos Monkey",
+	"monkeyStrategy": "ProcessFailure",
+	"scriptCategory": [
+		"UNIX Script",
+		"Ansible Script",
+		"Windows/DOS Script"
+	]
+}
+

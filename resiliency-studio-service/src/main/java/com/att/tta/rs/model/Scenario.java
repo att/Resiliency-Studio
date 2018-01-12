@@ -33,6 +33,8 @@
 package com.att.tta.rs.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -122,6 +124,9 @@ public class Scenario implements Serializable {
 	@Field(type = FieldType.String, analyzer = "keyword", store = true)
 	private String userBehavior;
 
+	@Field(type = FieldType.String, analyzer = "keyword", store = true)
+	private String filePath;
+	
 	/** The systemBehavior . */
 	@Field(type = FieldType.String, analyzer = "keyword", store = true)
 	private String systemBehavior;
@@ -140,6 +145,9 @@ public class Scenario implements Serializable {
 	 * = true)
 	 */
 	private MonkeyType monkeyType;
+
+	/** The List of Monkey Strategies tagged to this Scenario.*/
+	private List<ScenarioMonkeyStrategy> strategies;
 
 	public Scenario() {
 		super();
@@ -479,11 +487,59 @@ public class Scenario implements Serializable {
 		this.systemBehavior = systemBehavior;
 	}
 
+	/**
+	 * @return the filePath
+	 */
+	public String getFilePath() {
+		return filePath;
+	}
+
+	/**
+	 * @param filePath the filePath to set
+	 */
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
 	public String getFailureTenet() {
 		return failureTenet;
 	}
 
 	public void setFailureTenet(String failureTenet) {
 		this.failureTenet = failureTenet;
+	}
+
+	public List<ScenarioMonkeyStrategy> getStrategies() {
+		return strategies;
+	}
+
+	public void setStrategies(List<ScenarioMonkeyStrategy> strategies) {
+		this.strategies = strategies;
+	}
+
+	public void addStrategy(ScenarioMonkeyStrategy strategy) {
+		if (this.strategies == null)
+			this.strategies = new ArrayList<>();
+		this.strategies.add(strategy);
+	}
+
+	public ScenarioMonkeyStrategy getStrategyWithName(String strategyName) {
+		if (this.strategies != null) {
+			for (ScenarioMonkeyStrategy scenarioMonkeyStrategy : this.strategies) {
+				if (scenarioMonkeyStrategy.getMonkeyStrategy().trim().equalsIgnoreCase(strategyName))
+					return scenarioMonkeyStrategy;
+			}
+		}
+		return null;
+	}
+
+	public ScenarioMonkeyStrategy getStrategyWithId(String strategyId) {
+		if (this.strategies != null) {
+			for (ScenarioMonkeyStrategy scenarioMonkeyStrategy : this.strategies) {
+				if (scenarioMonkeyStrategy.getMonkeyStrategyId().trim().equalsIgnoreCase(strategyId))
+					return scenarioMonkeyStrategy;
+			}
+		}
+		return null;
 	}
 }

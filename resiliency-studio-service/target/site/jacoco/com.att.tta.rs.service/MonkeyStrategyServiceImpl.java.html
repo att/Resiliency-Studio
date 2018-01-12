@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonkeyStrategyServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.service</a> &gt; <span class="el_source">MonkeyStrategyServiceImpl.java</span></div><h1>MonkeyStrategyServiceImpl.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.att.ajsc.logging.AjscEelfManager;
+import com.att.eelf.configuration.EELFLogger;
+import com.att.tta.rs.data.es.repository.MonkeyStrategyRepository;
+import com.att.tta.rs.model.FailurePoint;
+import com.att.tta.rs.model.MonkeyStrategy;
+import com.att.tta.rs.model.MonkeyType;
+import com.att.tta.rs.model.Server;
+import com.att.tta.rs.model.SoftwareComponent;
+import com.att.tta.rs.util.AppUtil;
+
+/**
+ * Implementation class for {@link MonkeyStrategyService}
+ * 
+ * @author mb6872
+ *
+ */
+@Service(&quot;monkeyStrategyService&quot;)
+@Transactional
+<span class="fc" id="L60">public class MonkeyStrategyServiceImpl implements MonkeyStrategyService {</span>
+<span class="fc" id="L61">	private static EELFLogger logger = AjscEelfManager.getInstance().getLogger(MonkeyStrategyServiceImpl.class);</span>
+	private MonkeyStrategyRepository monkeyStrategyRepository;
+	
+	private static final String CUROSTYPE = &quot;Linux&quot;;
+	private static final String CHANGEDOSTYPE = &quot;unix&quot;;
+	private static final String MONEKYTYPE = &quot;Chaos Monkey&quot;;
+	private static final String FAILURETENET = &quot;Fault&quot;;
+	private static final String HARDWAREFAILURECAT = &quot;hardware&quot;;
+	private static final String SOFTWARECAT = &quot;software&quot;;
+	private static final String APPCAT = &quot;Application&quot;;
+	
+	@Autowired
+	public void setMonkeyStrategyRepository(MonkeyStrategyRepository monkeyStrategyRepository) {
+<span class="fc" id="L74">		this.monkeyStrategyRepository = monkeyStrategyRepository;</span>
+<span class="fc" id="L75">	}</span>
+
+	private MonkeyStrategy save(MonkeyStrategy monkeyStrategy) {
+<span class="fc" id="L78">		return monkeyStrategyRepository.save(monkeyStrategy);</span>
+	}
+
+	@Override
+	public MonkeyStrategy findOneForTeam(String id, String teamName) {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		if (teamName.trim().equals(AppUtil.getSuperUser()))</span>
+<span class="fc" id="L84">			return monkeyStrategyRepository.findOne(id);</span>
+		else {
+<span class="fc" id="L86">			MonkeyStrategy mk = monkeyStrategyRepository.findOne(id);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">			if (mk == null) {</span>
+<span class="fc" id="L88">				logger.error(&quot;Monkey Strategy cannot be found for id --&gt;&quot; + id);</span>
+<span class="fc" id="L89">				return null;</span>
+			}
+<span class="fc bfc" id="L91" title="All 2 branches covered.">			if (mk.getTeamName().equals(teamName))</span>
+<span class="fc" id="L92">				return mk;</span>
+			else {
+<span class="fc" id="L94">				return null;</span>
+			}
+		}
+	}
+
+	@Override
+	public long count() {
+<span class="nc" id="L101">		return monkeyStrategyRepository.count();</span>
+	}
+
+	@Override
+	public void delete(MonkeyStrategy monkeyStrategy) {
+<span class="fc" id="L106">		monkeyStrategyRepository.delete(monkeyStrategy);</span>
+<span class="fc" id="L107">	}</span>
+
+	@Override
+	public void deleteAllMonkeyStrategy() {
+<span class="nc" id="L111">		monkeyStrategyRepository.deleteAll();</span>
+<span class="nc" id="L112">	}</span>
+
+	@Override
+	public boolean isMonkeyStrategyExistAndTeamName(MonkeyStrategy monkeyStrategy, String teamName) {
+<span class="fc" id="L116">		return findByMonkeyStrategyAndTeamName(monkeyStrategy, teamName).iterator().hasNext();</span>
+	}
+
+	@Override
+	public MonkeyStrategy update(MonkeyStrategy monkeyStrategy) {
+<span class="pc bpc" id="L121" title="2 of 4 branches missed.">		if (monkeyStrategy != null &amp;&amp; !&quot;&quot;.equals(monkeyStrategy.getId().trim())</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">				&amp;&amp; (monkeyStrategyRepository.findOne(monkeyStrategy.getId()) != null)) {</span>
+<span class="fc" id="L123">			return save(monkeyStrategy);</span>
+		}
+<span class="fc" id="L125">		return null;</span>
+	}
+
+	@Override
+	public MonkeyStrategy insertForTeam(MonkeyStrategy monkeyStrategy, String teamName) {
+<span class="fc bfc" id="L130" title="All 2 branches covered.">		if (this.isMonkeyStrategyExistAndTeamName(monkeyStrategy, teamName)) {</span>
+<span class="fc" id="L131">			logger.debug(&quot;Monkey Strategy already exists with name &quot; + monkeyStrategy.getMonkeyStrategyName());</span>
+<span class="fc" id="L132">			return null;</span>
+		}
+<span class="fc" id="L134">		return save(monkeyStrategy);</span>
+	}
+
+	@Override
+	public Iterable&lt;MonkeyStrategy&gt; findAllForTeam(String teamName) {
+<span class="fc bfc" id="L139" title="All 2 branches covered.">		if (teamName.trim().equals(AppUtil.getSuperUser()))</span>
+<span class="fc" id="L140">			return monkeyStrategyRepository.findAll();</span>
+		else
+<span class="fc" id="L142">			return monkeyStrategyRepository.findByTeamName(teamName, new PageRequest(0, 9999));</span>
+	}
+
+	@Override
+	public MonkeyStrategy findByMonkeyStrategyNameAndTeamNameAndVersion(String monkeyStrategyName, String teamName,
+			String monkeyStrategyVersion) {
+<span class="fc" id="L148">		return monkeyStrategyRepository.findByMonkeyStrategyNameAndTeamNameAndMonkeyStrategyVersion(monkeyStrategyName,</span>
+				teamName, monkeyStrategyVersion);
+	}
+
+	@Override
+	public Long countByTeamName(String teamName) {
+<span class="fc bfc" id="L154" title="All 2 branches covered.">		if (teamName.trim().equals(AppUtil.getSuperUser()))</span>
+<span class="fc" id="L155">			return monkeyStrategyRepository.count();</span>
+		else
+<span class="fc" id="L157">			return monkeyStrategyRepository.countByTeamName(teamName);</span>
+
+	}
+
+	@Override
+	public Iterable&lt;MonkeyStrategy&gt; findDefaultMonkeyStrategy(MonkeyType monkeyType, String monkeyStrategy,
+			String defaultFlag, String teamName) {
+<span class="fc" id="L164">		return monkeyStrategyRepository.findByMonkeyTypeAndMonkeyStrategyNameAndDefaultFlagAndTeamName(</span>
+<span class="fc" id="L165">				monkeyType.monkeyType(), monkeyStrategy, defaultFlag, teamName);</span>
+	}
+
+	@Override
+	public MonkeyStrategy findDefaultMonkeyStrategy(String monkeyStrategyName, MonkeyType monkeyType, String teamName) {
+<span class="fc" id="L170">		Iterable&lt;MonkeyStrategy&gt; monkeyIt = monkeyStrategyRepository</span>
+<span class="fc" id="L171">				.findByMonkeyTypeAndMonkeyStrategyNameAndDefaultFlagAndTeamName(monkeyType.monkeyType(),</span>
+						monkeyStrategyName, &quot;Y&quot;, teamName);
+<span class="pc bpc" id="L173" title="1 of 4 branches missed.">		if (monkeyIt != null &amp;&amp; monkeyIt.iterator().hasNext()) {</span>
+<span class="fc" id="L174">			return monkeyIt.iterator().next();</span>
+		}
+<span class="fc" id="L176">		return null;</span>
+	}
+
+	@Override
+	public MonkeyStrategy findByMonkeyStrategyNameAndTeamName(String monkeyStrategyName, String teamName) {
+<span class="fc" id="L181">		return monkeyStrategyRepository.findByMonkeyStrategyNameAndTeamName(monkeyStrategyName, teamName);</span>
+	}
+
+	@Override
+	public Iterable&lt;MonkeyStrategy&gt; findByMonkeyStrategyAndTeamName(MonkeyStrategy monkeyStrategy, String teamName) {
+<span class="fc" id="L186">		return monkeyStrategyRepository.findByMonkeyTypeAndMonkeyStrategyNameAndTeamName(</span>
+<span class="fc" id="L187">				monkeyStrategy.getMonkeyType().monkeyType(), monkeyStrategy.getMonkeyStrategyName(), teamName);</span>
+	}
+
+	@Override
+	public Map&lt;String, List&lt;FailurePoint&gt;&gt; findMonkeyStrategyByOSTypeAndProcessName(String category,
+			List&lt;Server&gt; serverList) {
+<span class="fc" id="L193">		HashMap&lt;String, List&lt;FailurePoint&gt;&gt; serverFailurePointMap = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">		for (Server server : serverList) {</span>
+<span class="fc" id="L195">			String role = &quot;&quot;;</span>
+<span class="pc bpc" id="L196" title="3 of 4 branches missed.">			if (null != server.getRoles() &amp;&amp; !server.getRoles().isEmpty()) {</span>
+<span class="nc" id="L197">				role = server.getRoles().get(0);</span>
+			}
+<span class="fc" id="L199">			List&lt;FailurePoint&gt; fpList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L200">			String osType = server.getOperatingSystem();</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">			if(null != osType){</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">				if (CUROSTYPE.equalsIgnoreCase(osType)) {</span>
+<span class="nc" id="L203">					osType = CHANGEDOSTYPE;</span>
+				}
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">				osType = osType != null ? osType.toLowerCase() : osType;</span>
+<span class="fc" id="L206">				fpList.addAll(setFailurePointMetaData(monkeyStrategyRepository</span>
+<span class="fc" id="L207">						.findByOsTypeAndDefaultFlagAndGenericAndFlavorAndFailureCategoryAndFailureSubCategory(osType, &quot;Y&quot;,</span>
+								&quot;Y&quot;, &quot;all&quot;, HARDWAREFAILURECAT, &quot;all&quot;),
+						null, null, role));
+
+<span class="pc bpc" id="L211" title="2 of 4 branches missed.">				if (server.getSwComps() != null &amp;&amp; !server.getSwComps().isEmpty()) {</span>
+<span class="fc" id="L212">					findMonkeyStrategyByProcessName(server, fpList, osType, role);</span>
+				}
+			}
+<span class="fc" id="L215">			serverFailurePointMap.put(server.getInstanceName(), fpList);</span>
+<span class="fc" id="L216">		}</span>
+<span class="fc" id="L217">		logger.debug(&quot;Total Recommended Scenarios --&gt;&quot; + serverFailurePointMap.size());</span>
+<span class="fc" id="L218">		return serverFailurePointMap;</span>
+	}
+
+	private void findMonkeyStrategyByProcessName(Server server, List&lt;FailurePoint&gt; fpList, String osType, String role) {
+<span class="fc" id="L222">		List&lt;MonkeyStrategy&gt; monkeydefaultSoftwareList = monkeyStrategyRepository</span>
+<span class="fc" id="L223">				.findByOsTypeAndDefaultFlagAndGenericAndFlavorAndFailureCategoryAndFailureSubCategory(osType, &quot;Y&quot;, &quot;Y&quot;,</span>
+						&quot;all&quot;, SOFTWARECAT, &quot;all&quot;);
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		for (SoftwareComponent softwareComponent : server.getSwComps()) {</span>
+<span class="fc" id="L226">			String processName = softwareComponent.getProcessName();</span>
+<span class="fc" id="L227">			String componentName = softwareComponent.getServerComponentName();</span>
+<span class="pc bpc" id="L228" title="2 of 4 branches missed.">			if (null != processName &amp;&amp; !&quot;&quot;.equalsIgnoreCase(processName)) {</span>
+<span class="fc" id="L229">				processName = processName.toLowerCase();</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">				componentName = componentName != null ? componentName.toLowerCase() : componentName;</span>
+<span class="fc" id="L231">				fpList.addAll(setFailurePointMetaData(monkeydefaultSoftwareList, processName, componentName, role));</span>
+<span class="fc" id="L232">				List&lt;MonkeyStrategy&gt; monkeyProcessList = monkeyStrategyRepository</span>
+<span class="fc" id="L233">						.findByOsTypeAndDefaultFlagAndGenericAndFlavorAndFailureCategoryAndFailureSubCategory(osType,</span>
+								&quot;Y&quot;, &quot;Y&quot;, &quot;all&quot;, SOFTWARECAT, processName);
+<span class="fc" id="L235">				fpList.addAll(setFailurePointMetaData(monkeyProcessList, processName, componentName, role));</span>
+			}
+<span class="fc" id="L237">		}</span>
+<span class="fc" id="L238">	}</span>
+
+	private List&lt;FailurePoint&gt; setFailurePointMetaData(List&lt;MonkeyStrategy&gt; monkeyList, String processName,
+			String componentName, String role) {
+		FailurePoint failurePoint;
+<span class="fc" id="L243">		List&lt;FailurePoint&gt; fpList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">		for (MonkeyStrategy monkeyStrategy : monkeyList) {</span>
+<span class="fc" id="L245">			failurePoint = new FailurePoint();</span>
+<span class="fc" id="L246">			failurePoint.setRole(role);</span>
+<span class="fc" id="L247">			failurePoint.setCategory(APPCAT);</span>
+<span class="fc" id="L248">			failurePoint.setFailureMode(monkeyStrategy.getMonkeyStrategyName());</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">			if (MONEKYTYPE.equalsIgnoreCase(monkeyStrategy.getMonkeyType().monkeyType())) {</span>
+<span class="fc" id="L250">				failurePoint.setFailureTenet(FAILURETENET);</span>
+			} else {
+<span class="nc" id="L252">				failurePoint.setFailureTenet(monkeyStrategy.getMonkeyType().monkeyType());</span>
+			}
+<span class="fc" id="L254">			failurePoint.setOsType(monkeyStrategy.getOsType());</span>
+<span class="fc" id="L255">			failurePoint.setFlavor(monkeyStrategy.getFlavor());</span>
+<span class="fc" id="L256">			failurePoint.setFailureCategory(monkeyStrategy.getFailureCategory());</span>
+<span class="fc" id="L257">			failurePoint.setFailureSubCategory(monkeyStrategy.getFailureSubCategory());</span>
+<span class="fc" id="L258">			failurePoint.setMonkeyType(monkeyStrategy.getMonkeyType());</span>
+<span class="fc" id="L259">			failurePoint.setMonkeyStrategy(monkeyStrategy.getMonkeyStrategyName());</span>
+
+<span class="fc bfc" id="L261" title="All 2 branches covered.">			if (null != processName) {</span>
+<span class="fc" id="L262">				failurePoint.setProcessName(processName);</span>
+			}
+<span class="fc bfc" id="L264" title="All 2 branches covered.">			if (null != componentName) {</span>
+<span class="fc" id="L265">				failurePoint.setComponent(componentName);</span>
+			}
+
+<span class="fc" id="L268">			fpList.add(failurePoint);</span>
+<span class="fc" id="L269">		}</span>
+<span class="fc" id="L270">		return fpList;</span>
+	}
+
+	@Override
+	public Iterable&lt;MonkeyStrategy&gt; findAllMonkeyStrategies() {
+<span class="fc" id="L275">		return monkeyStrategyRepository.findAll();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

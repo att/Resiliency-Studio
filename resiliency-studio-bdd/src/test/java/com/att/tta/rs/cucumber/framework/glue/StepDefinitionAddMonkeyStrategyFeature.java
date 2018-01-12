@@ -57,13 +57,14 @@ public class StepDefinitionAddMonkeyStrategyFeature extends ParentScenario {
 
 	@Given("^I am on the dashboard page for Add MonkeyStrategy$")
 	public void clicking_on_add_monkeystrategy_button() throws InterruptedException {
+		navigateTo("/resiliency-studio-ui/#/dashboard");
 		new AddMonkeyStrategyFeature(driver).click_on_addmonkey();
 	}
 
 	@Then("^I fill up the details in basic tab for add monkey strategy and check the version field is disabled$")
 	public void filling_only_basic_tab_fields(List<CloneMonkeyStrategyBasicTabUIData> basicdata)
 			throws InterruptedException {
-		// need t send the data for the basic tab
+		// need to send the data for the basic tab
 		new AddMonkeyStrategyFeature(driver).fill_the_basic_tab_data(basicdata);
 	}
 

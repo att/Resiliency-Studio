@@ -39,8 +39,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 /**
- * This class is the configuration adaptor of Spring Web based Security.
- * 
+ * This class is the configuration adaptor of Spring Web based Security.  
  * @author ak983d
  *
  */
@@ -58,17 +57,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-
 		/*
-		 * This block is required for Auto wiring.
+		 * This block is required for Auto wiring. 
 		 */
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().anonymous().disable().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and().authorizeRequests()
-				.antMatchers("/api/*").authenticated().and().httpBasic();
+		.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and().authorizeRequests()
+		.antMatchers("/api/*").authenticated().and().httpBasic();
 	}
 
 	@Override

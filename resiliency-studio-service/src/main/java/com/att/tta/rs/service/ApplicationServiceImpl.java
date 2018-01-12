@@ -29,6 +29,8 @@
  *******************************************************************************/
 package com.att.tta.rs.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,10 +42,13 @@ import com.att.ajsc.logging.AjscEelfManager;
 import com.att.eelf.configuration.EELFLogger;
 import com.att.tta.rs.data.es.repository.ApplicationRepository;
 import com.att.tta.rs.model.Application;
+import com.att.tta.rs.model.Server;
 import com.att.tta.rs.util.AppUtil;
+import com.att.tta.rs.util.EUtil;
 
-/** 
+/**
  * Implementation class for {@link ApplicationService}
+ * 
  * @author ak983d
  *
  */
@@ -66,6 +71,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
 	@Override
 	public Application insertForTeam(Application application, String teamName) {
+		try {
+			encryptPwdPvtKey(application);
+		} catch (Exception e) {
+			logger.error("Exception while encoding private key or password", e);
+		}
+
 		/*
 		 * Validation: If Application with same name is already exist then
 		 * return without inserting application object
@@ -77,8 +88,36 @@ public class ApplicationServiceImpl implements ApplicationService {
 		return save(application);
 	}
 
+	/**
+	 * This method is used to encrypt a Private Key and Password.
+	 * 
+	 * @param application
+	 */
+	private static void encryptPwdPvtKey(Application application) {
+		if (null != application) {
+			String envName = application.fields().get("environmentName");
+			if (null != application.getEnvironmentMap() && null != application.getEnvironmentMap().get(envName)) {
+				List<Server> serverList = application.getEnvironmentMap().get(envName).getServerList();
+				for (Server server : serverList) {
+					if (null != server.getPassword()) {
+						server.setPassword(EUtil.encrypt(server.getPassword()));
+					}
+
+					if (null != server.getPrivatekey()) {
+						server.setPrivatekey(EUtil.encrypt(server.getPrivatekey()));
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	public Application update(Application application) {
+		try {
+			encryptPwdPvtKey(application);
+		} catch (Exception e) {
+			logger.error("Exception while encoding private key or password", e);
+		}
 		if (application != null && !"".equals(application.getId().trim())
 				&& (applicationRepository.findOne(application.getId()) != null)) {
 			return save(application);
@@ -132,8 +171,16 @@ public class ApplicationServiceImpl implements ApplicationService {
 
 	@Override
 	public Application findByApplicationNameAndTeamName(String name, String teamName) {
-		if (AppUtil.getSuperUser().equals(teamName.trim()))
-			return applicationRepository.findByApplicationName(name, new PageRequest(0, 999)).iterator().next();
+		if (AppUtil.getSuperUser().equals(teamName.trim())) {
+			Page<Application> applicationList = applicationRepository.findByApplicationName(name,
+					new PageRequest(0, 999));
+			if (null != applicationList && applicationList.getTotalElements() > 0) {
+				return applicationList.iterator().next();
+			} else {
+				logger.debug("There is no Applicaiton object found in ES for given Application name.");
+				return null;
+			}
+		}
 
 		Page<Application> appPage = null;
 		Application app = applicationRepository.findByApplicationNameAndTeamName(name, teamName);

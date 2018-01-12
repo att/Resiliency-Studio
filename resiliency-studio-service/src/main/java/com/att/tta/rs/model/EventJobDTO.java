@@ -29,6 +29,9 @@
  *******************************************************************************/
 package com.att.tta.rs.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EventJobDTO {
 
 	private String eventId;
@@ -63,6 +66,20 @@ public class EventJobDTO {
 
 	private String execStatus;
 	private String returnCode;
+	private String filePath;
+	
+	private String execDuration;
+	
+	public String getExecDuration() {
+		return execDuration;
+	}
+
+	public void setExecDuration(String execDuration) {
+		this.execDuration = execDuration;
+	}
+	
+	/** The List of Monkey Strategies tagged to this Scenario.*/
+	private List<EventMonkeyStrategyDTO> eventMonkeyList;
 
 	public String getExecStatus() {
 		return execStatus;
@@ -262,5 +279,54 @@ public class EventJobDTO {
 
 	public void setConnectionType(String connectionType) {
 		this.connectionType = connectionType;
+	}
+	
+
+	/**
+	 * @return the filePath
+	 */
+	public String getFilePath() {
+		return filePath;
+	}
+
+	/**
+	 * @param filePath the filePath to set
+	 */
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public List<EventMonkeyStrategyDTO> getEventMonkeyList() {
+		return eventMonkeyList;
+	}
+
+	public void setEventMonkeyList(List<EventMonkeyStrategyDTO> eventMonkeyList) {
+		this.eventMonkeyList = eventMonkeyList;
+	}
+
+	public void addEventMonkey(EventMonkeyStrategyDTO strategy) {
+		if (this.eventMonkeyList == null)
+			this.eventMonkeyList = new ArrayList<>();
+		this.eventMonkeyList.add(strategy);
+	}
+
+	public EventMonkeyStrategyDTO getStrategyWithName(String strategyName) {
+		if (this.eventMonkeyList != null) {
+			for (EventMonkeyStrategyDTO eventMonkeyStrategy : this.eventMonkeyList) {
+				if (eventMonkeyStrategy.getMonkeyStrategy().trim().equalsIgnoreCase(strategyName))
+					return eventMonkeyStrategy;
+			}
+		}
+		return null;
+	}
+
+	public EventMonkeyStrategyDTO getStrategyWithId(String strategyId) {
+		if (this.eventMonkeyList != null) {
+			for (EventMonkeyStrategyDTO eventMonkeyStrategy : this.eventMonkeyList) {
+				if (eventMonkeyStrategy.getMonkeyStrategyId().trim().equalsIgnoreCase(strategyId))
+					return eventMonkeyStrategy;
+			}
+		}
+		return null;
 	}
 }

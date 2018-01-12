@@ -1,0 +1,1265 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScenarioRestController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.controller</a> &gt; <span class="el_source">ScenarioRestController.java</span></div><h1>ScenarioRestController.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.controller;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.att.ajsc.logging.AjscEelfManager;
+import com.att.eelf.configuration.EELFLogger;
+import com.att.tta.rs.model.Application;
+import com.att.tta.rs.model.Environment;
+import com.att.tta.rs.model.EventJobDTO;
+import com.att.tta.rs.model.EventMonkeyStrategyDTO;
+import com.att.tta.rs.model.EventRecorder;
+import com.att.tta.rs.model.EventStatus;
+import com.att.tta.rs.model.MonkeyStrategy;
+import com.att.tta.rs.model.Scenario;
+import com.att.tta.rs.model.ScenarioAdapter;
+import com.att.tta.rs.model.ScenarioExecutionAdapter;
+import com.att.tta.rs.model.ScenarioMonkeyStrategy;
+import com.att.tta.rs.model.Server;
+import com.att.tta.rs.model.SoftwareComponent;
+import com.att.tta.rs.model.TeamUser;
+import com.att.tta.rs.service.ApplicationService;
+import com.att.tta.rs.service.MonkeyStrategyService;
+import com.att.tta.rs.service.ScenarioService;
+import com.att.tta.rs.service.TeamUserService;
+import com.att.tta.rs.util.AppUtil;
+import com.att.tta.rs.util.EUtil;
+import com.att.tta.rs.util.MessageWrapper;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+/**
+ * This Class provides certain REST APIs to perform CRUD operations on Scenario
+ * repository.
+ * 
+ * @author ak983d
+ *
+ */
+
+@EnableWebMvc
+@RestController
+@Api(value = &quot;Scenario Rest Controller&quot;, description = &quot;This REST controller provides REST APIs for performing CRUD Operation on Scenario Repository&quot;)
+<span class="fc" id="L101">public class ScenarioRestController {</span>
+<span class="fc" id="L102">	private static EELFLogger logger = AjscEelfManager.getInstance().getLogger(ScenarioRestController.class);</span>
+	private static final String APPNAME = &quot; and application name&quot;;
+	private static final String NOTFOUND = &quot; not found&quot;;
+	private static final String SCENARIO = &quot;A scenario with name &quot;;
+	
+	@Autowired
+	org.springframework.core.env.Environment env;
+
+	@Autowired
+	ScenarioService scenarioService;
+
+	@Autowired
+	ApplicationService applicationService;
+
+	@Autowired
+	MonkeyStrategyService monkeyStrategyService;
+
+	@Autowired
+	TaskExecutor taskExecutor;
+
+	@Autowired
+	TeamUserService userDetailsService;
+
+	private static final String AGENTURI = &quot;/resiliency-studio-agent/api/execJob/&quot;;
+	private static final String ALPHAERR = &quot;\n Team Alpha cannot execute scenarios.&quot;;
+	private static final String MONKEYSTRATEGYNOTPERSENT = &quot;Monkey Strategies cannot be null.&quot;;
+	private static final String FAILED = &quot;Failed&quot;;
+
+	/**
+	 * This API returns list of all Scenarios objects available in Scenario
+	 * Repository.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns all Scenario Objects present in Elastic Search&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned all Scenario Objects&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Scenario object found&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/&quot;, method = RequestMethod.GET)
+	public ResponseEntity&lt;List&lt;Scenario&gt;&gt; listScenarios() {
+<span class="fc" id="L143">		List&lt;Scenario&gt; scenarios = Lists.newArrayList(scenarioService.findAll());</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">		if (scenarios.isEmpty()) {</span>
+<span class="fc" id="L145">			return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+		}
+<span class="fc" id="L147">		return new ResponseEntity&lt;&gt;(scenarios, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns list of all Scenarios objects available in Scenario
+	 * Repository under given team.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns list of all Scenario objects present in Elastic Search for given team&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned all Scenario Objects for given team&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Scenario object found for given team&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/team/&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;List&lt;Scenario&gt;&gt; listAllScenarios(HttpServletRequest request) {
+<span class="fc" id="L163">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L164">		List&lt;Scenario&gt; events = Lists.newArrayList(scenarioService.findAllByTeamName(teamName));</span>
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">		if (events.isEmpty()) {</span>
+<span class="fc" id="L167">			return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+		}
+<span class="fc" id="L169">		return new ResponseEntity&lt;&gt;(events, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns count of Scenarios for current team.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns count of Scenario objects available in Elastic Search for team name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned count of Scenario objects for team name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;The resource trying to reach is not found&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/count/&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; countByTeamName(HttpServletRequest request) {
+<span class="fc" id="L184">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L185">		Long count = scenarioService.countByTeamName(teamName);</span>
+<span class="fc" id="L186">		return new ResponseEntity&lt;&gt;(count.toString(), HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns Scenarios objects for given Scenario ID
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns single Scenario Object present in Elastic Search for given Scenario ID&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned single Scenario Object for given Scenario ID&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Scenario object found for given Scenario ID&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/{id}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity&lt;Object&gt; getScenario(@PathVariable(&quot;id&quot;) String id) {
+<span class="fc" id="L201">		Scenario scenario = scenarioService.findOne(id);</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">		if (scenario == null) {</span>
+<span class="fc" id="L203">			String error = &quot;Scenario not found with id &quot; + id;</span>
+<span class="fc" id="L204">			logger.debug(error);</span>
+<span class="fc" id="L205">			MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L206">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L208">		return new ResponseEntity&lt;&gt;(scenario, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns list of all Scenarios objects available in Scenario
+	 * Repository under given Application name and team name.
+	 * 
+	 * @param request
+	 * @param applicationName
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns Scenario Objects present in Elastic Search for given App Name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned Scenario Objects for given App Name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Scenario object found for given App Name&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/scenariosby-appname/{applicationName:.+}&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; listAllScenariosByApplicationName(HttpServletRequest request,
+			@PathVariable(&quot;applicationName&quot;) String applicationName) {
+<span class="fc" id="L226">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L227">		List&lt;Scenario&gt; scenarios = Lists</span>
+<span class="fc" id="L228">				.newArrayList(scenarioService.findByApplicationNameByTeamName(applicationName, teamName));</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">		if (scenarios.isEmpty()) {</span>
+<span class="fc" id="L230">			String error = &quot;No Scenarios found under Application &quot; + applicationName;</span>
+<span class="fc" id="L231">			logger.debug(error);</span>
+<span class="fc" id="L232">			MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L233">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L235">		return new ResponseEntity&lt;&gt;(scenarios, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns Scenarios object for given Scenario name and team name.
+	 * 
+	 * @param request
+	 * @param name
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns single Scenario Object present in Elastic Search for given Scenario Name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = &quot;Returned single Scenario Object for given Scenario Name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Scenario object found for given Scenario Name&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/scenariobyname/{name:.+}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity&lt;Object&gt; getScenarioByName(HttpServletRequest request, @PathVariable(&quot;name&quot;) String name) {
+<span class="fc" id="L252">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L253">		Scenario scenario = scenarioService.findByScenarioNameByTeamName(name, teamName);</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">		if (scenario == null) {</span>
+<span class="fc" id="L255">			String error = &quot;Scenario  not found with name &quot; + name;</span>
+<span class="fc" id="L256">			logger.debug(error);</span>
+<span class="fc" id="L257">			MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L258">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L260">		return new ResponseEntity&lt;&gt;(scenario, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns list of Scenarios object for given Scenario name and
+	 * team name.
+	 * 
+	 * @param request
+	 * @param name
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns Scenario Objects present in Elastic Search for given Scenario Name and team Name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = &quot;Returned single Scenario Object for given Scenario Name and team Name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Scenario object found for given Scenario Name and team Name&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/listscenariobyname/{name:.+}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity&lt;Object&gt; getScenarioListByName(HttpServletRequest request, @PathVariable(&quot;name&quot;) String name) {
+<span class="fc" id="L278">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L279">		Page&lt;Scenario&gt; scenarioPage = scenarioService.findScenarioListByScenarioNameByTeamName(name, teamName,</span>
+				new PageRequest(0, 9999));
+<span class="fc" id="L281">		List&lt;Scenario&gt; scenarioList = scenarioPage.getContent();</span>
+<span class="pc bpc" id="L282" title="1 of 4 branches missed.">		if (scenarioList == null || scenarioList.isEmpty()) {</span>
+<span class="fc" id="L283">			String error = &quot;Scenario with name &quot; + name + NOTFOUND;</span>
+<span class="fc" id="L284">			logger.debug(error);</span>
+<span class="fc" id="L285">			MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L286">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L288">		return new ResponseEntity&lt;&gt;(scenarioList, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API creates a Scenario.
+	 * 
+	 * @param request
+	 * @param scenario
+	 * @param ucBuilder
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API inserts a Scenario Object into Elastic Search&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = &quot;Scenario object successfully inserted into ES&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform Add operation&quot;),
+			@ApiResponse(code = 409, message = &quot;Scenario with same name is already exist&quot;),
+			@ApiResponse(code = 404, message = &quot;The resource trying to reach is not found&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/scenario/&quot;, method = RequestMethod.POST, produces = &quot;application/json&quot;, consumes = MediaType.ALL_VALUE)
+	public ResponseEntity&lt;Object&gt; addScenario(HttpServletRequest request, @RequestBody Scenario scenario,
+			UriComponentsBuilder ucBuilder) {
+<span class="fc" id="L308">		logger.debug(&quot;Creating scenario with name -&gt;%s, application name -&gt;%s&quot;, scenario.getName(),</span>
+<span class="fc" id="L309">				scenario.getApplicationName());</span>
+
+<span class="fc" id="L311">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+
+<span class="fc bfc" id="L313" title="All 2 branches covered.">		if (scenarioService.isScenarioExistForTeamName(scenario, teamName)) {</span>
+<span class="fc" id="L314">			final String error = SCENARIO + scenario.getName() + &quot; already exist&quot;;</span>
+<span class="fc" id="L315">			logger.debug(error);</span>
+<span class="fc" id="L316">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.CONFLICT, error, error);</span>
+<span class="fc" id="L317">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="fc" id="L320">		scenario.setTeamName(teamName.trim());</span>
+<span class="fc" id="L321">		scenarioService.save(scenario, teamName);</span>
+
+<span class="fc" id="L323">		HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L324">		headers.setLocation(ucBuilder.path(&quot;/scenarios/{id}&quot;).buildAndExpand(scenario.getId()).toUri());</span>
+<span class="fc" id="L325">		return new ResponseEntity&lt;&gt;(headers, HttpStatus.CREATED);</span>
+	}
+
+	/**
+	 * This API updates a Scenario
+	 * 
+	 * @param request
+	 * @param id
+	 * @param toModifyScenario
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API updates a Scenario Objects into Elastic Search&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Scenario objects successfully updated into ES&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform Update operation&quot;),
+			@ApiResponse(code = 409, message = &quot;Scenario with same name is already exist&quot;),
+			@ApiResponse(code = 404, message = &quot;Scenario object not found in ES for given Scenario ID&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/{id}&quot;, method = RequestMethod.PUT, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; updateScenario(HttpServletRequest request, @PathVariable(&quot;id&quot;) String id,
+			@RequestBody Scenario toModifyScenario) {
+<span class="fc" id="L345">		logger.debug(&quot;Updating Scenario with ID: &quot; + id);</span>
+
+<span class="fc" id="L347">		Scenario currentScenario = scenarioService.findOne(id);</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">		if (currentScenario == null) {</span>
+<span class="fc" id="L349">			final String error = &quot;Scenario with id &quot; + id + NOTFOUND;</span>
+<span class="fc" id="L350">			logger.debug(error);</span>
+<span class="fc" id="L351">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L352">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="fc" id="L355">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L356">		toModifyScenario.setTeamName(currentScenario.getTeamName());</span>
+
+<span class="fc bfc" id="L358" title="All 2 branches covered.">		if (scenarioService.isScenarioExistForTeamName(toModifyScenario, teamName)) {</span>
+<span class="fc" id="L359">			final String error = SCENARIO + toModifyScenario.getName() + &quot; already exist&quot;;</span>
+<span class="fc" id="L360">			logger.debug(error);</span>
+<span class="fc" id="L361">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.CONFLICT, error, error);</span>
+<span class="fc" id="L362">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="pc bpc" id="L365" title="1 of 2 branches missed.">		if (toModifyScenario.getTeamName() == null</span>
+<span class="fc bfc" id="L366" title="All 2 branches covered.">				|| !toModifyScenario.getTeamName().trim().equalsIgnoreCase(teamName)) {</span>
+<span class="fc" id="L367">			final String error = &quot;Scenario is not owned by Team &quot; + toModifyScenario.getTeamName();</span>
+<span class="fc" id="L368">			logger.debug(error);</span>
+<span class="fc" id="L369">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L370">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="fc" id="L373">		toModifyScenario.setId(id);</span>
+<span class="fc" id="L374">		Scenario modifiedScenario = scenarioService.update(toModifyScenario, teamName);</span>
+
+<span class="fc bfc" id="L376" title="All 2 branches covered.">		if (modifiedScenario == null) {</span>
+<span class="fc" id="L377">			final String error = &quot;Scenario with id &quot; + id + &quot; is not updated&quot;;</span>
+<span class="fc" id="L378">			logger.debug(error);</span>
+<span class="fc" id="L379">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L380">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L382">		return new ResponseEntity&lt;&gt;(modifiedScenario, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API deletes a Scenario
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API deletes a Scenario Objects from Elastic Search for given Scenario ID&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = &quot;Scenario object successfully deleted from ES for given Scenario ID&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform Delete operation&quot;),
+			@ApiResponse(code = 404, message = &quot;Scenario object not found in ES for given Scenario ID&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/{id}&quot;, method = RequestMethod.DELETE, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; deleteScenario(@PathVariable(&quot;id&quot;) String id) {
+<span class="fc" id="L399">		logger.debug(&quot;Deleting Scenario with id &quot; + id);</span>
+<span class="fc" id="L400">		Scenario scenario = scenarioService.findOne(id);</span>
+<span class="fc bfc" id="L401" title="All 2 branches covered.">		if (scenario == null) {</span>
+<span class="fc" id="L402">			final String error = &quot;Unable to delete. Scenario with id &quot; + id + NOTFOUND;</span>
+<span class="fc" id="L403">			logger.debug(error);</span>
+<span class="fc" id="L404">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L405">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="fc" id="L408">		scenarioService.delete(scenario);</span>
+<span class="fc" id="L409">		return new ResponseEntity&lt;&gt;(HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API deletes all Scenarios under application name
+	 * 
+	 * @param request
+	 * @param applicationName
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API deletes a Scenario Objects from Elastic Search for given App Name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = &quot;Scenario object successfully deleted from ES for given App Name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform Delete operation&quot;),
+			@ApiResponse(code = 404, message = &quot;Scenario object not found in ES for given App Name&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/scenariosby-appname/{applicationName}&quot;, method = RequestMethod.DELETE, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; deleteScenarioForApplication(HttpServletRequest request,
+			@PathVariable(&quot;applicationName&quot;) String applicationName) {
+<span class="fc" id="L428">		logger.debug(&quot;Deleting all Scenarios for application &quot; + applicationName);</span>
+<span class="fc" id="L429">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L430">		List&lt;Scenario&gt; scenarioList = scenarioService.findByApplicationNameByTeamName(applicationName, teamName);</span>
+<span class="pc bpc" id="L431" title="1 of 4 branches missed.">		if (scenarioList == null || scenarioList.isEmpty()) {</span>
+<span class="fc" id="L432">			final String error = &quot;Unable to delete. Scenario for application &quot; + applicationName + NOTFOUND;</span>
+<span class="fc" id="L433">			logger.debug(error);</span>
+<span class="fc" id="L434">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L435">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="fc bfc" id="L438" title="All 2 branches covered.">		for (Scenario scenario : scenarioList) {</span>
+<span class="fc" id="L439">			scenarioService.delete(scenario);</span>
+<span class="fc" id="L440">		}</span>
+<span class="fc" id="L441">		return new ResponseEntity&lt;&gt;(HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API deletes all Scenarios.
+	 * 
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API deletes all Scenario Objects from Elastic Search&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;All Scenario object successfully deleted from ES&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform Delete operation&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/&quot;, method = RequestMethod.DELETE, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; deleteAllScenarios() {
+<span class="fc" id="L455">		logger.debug(&quot;Deleting All Scenarios&quot;);</span>
+<span class="fc" id="L456">		scenarioService.deleteAllScenarios();</span>
+<span class="fc" id="L457">		return new ResponseEntity&lt;&gt;(HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API does bulk Scenario insertion
+	 * 
+	 * @param request
+	 * @param scenarioAdapter
+	 * @param ucBuilder
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API do bulk insertion of Scenario Objects into Elastic Search&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = &quot;Scenario objects successfully inserted into ES&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform Add operation&quot;),
+			@ApiResponse(code = 409, message = &quot;Scenario with same name is already exist&quot;),
+			@ApiResponse(code = 404, message = &quot;The resource trying to reach is not found&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/bulk/&quot;, method = RequestMethod.POST, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; bulkaddScenario(HttpServletRequest request,
+			@RequestBody ScenarioAdapter scenarioAdapter) {
+
+<span class="fc" id="L478">		logger.debug(&quot;Bulk inserting scenarios Total #--&gt;&quot; + scenarioAdapter.getScenarios().size());</span>
+<span class="fc" id="L479">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L480">		List&lt;Scenario&gt; toBeInertScenarios = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L481" title="All 2 branches covered.">		for (Scenario scenario : scenarioAdapter.getScenarios()) {</span>
+<span class="fc" id="L482">			scenario.setTeamName(teamName);</span>
+<span class="fc bfc" id="L483" title="All 2 branches covered.">			if (scenarioService.isScenarioExistForTeamName(scenario, teamName)) {</span>
+<span class="fc" id="L484">				logger.debug(SCENARIO + scenario.getName() + &quot; already exists.&quot;);</span>
+			} else {
+<span class="fc" id="L486">				toBeInertScenarios.add(scenario);</span>
+			}
+<span class="fc" id="L488">		}</span>
+
+<span class="fc bfc" id="L490" title="All 2 branches covered.">		if (toBeInertScenarios.isEmpty()) {</span>
+<span class="fc" id="L491">			final String error = &quot;Scenarios with same name are already exist for selected application and environment.&quot;;</span>
+<span class="fc" id="L492">			logger.debug(error);</span>
+<span class="fc" id="L493">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.CONFLICT, error, error);</span>
+<span class="fc" id="L494">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		} else {
+<span class="fc" id="L496">			scenarioService.save(toBeInertScenarios, teamName);</span>
+<span class="fc" id="L497">			HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L498">			return new ResponseEntity&lt;&gt;(headers, HttpStatus.CREATED);</span>
+		}
+	}
+
+	/**
+	 * This API does bulk deletion of scenarios.
+	 * 
+	 * @param scenarioAdapter
+	 * @param ucBuilder
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API deletes Bulk Scenario Objects from Elastic Search&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Scenario object successfully deleted from ES&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform Delete operation&quot;),
+			@ApiResponse(code = 404, message = &quot;The resource trying to reach is not found&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/scenarios/bulk/&quot;, method = RequestMethod.DELETE, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; bulkdeleteScenario(@RequestBody ScenarioAdapter scenarioAdapter) {
+
+<span class="fc" id="L517">		logger.debug(&quot;Bulk inserting scenarios Total #--&gt;&quot; + scenarioAdapter.getScenarios().size());</span>
+
+<span class="fc bfc" id="L519" title="All 2 branches covered.">		for (Scenario scenario : scenarioAdapter.getScenarios()) {</span>
+<span class="pc bpc" id="L520" title="1 of 4 branches missed.">			if (scenario.getId() == null || &quot;&quot;.trim().equals(scenario.getId())) {</span>
+<span class="fc" id="L521">				final String error = &quot;Scenario Id cannot be empty.&quot;;</span>
+<span class="fc" id="L522">				logger.debug(error);</span>
+<span class="fc" id="L523">				final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, error, error);</span>
+<span class="fc" id="L524">				return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+			}
+<span class="fc" id="L526">			scenarioService.delete(scenario);</span>
+<span class="fc" id="L527">		}</span>
+
+<span class="fc" id="L529">		HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L530">		return new ResponseEntity&lt;&gt;(headers, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * Execute Scenario based on given Scenario Name
+	 * 
+	 * @param request
+	 * @param execScenario
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API executes a Scenario for given Scenario Name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Scenario successfully executed&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform execute a Scenario&quot;),
+			@ApiResponse(code = 404, message = &quot;Scenario not found for given name&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/executescenario/{name:.+}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity&lt;Object&gt; executeScenariobyScenarioName(HttpServletRequest request,
+			@PathVariable(&quot;name&quot;) String name) {
+
+<span class="nc" id="L549">		TeamUser teamUser = userDetailsService.getCurrentTeamForUser(request);</span>
+<span class="nc" id="L550">		final String userId = teamUser.getUserName();</span>
+<span class="nc" id="L551">		final String teamName = teamUser.getTeamName();</span>
+
+<span class="nc" id="L553">		Scenario execScenario = scenarioService.findByScenarioNameByTeamName(name, teamName);</span>
+
+<span class="nc bnc" id="L555" title="All 2 branches missed.">		if (execScenario == null) {</span>
+<span class="nc" id="L556">			logger.debug(&quot;Scenario with name &quot; + name + NOTFOUND);</span>
+<span class="nc" id="L557">			return new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND);</span>
+		}
+
+<span class="nc bnc" id="L560" title="All 4 branches missed.">		if (null == execScenario.getStrategies() || execScenario.getStrategies().isEmpty()) {</span>
+<span class="nc" id="L561">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, MONKEYSTRATEGYNOTPERSENT,</span>
+					MONKEYSTRATEGYNOTPERSENT);
+<span class="nc" id="L563">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc" id="L566">		execScenario.setUserId(userId);</span>
+
+<span class="nc" id="L568">		Map&lt;String, EventRecorder&gt; events = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L569">		EventRecorder parentEvent = null;</span>
+
+<span class="nc" id="L571">		String initialStatus = &quot;&quot;;</span>
+<span class="nc" id="L572">		org.joda.time.DateTime dt = new org.joda.time.DateTime();</span>
+
+<span class="nc bnc" id="L574" title="All 2 branches missed.">		for (ScenarioMonkeyStrategy strategy : execScenario.getStrategies()) {</span>
+<span class="nc" id="L575">			initialStatus = &quot;Executing scenario with name: &quot; + execScenario.getName() + &quot; Monkey Strategy: &quot;</span>
+<span class="nc" id="L576">					+ strategy.getMonkeyStrategy() + &quot;,  application: &quot; + execScenario.getApplicationName()</span>
+<span class="nc" id="L577">					+ &quot;, application server: &quot; + execScenario.getServerName() + &quot;,  server component: &quot;</span>
+<span class="nc" id="L578">					+ execScenario.getSoftwareComponentName() + &quot; submitted by user Id: &quot; + userId + &quot; \n&quot;;</span>
+<span class="nc" id="L579">			logger.debug(initialStatus);</span>
+
+<span class="nc" id="L581">			EventRecorder event = scenarioService.createEvent(execScenario, initialStatus, teamName, strategy,</span>
+<span class="nc" id="L582">					dt.toString(), strategy.getExecSequence());</span>
+<span class="nc" id="L583">			events.put(event.getId(), event);</span>
+<span class="nc" id="L584">			strategy.setEventID(event.getId());</span>
+
+<span class="nc bnc" id="L586" title="All 2 branches missed.">			if (null == parentEvent) {</span>
+<span class="nc" id="L587">				parentEvent = event;</span>
+			} else {
+<span class="nc" id="L589">				parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + initialStatus);</span>
+			}
+<span class="nc" id="L591">		}</span>
+
+<span class="nc bnc" id="L593" title="All 2 branches missed.">		if (AppUtil.getSuperUser().equals(teamName)) {</span>
+<span class="nc" id="L594">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, ALPHAERR, ALPHAERR);</span>
+<span class="nc" id="L595">			events.forEach(</span>
+<span class="nc" id="L596">					(k, v) -&gt; scenarioService.finalizeEvent(v.getId(), ALPHAERR, EventStatus.REJECTED, teamName));</span>
+<span class="nc" id="L597">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc bnc" id="L600" title="All 2 branches missed.">		if (events.isEmpty()) {</span>
+<span class="nc" id="L601">			final String error = &quot;Unable to create event.&quot;;</span>
+<span class="nc" id="L602">			logger.error(error);</span>
+<span class="nc" id="L603">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, error, error);</span>
+<span class="nc" id="L604">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc" id="L607">		executeSingleScenarioTask(execScenario, null, teamName, userId, parentEvent, events);</span>
+<span class="nc" id="L608">		return new ResponseEntity&lt;&gt;(parentEvent, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API executes a Scenario.
+	 * 
+	 * @param request
+	 * @param execScenario
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API executes a Scenario for given Scenario Object&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Scenario successfully executed&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform execute a Scenario&quot;),
+			@ApiResponse(code = 404, message = &quot;Scenario not found for given name&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/executescenario/&quot;, method = RequestMethod.POST, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; executeScenario(HttpServletRequest request,
+			@RequestBody final Scenario execScenario1) {
+<span class="nc" id="L626">		TeamUser teamUser = userDetailsService.getCurrentTeamForUser(request);</span>
+<span class="nc" id="L627">		final String userId = teamUser.getUserName();</span>
+<span class="nc" id="L628">		final String teamName = teamUser.getTeamName();</span>
+
+<span class="nc" id="L630">		Scenario execScenario = scenarioService.findByScenarioNameByTeamName(execScenario1.getName(), teamName);</span>
+<span class="nc" id="L631">		execScenario.setUserId(userId);</span>
+<span class="nc" id="L632">		Map&lt;String, EventRecorder&gt; events = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L633">		EventRecorder parentEvent = null;</span>
+
+<span class="nc" id="L635">		String initialStatus = &quot;&quot;;</span>
+<span class="nc" id="L636">		org.joda.time.DateTime dt = new org.joda.time.DateTime();</span>
+
+<span class="nc bnc" id="L638" title="All 4 branches missed.">		if (null == execScenario.getStrategies() || execScenario.getStrategies().isEmpty()) {</span>
+<span class="nc" id="L639">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, MONKEYSTRATEGYNOTPERSENT,</span>
+					MONKEYSTRATEGYNOTPERSENT);
+<span class="nc" id="L641">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc bnc" id="L644" title="All 2 branches missed.">		for (ScenarioMonkeyStrategy strategy : execScenario.getStrategies()) {</span>
+<span class="nc" id="L645">			initialStatus = &quot;Executing scenario with name: &quot; + execScenario.getName() + &quot; Monkey Strategy: &quot;</span>
+<span class="nc" id="L646">					+ strategy.getMonkeyStrategy() + &quot;,  application: &quot; + execScenario.getApplicationName()</span>
+<span class="nc" id="L647">					+ &quot;, application server: &quot; + execScenario.getServerName() + &quot;,  server component: &quot;</span>
+<span class="nc" id="L648">					+ execScenario.getSoftwareComponentName() + &quot; submitted by user Id: &quot; + userId + &quot; \n&quot;;</span>
+
+<span class="nc" id="L650">			logger.debug(initialStatus);</span>
+
+<span class="nc" id="L652">			EventRecorder event = scenarioService.createEvent(execScenario, initialStatus, teamName, strategy,</span>
+<span class="nc" id="L653">					dt.toString(), strategy.getExecSequence());</span>
+<span class="nc" id="L654">			events.put(event.getId(), event);</span>
+<span class="nc" id="L655">			strategy.setEventID(event.getId());</span>
+
+<span class="nc bnc" id="L657" title="All 2 branches missed.">			if (null == parentEvent) {</span>
+<span class="nc" id="L658">				parentEvent = event;</span>
+			} else {
+<span class="nc" id="L660">				parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + initialStatus);</span>
+			}
+<span class="nc" id="L662">		}</span>
+
+<span class="nc bnc" id="L664" title="All 2 branches missed.">		if (AppUtil.getSuperUser().equals(teamName)) {</span>
+<span class="nc" id="L665">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, ALPHAERR, ALPHAERR);</span>
+<span class="nc" id="L666">			events.forEach(</span>
+<span class="nc" id="L667">					(k, v) -&gt; scenarioService.finalizeEvent(v.getId(), ALPHAERR, EventStatus.REJECTED, teamName));</span>
+<span class="nc" id="L668">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc bnc" id="L671" title="All 2 branches missed.">		if (events.isEmpty()) {</span>
+<span class="nc" id="L672">			final String error = &quot;Unable to create event.&quot;;</span>
+<span class="nc" id="L673">			logger.error(error);</span>
+<span class="nc" id="L674">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, error, error);</span>
+<span class="nc" id="L675">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc" id="L678">		executeSingleScenarioTask(execScenario, null, teamName, userId, parentEvent, events);</span>
+<span class="nc" id="L679">		return new ResponseEntity&lt;&gt;(parentEvent, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API executes a Scenario for a given Application.
+	 * 
+	 * @param request
+	 * @param scenarioAdapter
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API executes a Scenario for given Name and App Name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = &quot;Scenario successfully executed for given Name and App Name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform execute a Scenario&quot;),
+			@ApiResponse(code = 404, message = &quot;Scenario not found for given name&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/executescenariowithapplication/&quot;, method = RequestMethod.POST, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; executeScenarioWithApplication(HttpServletRequest request,
+			@RequestBody final ScenarioExecutionAdapter scenarioAdapter) {
+<span class="nc" id="L698">		final Scenario execScenario1 = scenarioAdapter.getScenario();</span>
+<span class="nc" id="L699">        TeamUser teamUser = userDetailsService.getCurrentTeamForUser(request);</span>
+<span class="nc" id="L700">        final String userId = teamUser.getUserName();</span>
+<span class="nc" id="L701">        final String teamName = teamUser.getTeamName();</span>
+
+<span class="nc" id="L703">        Scenario execScenario = scenarioService.findByScenarioNameByTeamName(execScenario1.getName(), teamName);</span>
+		
+<span class="nc" id="L705">		final Application application = scenarioAdapter.getApplication();</span>
+<span class="nc bnc" id="L706" title="All 2 branches missed.">		if (execScenario == null) {</span>
+<span class="nc" id="L707">			final String error = &quot;Scenario cannot be null &quot;;</span>
+<span class="nc" id="L708">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, error, error);</span>
+<span class="nc" id="L709">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc bnc" id="L712" title="All 2 branches missed.">		if (application == null) {</span>
+<span class="nc" id="L713">			final String error = &quot; Application cannot be null  &quot;;</span>
+<span class="nc" id="L714">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, error, error);</span>
+<span class="nc" id="L715">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc bnc" id="L718" title="All 4 branches missed.">		if (null == execScenario.getStrategies() || execScenario.getStrategies().isEmpty()) {</span>
+<span class="nc" id="L719">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, MONKEYSTRATEGYNOTPERSENT,</span>
+					MONKEYSTRATEGYNOTPERSENT);
+<span class="nc" id="L721">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc" id="L724">		execScenario.setUserId(userId);</span>
+
+<span class="nc" id="L726">		Map&lt;String, EventRecorder&gt; events = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L727">		EventRecorder parentEvent = null;</span>
+
+<span class="nc" id="L729">		String initialStatus = &quot;&quot;;</span>
+<span class="nc" id="L730">		org.joda.time.DateTime dt = new org.joda.time.DateTime();</span>
+<span class="nc bnc" id="L731" title="All 2 branches missed.">		for (ScenarioMonkeyStrategy strategy : execScenario.getStrategies()) {</span>
+<span class="nc" id="L732">			initialStatus = &quot; executing scenario &quot; + execScenario.getName() + &quot; Monkey Strategy&quot;</span>
+<span class="nc" id="L733">					+ strategy.getMonkeyStrategy() + &quot;,  application &quot; + execScenario.getApplicationName()</span>
+<span class="nc" id="L734">					+ &quot;, application server &quot; + execScenario.getServerName() + &quot;,  server component&quot;</span>
+<span class="nc" id="L735">					+ execScenario.getSoftwareComponentName() + &quot; submitted by user Id &quot; + userId;</span>
+<span class="nc" id="L736">			logger.debug(initialStatus);</span>
+
+<span class="nc" id="L738">			EventRecorder event = scenarioService.createEvent(execScenario, initialStatus, teamName, strategy,</span>
+<span class="nc" id="L739">					dt.toString(), strategy.getExecSequence());</span>
+<span class="nc" id="L740">			events.put(event.getId(), event);</span>
+<span class="nc" id="L741">			strategy.setEventID(event.getId());</span>
+
+<span class="nc bnc" id="L743" title="All 2 branches missed.">			if (null == parentEvent) {</span>
+<span class="nc" id="L744">				parentEvent = event;</span>
+			} else {
+<span class="nc" id="L746">				parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + initialStatus);</span>
+			}
+<span class="nc" id="L748">		}</span>
+
+<span class="nc bnc" id="L750" title="All 2 branches missed.">		if (AppUtil.getSuperUser().equals(teamName)) {</span>
+<span class="nc" id="L751">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, ALPHAERR, ALPHAERR);</span>
+<span class="nc" id="L752">			events.forEach(</span>
+<span class="nc" id="L753">					(k, v) -&gt; scenarioService.finalizeEvent(v.getId(), ALPHAERR, EventStatus.REJECTED, teamName));</span>
+<span class="nc" id="L754">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc bnc" id="L757" title="All 2 branches missed.">		if (events.isEmpty()) {</span>
+<span class="nc" id="L758">			final String error = &quot;Unable to create event.&quot;;</span>
+<span class="nc" id="L759">			logger.error(error);</span>
+<span class="nc" id="L760">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, error, error);</span>
+<span class="nc" id="L761">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc" id="L764">		executeSingleScenarioTask(execScenario, application, teamName, userId, parentEvent, events);</span>
+<span class="nc" id="L765">		return new ResponseEntity&lt;&gt;(parentEvent, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API executes multiple Scenarios
+	 * 
+	 * @param request
+	 * @param scenarioAdapter
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API do bulk execution of Scenarios&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Bulk Scenario execution is completed successfully&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to perform execute a Scenario&quot;),
+			@ApiResponse(code = 404, message = &quot;Scenario not found for given name&quot;),
+			@ApiResponse(code = 400, message = &quot;Input Request object is not valid&quot;) })
+	@RequestMapping(value = &quot;/api/executebulkscenario/&quot;, method = RequestMethod.POST, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; executeBulkScenario(HttpServletRequest request,
+			@RequestBody ScenarioAdapter scenarioAdapter) {
+
+<span class="nc bnc" id="L784" title="All 2 branches missed.">		if (scenarioAdapter == null) {</span>
+<span class="nc" id="L785">			final String error = &quot;NULL request received in bulk executing scenarios&quot;;</span>
+<span class="nc" id="L786">			logger.debug(error);</span>
+<span class="nc" id="L787">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, error, error);</span>
+<span class="nc" id="L788">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="nc" id="L790">		logger.debug(&quot;Bulk executing scenarios Total #--&gt;&quot; + scenarioAdapter.getScenarios().size());</span>
+
+<span class="nc" id="L792">		TeamUser teamUser = userDetailsService.getCurrentTeamForUser(request);</span>
+<span class="nc" id="L793">		final String userId = teamUser.getUserName();</span>
+<span class="nc" id="L794">		final String teamName = teamUser.getTeamName();</span>
+
+<span class="nc bnc" id="L796" title="All 2 branches missed.">		if (teamName.equals(AppUtil.getSuperUser())) {</span>
+<span class="nc" id="L797">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.BAD_REQUEST, ALPHAERR, ALPHAERR);</span>
+<span class="nc" id="L798">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="nc bnc" id="L801" title="All 2 branches missed.">		for (final Scenario scenario : scenarioAdapter.getScenarios()) {</span>
+<span class="nc bnc" id="L802" title="All 4 branches missed.">			if (scenario.getName() == null || &quot;&quot;.equals(scenario.getName().trim())) {</span>
+<span class="nc" id="L803">				logger.debug(&quot;Scenario name cannot be empty&quot;);</span>
+<span class="nc bnc" id="L804" title="All 4 branches missed.">			} else if (null == scenario.getMonkeyStrategy() || scenario.getMonkeyStrategy().isEmpty()) {</span>
+<span class="nc" id="L805">				logger.debug(MONKEYSTRATEGYNOTPERSENT);</span>
+			} else {
+<span class="nc" id="L807">				scenario.setUserId(userId);</span>
+<span class="nc" id="L808">				Map&lt;String, EventRecorder&gt; events = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L809">				EventRecorder parentEvent = null;</span>
+<span class="nc" id="L810">				String initialStatus = &quot;&quot;;</span>
+<span class="nc" id="L811">				org.joda.time.DateTime dt = new org.joda.time.DateTime();</span>
+<span class="nc bnc" id="L812" title="All 2 branches missed.">				for (ScenarioMonkeyStrategy strategy : scenario.getStrategies()) {</span>
+<span class="nc" id="L813">					initialStatus = &quot; executing scenario &quot; + scenario.getName() + &quot; Monkey Strategy&quot;</span>
+<span class="nc" id="L814">							+ strategy.getMonkeyStrategy() + &quot;,  application &quot; + scenario.getApplicationName()</span>
+<span class="nc" id="L815">							+ &quot;, application server &quot; + scenario.getServerName() + &quot;,  server component&quot;</span>
+<span class="nc" id="L816">							+ scenario.getSoftwareComponentName() + &quot; submitted by user Id &quot; + userId;</span>
+<span class="nc" id="L817">					logger.debug(initialStatus);</span>
+
+<span class="nc" id="L819">					EventRecorder event = scenarioService.createEvent(scenario, initialStatus, teamName, strategy,</span>
+<span class="nc" id="L820">							dt.toString(), strategy.getExecSequence());</span>
+<span class="nc" id="L821">					events.put(event.getId(), event);</span>
+<span class="nc" id="L822">					strategy.setEventID(event.getId());</span>
+
+<span class="nc bnc" id="L824" title="All 2 branches missed.">					if (null == parentEvent) {</span>
+<span class="nc" id="L825">						parentEvent = event;</span>
+					} else {
+<span class="nc" id="L827">						parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + initialStatus);</span>
+					}
+<span class="nc" id="L829">				}</span>
+<span class="nc" id="L830">				EventRecorder event = parentEvent;</span>
+<span class="nc" id="L831">				taskExecutor.execute(() -&gt; executeSingleScenarioTask(scenario, null, teamName, userId, event, events));</span>
+			}
+<span class="nc" id="L833">		}</span>
+
+<span class="nc" id="L835">		final String message = &quot;Bulk Scenario execution job submitted&quot;;</span>
+<span class="nc" id="L836">		final MessageWrapper apiError = new MessageWrapper(HttpStatus.OK, message, message);</span>
+<span class="nc" id="L837">		return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+	}
+
+	/**
+	 * This method is used to execute a single Scenario.
+	 * 
+	 * @param execScenario
+	 * @param oldApp
+	 * @param eventId
+	 * @param teamName
+	 * @param userId
+	 * @param evt
+	 */
+	private void executeSingleScenarioTask(Scenario execScenario, Application oldApp, String teamName, String userId,
+			EventRecorder parantEvent, Map&lt;String, EventRecorder&gt; events) {
+
+<span class="nc" id="L853">		events.forEach((k, v) -&gt; scenarioService.recordEvent(v.getId(),</span>
+				&quot; Job scheduled by &quot; + userId + &quot;, @ &quot; + new DateTime(), EventStatus.SUBMITTED, teamName));
+
+		Application application;
+<span class="nc bnc" id="L857" title="All 2 branches missed.">		if (oldApp == null) {</span>
+<span class="nc" id="L858">			application = applicationService.findByApplicationNameAndTeamName(execScenario.getApplicationName(),</span>
+					teamName);
+		} else {
+<span class="nc" id="L861">			application = oldApp;</span>
+		}
+
+<span class="nc bnc" id="L864" title="All 2 branches missed.">		if (validateApplication(application, execScenario, teamName, parantEvent, events)) {</span>
+<span class="nc" id="L865">			return;</span>
+		}
+<span class="nc" id="L867">		Environment execEnvironment = application.getEnvironment(execScenario.getEnvironmentName());</span>
+<span class="nc" id="L868">		Server execServer = execEnvironment.getServerWithName(execScenario.getServerName());</span>
+		try {
+<span class="nc bnc" id="L870" title="All 2 branches missed.">			if (null != execServer) {</span>
+<span class="nc bnc" id="L871" title="All 2 branches missed.">				if (null != execServer.getPrivatekey()) {</span>
+<span class="nc" id="L872">					String privateKey = EUtil.decrypt(execServer.getPrivatekey());</span>
+<span class="nc" id="L873">					execServer.setPrivatekey(privateKey);</span>
+				}
+<span class="nc bnc" id="L875" title="All 4 branches missed.">				if ( null != execServer.getPassword() &amp;&amp; !execServer.isRsaLogin()) {</span>
+<span class="nc" id="L876">					String password = EUtil.decrypt(execServer.getPassword());</span>
+<span class="nc" id="L877">					execServer.setPassword(password);</span>
+				}
+			}
+<span class="nc" id="L880">		} catch (Exception e) {</span>
+<span class="nc" id="L881">			logger.error(&quot;Unsupported decoding exception&quot;, e);</span>
+<span class="nc" id="L882">		}</span>
+<span class="nc" id="L883">		Map&lt;String, MonkeyStrategy&gt; monkeyStrategyMap = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L885" title="All 2 branches missed.">		if (!getMonkeyStrategies(teamName, execScenario, parantEvent, events, monkeyStrategyMap)</span>
+<span class="nc bnc" id="L886" title="All 2 branches missed.">				|| monkeyStrategyMap.isEmpty()) {</span>
+<span class="nc" id="L887">			return;</span>
+		}
+
+<span class="nc bnc" id="L890" title="All 2 branches missed.">		for (ScenarioMonkeyStrategy sceMonkeyStrategy : execScenario.getStrategies()) {</span>
+<span class="nc" id="L891">			MonkeyStrategy monkeyStrategy = monkeyStrategyMap.get(sceMonkeyStrategy.getMonkeyStrategy());</span>
+<span class="nc bnc" id="L892" title="All 2 branches missed.">			if (null != monkeyStrategy) {</span>
+<span class="nc" id="L893">				String execStatus = &quot;Default Monkey Strategy found with version &quot;</span>
+<span class="nc" id="L894">						+ monkeyStrategy.getMonkeyStrategyVersion() + &quot; for Monkey Strategy Name: &quot;</span>
+<span class="nc" id="L895">						+ monkeyStrategy.getMonkeyStrategyName();</span>
+
+<span class="nc" id="L897">				parantEvent.setEventStatus(parantEvent.getEventStatus() + &quot;\n&quot; + execStatus + &quot; \n&quot;);</span>
+<span class="nc" id="L898">				scenarioService.recordEvent(sceMonkeyStrategy.getEventID(), execStatus, EventStatus.INPROGRESS,</span>
+						teamName);
+			}
+<span class="nc" id="L901">		}</span>
+
+<span class="nc" id="L903">		parantEvent.setEventStatusType(EventStatus.INPROGRESS);</span>
+<span class="nc" id="L904">		execScenario.setFilePath(application.getFilePath());</span>
+<span class="nc" id="L905">		taskExecutor.execute(() -&gt; execScenarioFromAgentController(parantEvent.getId(), execScenario, execServer,</span>
+				execEnvironment, monkeyStrategyMap, teamName, events));
+<span class="nc" id="L907">		return;</span>
+	}
+
+	private boolean getMonkeyStrategies(String teamName, Scenario execScenario, EventRecorder parentEvent,
+			Map&lt;String, EventRecorder&gt; events, Map&lt;String, MonkeyStrategy&gt; monkeyStrategies) {
+
+<span class="nc bnc" id="L913" title="All 2 branches missed.">		for (ScenarioMonkeyStrategy monkeyStrategy : execScenario.getStrategies()) {</span>
+<span class="nc" id="L914">			MonkeyStrategy strategy = getMonkeyStrategyforScenarioRun(teamName, execScenario, parentEvent,</span>
+<span class="nc" id="L915">					events.get(monkeyStrategy.getEventID()), monkeyStrategy);</span>
+<span class="nc bnc" id="L916" title="All 2 branches missed.">			if (null != strategy) {</span>
+<span class="nc" id="L917">				monkeyStrategies.put(strategy.getMonkeyStrategyName(), strategy);</span>
+			} else {
+<span class="nc" id="L919">				return false;</span>
+			}
+<span class="nc" id="L921">		}</span>
+<span class="nc" id="L922">		return true;</span>
+	}
+
+	/**
+	 * This method validates Scenario object and returns the Monkey Strategy
+	 * object.
+	 * 
+	 * @param monkeyStrategyId
+	 * @param eventId
+	 * @param teamName
+	 * @param execScenario
+	 * @param evt
+	 * @return
+	 */
+	private MonkeyStrategy getMonkeyStrategyforScenarioRun(String teamName, Scenario execScenario,
+			EventRecorder parentEvent, EventRecorder event, ScenarioMonkeyStrategy sceMonkeyStrategy) {
+<span class="nc" id="L938">		MonkeyStrategy monkeyStrategy = null;</span>
+		String execStatus;
+<span class="nc bnc" id="L940" title="All 2 branches missed.">		if (sceMonkeyStrategy.getMonkeyStrategyId() != null) {</span>
+<span class="nc" id="L941">			execStatus = &quot; monkeyStrategyId in Scenario --&gt;&quot; + sceMonkeyStrategy.getMonkeyStrategyId()</span>
+<span class="nc" id="L942">					+ &quot; for scenario &quot; + execScenario.getTeamName();</span>
+<span class="nc" id="L943">			monkeyStrategy = monkeyStrategyService.findOneForTeam(sceMonkeyStrategy.getMonkeyStrategyId(), teamName);</span>
+		} else {
+<span class="nc" id="L945">			execStatus = &quot;MonkeyStrategy in scenario is null. \n &quot; + &quot; Selecting default Monkey Strategy for &quot;</span>
+<span class="nc" id="L946">					+ &quot; Monkey Type -&gt;&quot; + sceMonkeyStrategy.getMonkeyType().toString() + &quot; and Monkey Strategy -&gt;&quot;</span>
+<span class="nc" id="L947">					+ sceMonkeyStrategy.getMonkeyStrategy() + &quot; , &quot;;</span>
+<span class="nc" id="L948">			logger.debug(&quot;MonkeyStrategy Id in scenario is null &quot;);</span>
+		}
+
+<span class="nc" id="L951">		scenarioService.recordEvent(event.getId(), execStatus, EventStatus.SUBMITTED, teamName);</span>
+<span class="nc" id="L952">		parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + execStatus);</span>
+
+<span class="nc bnc" id="L954" title="All 4 branches missed.">		if (sceMonkeyStrategy.getMonkeyType() == null || sceMonkeyStrategy.getMonkeyStrategy() == null</span>
+<span class="nc bnc" id="L955" title="All 2 branches missed.">				|| &quot;&quot;.equals(sceMonkeyStrategy.getMonkeyStrategy().trim())) {</span>
+
+<span class="nc" id="L957">			String error = &quot; Cannot execute Scenario monkeyStrategyId is null where Monkey Type = &quot;</span>
+<span class="nc" id="L958">					+ sceMonkeyStrategy.getMonkeyType() + &quot;, MonkeyStrategy=&quot; + sceMonkeyStrategy.getMonkeyStrategy();</span>
+<span class="nc" id="L959">			logger.error(error);</span>
+
+<span class="nc" id="L961">			scenarioService.finalizeEvent(event.getId(), error, EventStatus.REJECTED, teamName);</span>
+<span class="nc" id="L962">			parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error);</span>
+<span class="nc" id="L963">			return null;</span>
+		}
+
+<span class="nc" id="L966">		return getDefaultMonkeyStrategy(teamName, execScenario, parentEvent, monkeyStrategy, event, sceMonkeyStrategy);</span>
+	}
+
+	/**
+	 * This method returns the Default Monkey Strategy object.
+	 * 
+	 * @param monkeyStrategyId
+	 * @param eventId
+	 * @param teamName
+	 * @param execScenario
+	 * @param evt
+	 * @param monkeyStrategy
+	 * @return
+	 */
+	private MonkeyStrategy getDefaultMonkeyStrategy(String teamName, Scenario execScenario, EventRecorder parentEvent,
+			MonkeyStrategy monkeyStrategy, EventRecorder event, ScenarioMonkeyStrategy sceMonkeyStrategy) {
+		MonkeyStrategy newMonkeyStrategy;
+<span class="nc bnc" id="L983" title="All 4 branches missed.">		if (monkeyStrategy == null || monkeyStrategy.getMonkeyStrategyScript() == null</span>
+<span class="nc bnc" id="L984" title="All 2 branches missed.">				|| &quot;&quot;.equals(monkeyStrategy.getMonkeyStrategyScript().trim())) {</span>
+<span class="nc" id="L985">			logger.debug(&quot;MonkeyStrategy null or monkeyStrategy Script not available &quot;);</span>
+<span class="nc" id="L986">			logger.debug(</span>
+<span class="nc" id="L987">					&quot;ExecScenario.getMonkeyType().monkeyType() --&gt;&quot; + sceMonkeyStrategy.getMonkeyType().monkeyType());</span>
+
+<span class="nc" id="L989">			List&lt;MonkeyStrategy&gt; monkeyStrategyList = Lists</span>
+<span class="nc" id="L990">					.newArrayList(monkeyStrategyService.findDefaultMonkeyStrategy(sceMonkeyStrategy.getMonkeyType(),</span>
+<span class="nc" id="L991">							sceMonkeyStrategy.getMonkeyStrategy(), &quot;Y&quot;, teamName));</span>
+
+<span class="nc bnc" id="L993" title="All 4 branches missed.">			if (monkeyStrategyList == null || monkeyStrategyList.isEmpty()) {</span>
+<span class="nc" id="L994">				final String error = &quot;Either MonkeyStrategy is null or MonkeyStrategy Script is not available &quot;;</span>
+<span class="nc" id="L995">				scenarioService.finalizeEvent(event.getId(), error, EventStatus.REJECTED, teamName);</span>
+<span class="nc" id="L996">				parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error);</span>
+<span class="nc" id="L997">				return null;</span>
+<span class="nc bnc" id="L998" title="All 2 branches missed.">			} else if (monkeyStrategyList.size() &gt; 1) {</span>
+<span class="nc" id="L999">				final String error = &quot;More than one monkeyStrategy is found for MonkeyType &quot;</span>
+<span class="nc" id="L1000">						+ execScenario.getMonkeyType() + &quot; and Team &quot; + teamName;</span>
+<span class="nc" id="L1001">				scenarioService.finalizeEvent(event.getId(), error, EventStatus.REJECTED, teamName);</span>
+<span class="nc" id="L1002">				parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error);</span>
+<span class="nc" id="L1003">				return null;</span>
+			}
+<span class="nc" id="L1005">			newMonkeyStrategy = monkeyStrategyList.get(0);</span>
+<span class="nc" id="L1006">		} else {</span>
+<span class="nc" id="L1007">			newMonkeyStrategy = monkeyStrategy;</span>
+		}
+
+<span class="nc" id="L1010">		return newMonkeyStrategy;</span>
+	}
+
+	/**
+	 * This method validates the Application object.
+	 * 
+	 * @param application
+	 * @param execScenario
+	 * @param eventId
+	 * @param teamName
+	 * @param evt
+	 * @param execEnvironment
+	 * @param execServer
+	 * @return
+	 */
+	private boolean validateApplication(Application application, Scenario execScenario, String teamName,
+			EventRecorder parentEvent, Map&lt;String, EventRecorder&gt; events) {
+		Environment excEnvironment;
+		Server excServer;
+
+<span class="nc bnc" id="L1030" title="All 2 branches missed.">		if (application == null) {</span>
+<span class="nc" id="L1031">			final String error = &quot; Application Not found for name &quot; + execScenario.getApplicationName();</span>
+<span class="nc" id="L1032">			logger.debug(error);</span>
+
+<span class="nc" id="L1034">			events.forEach((k, v) -&gt; scenarioService.finalizeEvent(v.getId(), error, EventStatus.REJECTED, teamName));</span>
+<span class="nc" id="L1035">			parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error + &quot;\n&quot;);</span>
+<span class="nc" id="L1036">			return true;</span>
+		}
+
+<span class="nc" id="L1039">		excEnvironment = application.getEnvironment(execScenario.getEnvironmentName());</span>
+
+<span class="nc bnc" id="L1041" title="All 2 branches missed.">		if (excEnvironment == null) {</span>
+<span class="nc" id="L1042">			final String error = &quot;Environment with name &quot; + execScenario.getEnvironmentName()</span>
+<span class="nc" id="L1043">					+ &quot; not found in the application &quot; + execScenario.getApplicationName();</span>
+<span class="nc" id="L1044">			logger.debug(error);</span>
+
+<span class="nc" id="L1046">			events.forEach((k, v) -&gt; scenarioService.finalizeEvent(v.getId(), error, EventStatus.REJECTED, teamName));</span>
+<span class="nc" id="L1047">			parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error + &quot;\n&quot;);</span>
+<span class="nc" id="L1048">			return true;</span>
+		}
+
+<span class="nc" id="L1051">		excServer = excEnvironment.getServerWithName(execScenario.getServerName());</span>
+<span class="nc bnc" id="L1052" title="All 2 branches missed.">		if (excServer == null) {</span>
+<span class="nc" id="L1053">			final String error = &quot;server with host name &quot; + execScenario.getServerName()</span>
+<span class="nc" id="L1054">					+ &quot; not found in environment with name &quot; + execScenario.getEnvironmentName() + APPNAME</span>
+<span class="nc" id="L1055">					+ execScenario.getApplicationName();</span>
+<span class="nc" id="L1056">			logger.debug(error);</span>
+
+<span class="nc" id="L1058">			events.forEach((k, v) -&gt; scenarioService.finalizeEvent(v.getId(), error, EventStatus.REJECTED, teamName));</span>
+<span class="nc" id="L1059">			parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error + &quot;\n&quot;);</span>
+<span class="nc" id="L1060">			return true;</span>
+		}
+
+<span class="nc" id="L1063">		validateSoftComp(excServer, execScenario, parentEvent, teamName, events);</span>
+<span class="nc" id="L1064">		return false;</span>
+	}
+
+	/**
+	 * This method validates Software Component object.
+	 * 
+	 * @param execServer
+	 * @param execScenario
+	 * @param evt
+	 * @param eventId
+	 * @param teamName
+	 */
+	private void validateSoftComp(Server execServer, Scenario execScenario, EventRecorder parentEvent, String teamName,
+			Map&lt;String, EventRecorder&gt; events) {
+<span class="nc" id="L1078">		SoftwareComponent swComp = execServer.getSoftwareComponentWithProcessName(execScenario.getProcessName());</span>
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">		if (swComp == null) {</span>
+<span class="nc" id="L1080">			final String error = &quot;SoftwareComponent with  name &quot; + execScenario.getProcessName() + &quot; not found in host &quot;</span>
+<span class="nc" id="L1081">					+ execServer.getHostName() + &quot; and in environment &quot; + execScenario.getEnvironmentName() + APPNAME</span>
+<span class="nc" id="L1082">					+ execScenario.getApplicationName();</span>
+<span class="nc" id="L1083">			logger.debug(error);</span>
+<span class="nc" id="L1084">			parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error + &quot;\n&quot;);</span>
+
+<span class="nc" id="L1086">			events.forEach(</span>
+<span class="nc" id="L1087">					(k, v) -&gt; scenarioService.recordEvent(v.getId(), error + &quot;\n&quot;, EventStatus.SUBMITTED, teamName));</span>
+		}
+
+<span class="nc" id="L1090">		String processName = execScenario.getProcessName();</span>
+<span class="nc bnc" id="L1091" title="All 4 branches missed.">		if (processName != null &amp;&amp; swComp != null</span>
+<span class="nc bnc" id="L1092" title="All 2 branches missed.">				&amp;&amp; !processName.toLowerCase().trim().equalsIgnoreCase(swComp.getProcessName().toLowerCase().trim())) {</span>
+<span class="nc" id="L1093">			final String error = &quot;SoftwareComponent with  name &quot; + execScenario.getSoftwareComponentName()</span>
+<span class="nc" id="L1094">					+ &quot; has no process with name &quot; + execScenario.getProcessName() + &quot; in host &quot;</span>
+<span class="nc" id="L1095">					+ execServer.getHostName() + &quot; and in environment &quot; + execScenario.getEnvironmentName() + APPNAME</span>
+<span class="nc" id="L1096">					+ execScenario.getApplicationName();</span>
+<span class="nc" id="L1097">			logger.debug(error);</span>
+<span class="nc" id="L1098">			parentEvent.setEventStatus(parentEvent.getEventStatus() + &quot;\n&quot; + error + &quot;\n&quot;);</span>
+<span class="nc" id="L1099">			events.forEach(</span>
+<span class="nc" id="L1100">					(k, v) -&gt; scenarioService.recordEvent(v.getId(), error + &quot;\n&quot;, EventStatus.SUBMITTED, teamName));</span>
+		}
+<span class="nc" id="L1102">	}</span>
+
+	/**
+	 * This method invokes Agent Controller to Run the monkey script of Target
+	 * Application Server.
+	 * 
+	 * @param eventId
+	 * @param execScenario
+	 * @param execServer
+	 * @param execEnvironment
+	 * @param monkeyStrategy
+	 * @param teamName
+	 */
+	private void execScenarioFromAgentController(String parentEventId, Scenario execScenario, Server execServer,
+			Environment execEnvironment, Map&lt;String, MonkeyStrategy&gt; monkeyStrategyMap, String teamName,
+			Map&lt;String, EventRecorder&gt; events) {
+		try {
+<span class="nc" id="L1119">			Gson gson = new Gson();</span>
+<span class="nc" id="L1120">			RestTemplate restTemplate = new RestTemplate();</span>
+<span class="nc" id="L1121">			EventJobDTO eventdto = createEventJobDTO(parentEventId, execScenario, execServer, execEnvironment,</span>
+					monkeyStrategyMap, teamName);
+
+<span class="nc" id="L1124">			HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L1125">			headers.setContentType(MediaType.APPLICATION_JSON);</span>
+<span class="nc" id="L1126">			headers.add(&quot;Authorization&quot;, env.getProperty(&quot;resiliencystudio.agentAuthorization&quot;));</span>
+
+<span class="nc" id="L1128">			HttpEntity&lt;EventJobDTO&gt; entity = new HttpEntity&lt;&gt;(eventdto, headers);</span>
+<span class="nc" id="L1129">			String agentURL = env.getProperty(&quot;resiliencystudio.agentURL&quot;) + AGENTURI;</span>
+<span class="nc" id="L1130">			ResponseEntity&lt;String&gt; result = restTemplate.exchange(agentURL, HttpMethod.POST, entity, String.class);</span>
+<span class="nc" id="L1131">			eventdto = gson.fromJson(result.getBody(), EventJobDTO.class);</span>
+<span class="nc" id="L1132">			final String execDuration = eventdto.getExecDuration();</span>
+
+<span class="nc" id="L1134">			eventdto.getEventMonkeyList().forEach(eventMonkeyStrategyDTO -&gt; {</span>
+<span class="nc bnc" id="L1135" title="All 2 branches missed.">				if (&quot;-11&quot;.equalsIgnoreCase(eventMonkeyStrategyDTO.getReturnCode())) {</span>
+<span class="nc" id="L1136">					scenarioService.finalizeEvent(eventMonkeyStrategyDTO.getEventId(),</span>
+<span class="nc" id="L1137">							eventMonkeyStrategyDTO.getExecStatus(), EventStatus.FAILED, teamName);</span>
+<span class="nc bnc" id="L1138" title="All 2 branches missed.">				} else if (&quot;000&quot;.equalsIgnoreCase(eventMonkeyStrategyDTO.getReturnCode())) {</span>
+<span class="nc" id="L1139">					scenarioService.finalizeEvent(eventMonkeyStrategyDTO.getEventId(),</span>
+<span class="nc" id="L1140">							eventMonkeyStrategyDTO.getExecStatus(), EventStatus.REJECTED, teamName);</span>
+				} else {
+<span class="nc" id="L1142">					scenarioService.finalizeEvent(eventMonkeyStrategyDTO.getEventId(),</span>
+<span class="nc" id="L1143">							eventMonkeyStrategyDTO.getExecStatus(), EventStatus.COMPLETED, teamName,</span>
+<span class="nc" id="L1144">							getJobExecStatus(eventMonkeyStrategyDTO.getReturnCode()), execDuration);</span>
+				}
+<span class="nc" id="L1146">			});</span>
+
+<span class="nc" id="L1148">		} catch (Exception e) {</span>
+<span class="nc" id="L1149">			logger.error(&quot;Error while calling Execution Agent Controller. &quot;, e);</span>
+<span class="nc" id="L1150">			final String error = &quot;Error while calling Execution Agent Controller. Error is: &quot; + e.getMessage();</span>
+<span class="nc" id="L1151">			events.forEach((k, v) -&gt; scenarioService.finalizeEvent(v.getId(), error, EventStatus.FAILED, teamName));</span>
+<span class="nc" id="L1152">		}</span>
+<span class="nc" id="L1153">	}</span>
+
+	/**
+	 * This method return the Job Execution status based on Job return code.
+	 * 
+	 * @param returnCode
+	 * @return
+	 */
+	private String getJobExecStatus(String returnCode) {
+<span class="nc bnc" id="L1162" title="All 2 branches missed.">		if (null == returnCode) {</span>
+<span class="nc" id="L1163">			return &quot;&quot;;</span>
+		} else {
+			String jobExecStatus;
+<span class="nc bnc" id="L1166" title="All 15 branches missed.">			switch (returnCode) {</span>
+			case &quot;0&quot;:
+<span class="nc" id="L1168">				jobExecStatus = &quot;Passed&quot;;</span>
+<span class="nc" id="L1169">				break;</span>
+			case &quot;1&quot;:
+			case &quot;-1&quot;:
+			case &quot;101&quot;:
+			default:
+<span class="nc" id="L1174">				jobExecStatus = FAILED;</span>
+				break;
+			}
+<span class="nc" id="L1177">			return jobExecStatus;</span>
+		}
+	}
+
+	/**
+	 * This is the setter method for EventJobDTO
+	 * 
+	 * @param eventId
+	 * @param execScenario
+	 * @param execServer
+	 * @param execEnvironment
+	 * @param monkeyStrategy
+	 * @param teamName
+	 * @return
+	 */
+	private EventJobDTO createEventJobDTO(String parentEventId, Scenario execScenario, Server execServer,
+			Environment execEnvironment, Map&lt;String, MonkeyStrategy&gt; monkeyStrategyMap, String teamName) {
+<span class="nc" id="L1194">		EventJobDTO dto = new EventJobDTO();</span>
+
+<span class="nc" id="L1196">		dto.setEventId(parentEventId);</span>
+<span class="nc" id="L1197">		dto.setTeamName(teamName);</span>
+
+<span class="nc" id="L1199">		dto.setServerName(execServer.getInstanceName());</span>
+<span class="nc" id="L1200">		dto.setHostName(execServer.getHostName());</span>
+<span class="nc" id="L1201">		dto.setIpAdd(execServer.getIpAddress());</span>
+
+<span class="nc" id="L1203">		dto.setUserName(execServer.getUserName());</span>
+<span class="nc" id="L1204">		dto.setPrivateKey(execServer.getPrivatekey());</span>
+<span class="nc" id="L1205">		dto.setPassword(execServer.getPassword());</span>
+
+<span class="nc" id="L1207">		dto.setProcessName(execScenario.getProcessName());</span>
+<span class="nc" id="L1208">		dto.setFailureMode(execScenario.getFailureMode());</span>
+<span class="nc" id="L1209">		dto.setScenarioServerName(execScenario.getServerName());</span>
+
+<span class="nc" id="L1211">		dto.setDiscoverHostName(execEnvironment.getDiscoverHostName());</span>
+<span class="nc" id="L1212">		dto.setDiscoverHostIpAddress(execEnvironment.getDiscoverHostIpAddress());</span>
+<span class="nc" id="L1213">		dto.setDiscoverHostPort(execEnvironment.getDiscoverHostPort());</span>
+<span class="nc" id="L1214">		dto.setDiscoverUserId(execEnvironment.getUserId());</span>
+	
+<span class="nc bnc" id="L1216" title="All 2 branches missed.">		if (null != execEnvironment.getPassword()){</span>
+<span class="nc" id="L1217">			dto.setDiscoverPassword(EUtil.decrypt(execEnvironment.getPassword()));</span>
+		}
+		
+<span class="nc" id="L1220">		dto.setFilePath(execScenario.getFilePath());</span>
+
+<span class="nc" id="L1222">		dto.setEventMonkeyList(createMonkeyStrategyDTO(execScenario, monkeyStrategyMap));</span>
+
+<span class="nc" id="L1224">		dto.getEventMonkeyList().forEach(eventMonkey -&gt; {</span>
+<span class="nc bnc" id="L1225" title="All 2 branches missed.">			if (&quot;Ansible Script&quot;.equals(eventMonkey.getMonkeyScriptType())) {</span>
+<span class="nc" id="L1226">				String role = &quot;managed-nodes&quot;;</span>
+<span class="nc bnc" id="L1227" title="All 4 branches missed.">				if (execServer.getRoles() != null &amp;&amp; !execServer.getRoles().isEmpty()</span>
+<span class="nc bnc" id="L1228" title="All 2 branches missed.">						&amp;&amp; !execServer.getRoles().get(0).isEmpty()) {</span>
+<span class="nc" id="L1229">					role = execServer.getRoles().get(0);</span>
+				}
+<span class="nc" id="L1231">				dto.setConfigFile(String.format(&quot;[&quot; + role + &quot;]%n&quot; + execServer.getInstanceName() + &quot; ansible_ssh_user=&quot;</span>
+<span class="nc" id="L1232">						+ execServer.getUserName() + &quot; ansible_ssh_private_key_file=~/.ssh/&quot; + parentEventId + &quot;_&quot;</span>
+<span class="nc" id="L1233">						+ execServer.getInstanceName() + &quot;%n&quot;));</span>
+			}
+<span class="nc" id="L1235">		});</span>
+
+<span class="nc" id="L1237">		return dto;</span>
+	}
+
+	private List&lt;EventMonkeyStrategyDTO&gt; createMonkeyStrategyDTO(Scenario execScenario,
+			Map&lt;String, MonkeyStrategy&gt; monkeyStrategyMap) {
+<span class="nc" id="L1242">		List&lt;EventMonkeyStrategyDTO&gt; eventMonkeyStrategyDTOs = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L1243">		EventMonkeyStrategyDTO dto = null;</span>
+<span class="nc" id="L1244">		MonkeyStrategy monkeyStrategy = null;</span>
+
+<span class="nc bnc" id="L1246" title="All 2 branches missed.">		for (ScenarioMonkeyStrategy sceMonkeyStrategy : execScenario.getStrategies()) {</span>
+<span class="nc" id="L1247">			dto = new EventMonkeyStrategyDTO();</span>
+<span class="nc" id="L1248">			monkeyStrategy = monkeyStrategyMap.get(sceMonkeyStrategy.getMonkeyStrategy());</span>
+
+<span class="nc" id="L1250">			dto.setEventId(sceMonkeyStrategy.getEventID());</span>
+<span class="nc" id="L1251">			dto.setExecSequence(sceMonkeyStrategy.getExecSequence());</span>
+
+<span class="nc" id="L1253">			dto.setMonkeyStrategy(sceMonkeyStrategy.getMonkeyStrategy());</span>
+<span class="nc" id="L1254">			dto.setMonkeyStrategyId(sceMonkeyStrategy.getMonkeyStrategyId());</span>
+
+<span class="nc" id="L1256">			dto.setMonkeyScriptContent(monkeyStrategy.getMonkeyStrategyScript());</span>
+<span class="nc" id="L1257">			dto.setMonkeyScriptType(monkeyStrategy.getScriptTypeCategory());</span>
+<span class="nc" id="L1258">			dto.setMonkeyStrategyVersion(monkeyStrategy.getMonkeyStrategyVersion());</span>
+
+<span class="nc" id="L1260">			eventMonkeyStrategyDTOs.add(dto);</span>
+<span class="nc" id="L1261">		}</span>
+<span class="nc" id="L1262">		return eventMonkeyStrategyDTOs;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

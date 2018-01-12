@@ -50,6 +50,7 @@ import com.att.tta.rs.model.UserPrivilege;
 import com.att.tta.rs.service.SecurityService;
 import com.att.tta.rs.util.MessageWrapper;
 
+
 /**
  * This controller class provides REST APIs for Authentication and Authorization features.
  * @author ak983d

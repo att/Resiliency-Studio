@@ -54,7 +54,7 @@ public class StepDefinitionDeleteApplication extends ParentScenario{
 	}
 	@Given("^I am on the dash board page for application delete$")
 	public void I_am_on_the_dash_board_page_for_application_delete() throws InterruptedException{
-		 
+		navigateTo("/resiliency-studio-ui/#/dashboard");
 		 new DeleteApplication(driver).click_view_application_for_delete();
 	}
 	

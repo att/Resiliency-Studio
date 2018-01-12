@@ -59,6 +59,7 @@ public class StepDefinitionApplicationOfRSALogin extends ParentScenario {
 
 	@Given("^I am on the dash board page for RSA login$")
 	public void I_am_on_the_dash_board_page_for_add_application() throws InterruptedException {
+		navigateTo("/resiliency-studio-ui/#/dashboard");
 		new AddApplicationOfRSALoginPage(driver).click_add_application_link();
 	}
 
@@ -85,12 +86,6 @@ public class StepDefinitionApplicationOfRSALogin extends ParentScenario {
 		new AddApplicationOfRSALoginPage(driver).fill_tab3_details(appDataList);
 	}
 
-	@When("^I enter all the application details in tab four for RSA login$")
-	public void i_enter_all_the_application_details_in_tab_four(List<AddApplicationUITab1Data> appDataList)
-			throws Throwable {
-		new AddApplicationOfRSALoginPage(driver).fill_tab4_details(appDataList);
-	}
-
 	@When("^I enter all the application details in tab five for RSA login$")
 	public void i_enter_all_the_application_details_in_tab_five(List<AddApplicationUITab1Data> appDataList)
 			throws Throwable {
@@ -115,6 +110,6 @@ public class StepDefinitionApplicationOfRSALogin extends ParentScenario {
 
 	@After
 	public void afterScenario() {
-		closeBrowser();
+		//closeBrowser();
 	}
 }

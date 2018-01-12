@@ -53,6 +53,11 @@ import com.att.tta.rs.service.TeamUserService;
 import com.att.tta.rs.util.MessageWrapper;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This Class provides certain REST APIs to perform CRUD operations on
  * FailurePoint repository.
@@ -61,6 +66,7 @@ import com.google.common.collect.Lists;
  *
  */
 @RestController
+@Api(value = "FailurePoint Rest Controller", description = "This REST controller provides REST APIs for performing CRUD Operation on FailurePoint Repository")
 public class FailurePointRestController {
 	private static final Logger logger = LoggerFactory.getLogger(FailurePointRestController.class);
 
@@ -79,6 +85,10 @@ public class FailurePointRestController {
 	 * 
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns all FailurePoint Objects present in Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned all FailurePoint Objects"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No FailurePoint object found") })
 	@RequestMapping(value = "/api/failurepoints/", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> listAllFailurePoints() {
 		List<FailurePoint> failurePoints = Lists.newArrayList(failurePointService.findAll());
@@ -96,6 +106,11 @@ public class FailurePointRestController {
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns single FailurePoint Objects present in Elastic Search for given FailurePoint ID", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned single FailurePoint Object for given FailurePoint ID"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No FailurePoint object found for given FailurePoint ID") })
 	@RequestMapping(value = "/api/failurepoints/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getFailurePoint(@PathVariable("id") String id) {
 		FailurePoint failurePoint = failurePointService.findOne(id);
@@ -114,6 +129,11 @@ public class FailurePointRestController {
 	 * @param name
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns single FailurePoint Object present in Elastic Search for given FailurePoint Name", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned FailurePoint Object for given FailurePoint Name"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No FailurePoint object found for given FailurePoint Name") })
 	@RequestMapping(value = "/api/failurepoints/name/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getFailurePointsByName(@PathVariable("name") String name) {
 		FailurePoint failurePoint = failurePointService.findByName(name);
@@ -132,6 +152,11 @@ public class FailurePointRestController {
 	 * @param category
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns FailurePoint Objects present in Elastic Search for given FailurePoint Category", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned FailurePoint Objects for given FailurePoint Category"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No FailurePoint object found for given FailurePoint Category") })
 	@RequestMapping(value = "/api/failurepoints/category/{category}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getFailurePointByCategory(@PathVariable("category") String category) {
 		List<FailurePoint> failurePoints = Lists.newArrayList(failurePointService.findByCategory(category));
@@ -150,6 +175,11 @@ public class FailurePointRestController {
 	 * @param role
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns FailurePoint Objects present in Elastic Search for given FailurePoint role", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned FailurePoint Objects for given FailurePoint role"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No FailurePoint object found for given FailurePoint role") })
 	@RequestMapping(value = "/api/failurepoints/role/{role}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getFailurePointByRole(@PathVariable("role") String role) {
 		List<FailurePoint> failurePoints = Lists.newArrayList(failurePointService.findByRole(role));
@@ -169,6 +199,12 @@ public class FailurePointRestController {
 	 * @param ucBuilder
 	 * @return
 	 */
+	@ApiOperation(value = "This API inserts a FailurePoint Object into Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "FailurePoint object successfully inserted into ES"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Add operation"),
+			@ApiResponse(code = 409, message = "FailurePoint with same name is already exist"),
+			@ApiResponse(code = 404, message = "The resource trying to reach is not found"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/failurepoint/", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<Object> addFailurePoint(@RequestBody FailurePoint failurePoint,
 			UriComponentsBuilder ucBuilder) {
@@ -201,6 +237,12 @@ public class FailurePointRestController {
 	 * @param ucBuilder
 	 * @return
 	 */
+	@ApiOperation(value = "This API do bulk insertion of an FailurePoint Objects into Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "FailurePoint objects successfully inserted into ES"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Add operation"),
+			@ApiResponse(code = 409, message = "FailurePoint with same name is already exist"),
+			@ApiResponse(code = 404, message = "The resource trying to reach is not found"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/failurepoints/", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<Object> bulkaddFailurePoint(@RequestBody FailurePointAdapter failurePointadapter) {
 
@@ -240,6 +282,12 @@ public class FailurePointRestController {
 	 * @param toModifyFailurePoint
 	 * @return
 	 */
+	@ApiOperation(value = "This API updates a FailurePoint Objects into Elastic Search for given FailurePoint ID", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "FailurePoint objects successfully updated into ES for given FailurePoint ID"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Update operation "),
+			@ApiResponse(code = 404, message = "FailurePoint object not found in ES for given FailurePoint ID"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/failurepoints/{id}", method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<Object> updateFailurePoint(@PathVariable("id") String id,
 			@RequestBody FailurePoint toModifyFailurePoint) {
@@ -262,6 +310,12 @@ public class FailurePointRestController {
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "This API deletes a FailurePoint Objects from Elastic Search for given FailurePoint ID", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "FailurePoint object successfully deleted from ES for given FailurePoint ID"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Delete operation"),
+			@ApiResponse(code = 404, message = "FailurePoint object not found in ES for given FailurePoint ID"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/failurepoints/{id}", method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<Object> deleteFailurePoint(@PathVariable("id") String id) {
 		logger.debug("Deleting FailurePoint with id : %s ", id);
@@ -282,6 +336,10 @@ public class FailurePointRestController {
 	 * 
 	 * @return
 	 */
+	@ApiOperation(value = "This API deletes all FailurePoint Objects from Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "All FailurePoint object successfully deleted from ES"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Delete operation"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/failurepoints/", method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<Object> deleteAllFailurePoints() {
 		logger.debug("Deleting All FailurePoints");

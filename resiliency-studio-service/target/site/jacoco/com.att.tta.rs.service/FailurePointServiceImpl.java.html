@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FailurePointServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.service</a> &gt; <span class="el_source">FailurePointServiceImpl.java</span></div><h1>FailurePointServiceImpl.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.att.ajsc.logging.AjscEelfManager;
+import com.att.eelf.configuration.EELFLogger;
+import com.att.tta.rs.data.es.repository.FailurePointRepository;
+import com.att.tta.rs.model.FailurePoint;
+import com.att.tta.rs.model.Server;
+
+/**
+ * Implementation class for service {@link FailurePointService}
+ * 
+ * @author mb6872
+ *
+ */
+@Service(&quot;failurePointService&quot;)
+@Transactional
+<span class="fc" id="L55">public class FailurePointServiceImpl implements FailurePointService {</span>
+<span class="fc" id="L56">	private static EELFLogger logger = AjscEelfManager.getInstance().getLogger(FailurePointServiceImpl.class);</span>
+
+	private FailurePointRepository failurePointRepository;
+
+	@Autowired
+	public void setFailurePointRepository(FailurePointRepository failurePointRepository) {
+<span class="fc" id="L62">		this.failurePointRepository = failurePointRepository;</span>
+<span class="fc" id="L63">	}</span>
+
+	@Override
+	public FailurePoint findOne(String id) {
+<span class="fc" id="L67">		return failurePointRepository.findOne(id);</span>
+	}
+
+	@Override
+	public Iterable&lt;FailurePoint&gt; findAll() {
+<span class="fc" id="L72">		return failurePointRepository.findAll();</span>
+	}
+
+	@Override
+	public FailurePoint findByName(String name) {
+<span class="fc" id="L77">		return failurePointRepository.findByName(name);</span>
+	}
+
+	@Override
+	public List&lt;FailurePoint&gt; findByCategory(String category) {
+<span class="fc" id="L82">		return failurePointRepository.findByCategory(category);</span>
+	}
+
+	@Override
+	public List&lt;FailurePoint&gt; findByRole(String role) {
+<span class="fc" id="L87">		return failurePointRepository.findByRole(role);</span>
+	}
+
+	@Override
+	public List&lt;FailurePoint&gt; findByComponent(String component) {
+<span class="fc" id="L92">		return failurePointRepository.findByComponent(component);</span>
+	}
+
+	@Override
+	public List&lt;FailurePoint&gt; findByProcessName(String processName) {
+<span class="fc" id="L97">		return failurePointRepository.findByProcessName(processName);</span>
+	}
+
+	@Override
+	public long count() {
+<span class="fc" id="L102">		return failurePointRepository.count();</span>
+	}
+
+	@Override
+	public boolean isFailurePointExist(FailurePoint failurePoint) {
+<span class="fc bfc" id="L107" title="All 2 branches covered.">		return findByName(failurePoint.getName()) != null;</span>
+	}
+
+	@Override
+	public FailurePoint update(FailurePoint failurePoint) {
+<span class="pc bpc" id="L112" title="2 of 4 branches missed.">		if (failurePoint != null &amp;&amp; !&quot;&quot;.equals(failurePoint.getId().trim())</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">				&amp;&amp; (failurePointRepository.findOne(failurePoint.getId()) != null)) {</span>
+<span class="fc" id="L114">			return save(failurePoint);</span>
+		}
+<span class="fc" id="L116">		return null;</span>
+	}
+
+	@Override
+	public FailurePoint insert(FailurePoint failurePoint) {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		if (this.isFailurePointExist(failurePoint)) {</span>
+<span class="fc" id="L122">			logger.debug(&quot;FailurePoint already exists with name &quot; + failurePoint.getName());</span>
+<span class="fc" id="L123">			return null;</span>
+		}
+<span class="fc" id="L125">		return save(failurePoint);</span>
+	}
+
+	@Override
+	public FailurePoint save(FailurePoint failurePoint) {
+<span class="fc" id="L130">		return failurePointRepository.save(failurePoint);</span>
+	}
+
+	@Override
+	public void delete(FailurePoint failurePoint) {
+<span class="fc" id="L135">		failurePointRepository.delete(failurePoint);</span>
+<span class="fc" id="L136">	}</span>
+
+	@Override
+	public void deleteAllFailurePoint() {
+<span class="fc" id="L140">		failurePointRepository.deleteAll();</span>
+<span class="fc" id="L141">	}</span>
+
+	@Override
+	public Map&lt;String, List&lt;FailurePoint&gt;&gt; findByCategoryAndRole(String category, List&lt;Server&gt; serverList) {
+<span class="nc" id="L145">		HashMap&lt;String, List&lt;FailurePoint&gt;&gt; serverFailurePointMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		for (Server server : serverList) {</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">			for (String role : server.getRoles()) {</span>
+<span class="nc" id="L148">				List&lt;FailurePoint&gt; fpList = failurePointRepository.findByCategoryAndRole(category, role);</span>
+<span class="nc" id="L149">				setFPLst(fpList, server, serverFailurePointMap, role);</span>
+<span class="nc" id="L150">			}</span>
+<span class="nc" id="L151">		}</span>
+<span class="nc" id="L152">		logger.debug(&quot;Total Scenarios possible --&gt;&quot; + serverFailurePointMap.size());</span>
+<span class="nc" id="L153">		return serverFailurePointMap;</span>
+	}
+
+	/**
+	 * @param fpList
+	 * @param server
+	 * @param serverFailurePointMap
+	 * @param role
+	 */
+	private void setFPLst(List&lt;FailurePoint&gt; fpList, Server server,
+			HashMap&lt;String, List&lt;FailurePoint&gt;&gt; serverFailurePointMap, String role) {
+<span class="nc bnc" id="L164" title="All 4 branches missed.">		if (fpList != null &amp;&amp; !fpList.isEmpty()) {</span>
+<span class="nc" id="L165">			logger.debug(&quot;Server instance name --&gt;&quot; + server.getInstanceName());</span>
+<span class="nc" id="L166">			logger.debug(&quot;Role in query is --&gt;&quot; + role);</span>
+
+<span class="nc bnc" id="L168" title="All 2 branches missed.">			if (serverFailurePointMap.containsKey(server.getInstanceName())) {</span>
+<span class="nc" id="L169">				List&lt;FailurePoint&gt; tempFPList = serverFailurePointMap.get(server.getInstanceName());</span>
+<span class="nc" id="L170">				List&lt;FailurePoint&gt; newList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L171">				newList.addAll(fpList);</span>
+<span class="nc" id="L172">				newList.addAll(tempFPList);</span>
+<span class="nc" id="L173">				serverFailurePointMap.put(server.getInstanceName(), newList);</span>
+<span class="nc" id="L174">			} else</span>
+<span class="nc" id="L175">				serverFailurePointMap.put(server.getInstanceName(), fpList);</span>
+		}
+<span class="nc" id="L177">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

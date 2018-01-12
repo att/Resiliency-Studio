@@ -1,5 +1,10 @@
+# * BSD License
+# *     
+# * Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.       
+# * 
+# *  Redistribution and use in source and binary forms, with or without modification, are permitted
 # *   provided that the following conditions are met:
-# *    
+# *
 # *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
 # *      and the following disclaimer.
 # *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
@@ -9,7 +14,7 @@
 # *      following acknowledgement:  This product includes software developed by the AT&T.
 # *   4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
 # *      promote products derived from this software without specific prior written permission.
-# *    
+# *
 # *   THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
 # *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -21,20 +26,17 @@
 # *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # *   DAMAGE.
 # *******************************************************************************
-# 
-#	Ansible based strategy for simulating network latency
-#
 Feature: Delete MonkeyStrategy Page
   As a user I want to be able to delete a Monkey Strategy in the system
- 
- @DeleteMonkeyStrategy-DataDriven
+
+  @DeleteMonkeyStrategy
   Scenario: Delete Monkey Strategy
-  Given I am entering credentials for deleting monkey strategies
-	  Given I am on the dashboard page for Delete MonkeyStrategy
-	  When I enter the monkeytype and monkeystrategy to delete
-	  |monkeyStrategyName|monkeyType|
-   |ProcessStatus|LATENCY|
-    |TestMonkey2|CHAOS|
-	  When I click the delete icon on MonkeyStrategy page
-	  When I click the yes to confirm delete on MonkeyStrategy 
-	 
+    ##Given I am entering credentials for deleting monkey strategies
+    Given I am on the dashboard page for Delete MonkeyStrategy
+    When I enter the monkeytype and monkeystrategy to delete
+      | monkeyStrategyName       | monkeyType |
+      | ProcessStatus            | LATENCY    |
+      | TestMonkey2              | CHAOS      |
+      | TestMonkey2Clonestrategy | LATENCY     |
+    When I click the delete icon on MonkeyStrategy page
+    When I click the yes to confirm delete on MonkeyStrategy

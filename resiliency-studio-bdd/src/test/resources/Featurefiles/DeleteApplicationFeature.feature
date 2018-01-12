@@ -1,5 +1,10 @@
+# * BSD License
+# *     
+# * Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.       
+# * 
+# *  Redistribution and use in source and binary forms, with or without modification, are permitted
 # *   provided that the following conditions are met:
-# *    
+# *
 # *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
 # *      and the following disclaimer.
 # *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
@@ -9,7 +14,7 @@
 # *      following acknowledgement:  This product includes software developed by the AT&T.
 # *   4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
 # *      promote products derived from this software without specific prior written permission.
-# *    
+# *
 # *   THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
 # *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -21,24 +26,20 @@
 # *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # *   DAMAGE.
 # *******************************************************************************
-# 
-#	Ansible based strategy for simulating network latency
-#
 Feature: Application section
   As a user
   I want to be able to delete a application in the system
- 
- @DeleteApplication-DataDriven
- Scenario: Delete a application
-    Given I am entering credentials for deleting application
+
+  @DeleteApplication
+  Scenario: Delete a application
+    ##Given I am entering credentials for deleting application
     Given I am on the dash board page for application delete
-    When I enter the application delete name as "Rsa test23"
+    When I enter the application delete name as "RSA Test"
     When I click on delete icon button to delete a application
     And I click yes button on delete application page
-    When I enter the application delete name as "CUCUMBERTEST24"
+    When I enter the application delete name as "CUCUMBERTEST"
     When I click on delete icon button to delete a application
     And I click yes button on delete application page
-    When I enter the application delete name as "PrivateKey Test23"
+    When I enter the application delete name as "PrivateKey Test"
     When I click on delete icon button to delete a application
     And I click yes button on delete application page
-   

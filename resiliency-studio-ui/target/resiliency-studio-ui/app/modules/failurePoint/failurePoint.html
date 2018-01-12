@@ -1,0 +1,328 @@
+<!-- 
+ BSD License
+    
+  Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.
+    
+  Redistribution and use in source and binary forms, with or without modification, are permitted
+  provided that the following conditions are met:
+    
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions
+     and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of
+     conditions and the following disclaimer in the documentation and/or other materials provided
+     with the distribution.
+  3. All advertising materials mentioning features or use of this software must display the
+     following acknowledgement:  This product includes software developed by the AT&T.
+  4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
+     promote products derived from this software without specific prior written permission.
+   
+  THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+  SHALL AT&T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+  DAMAGE.
+
+ -->
+<style>
+body {
+	background-color: rgba(118, 96, 138, 0.7) !important;
+}
+.dialogs-default{
+    /* display: table;
+    transform: translate(-50%,-50%);
+    left: 50%;
+    top: 50%; */
+}
+
+.input-block-level{
+	width:100%;
+}
+</style>
+
+
+
+  <a>
+      <span bind-html-unsafe="match.label | typeaheadHighlight:query"></span>
+      <i ng-if="match.model.capital">({{match.model.capital}})</i>
+  </a>
+</script>
+<div class="grid no-margin-top fluid" id="cell-content"
+	style="width: 100%">
+	<div class="cell auto-size padding20 " id="cell-content">
+		<div class="row cells12  ">
+			<div class="cell colspan12">
+				<ul class="breadcrumbs dark">
+					<li><a href="#/dashboard"><span class="icon mif-home"></span></a></li>
+					<li>Failure Point</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="grid margin20 no-margin-bottom no-margin-left"
+			style="width: 100%">
+			<div class="row cells12">
+				<div class="cell colspan12">
+					<div class="panel " data-role="panel">
+						<div class="heading bg-grayLight">
+							<span  class="icon mif-alarm  bg-gray"></span> <span class="title">Failure Point</span>
+						</div>
+						<div class="content bg-white padding20">
+							<div class="container">
+							<div class="alert alert-success alert-dismissable" ng-show="FPDelsuccess" style="margin-left: 3%;">
+									<a href="" class="close" data-hide="alert" aria-label="close">&times;</a>
+									<strong>{{}}</strong> Failure Point deleted successfully.
+							</div>
+							<!-- form tag starts here -->
+								<form role="form" name="viewScenarioForm" id="my-form"
+									 novalidate>
+									 <div class="row" ng-if="errorMessage">
+									 <div class="alert alert-danger">
+									  <strong>{{errorMessage}}</strong>
+									 </div>
+									 
+									 </div>
+									<!-- <div class="row">
+
+										<div class="col-md-4" data-role="input">
+											<label for="user_login">Application Name*</label>
+											<div class="select" style="width: 114%;">
+												<div ng-dropdown-multiselect=''
+													options='scenariosFilterData' button-label='Applications'
+													selected-model='scenariosFilterModel'
+													extra-settings='scenariosFilterSettings'
+													translation-texts='scenariosFilterCustomTexts'
+													events="{onItemSelect:applicationChange,onChange:applicationChange}"></div>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<label for="exampleInputEmail1">Category*</label>
+												<select
+												id="categorySelect" class="form-control" name="categoryName"
+												ng-model="category"> 												
+												<option value="" disabled selected hidden>Select Category</option>
+												<option ng-repeat="x in categories">{{x}}</option>
+											</select>
+											
+										</div>
+										<div class="col-md-4">
+											<br /><br />
+											<button id="submitButton" 
+												class="btn btn-primary next-step pull-right" type="button"  ng-click="getFailurePoint()">VIEW</button>
+											</div>
+									</div> -->
+									<!-- <div class="col-md-4">
+											<label for="exampleInputEmail1">Environment</label> 
+											<select
+												id="categorySelect" class="form-control" name="environmentName"
+												ng-model="appfields.environmentName" ng-options="x for x in environmentMap" required> 												
+												<option value="" disabled selected hidden>Select
+													Environment</option>
+													<option ng-repeat="x in environmentMap" ng-value="x">{{x}}</option>
+											</select>
+										</div> -->
+									
+
+								<div class="pull-right marginB10">
+									<a id="addServerButton"
+										class="btn icon-btn btn-success btn-default pull-right"
+										ng-hide="'{{UserPrivilege}}'=='user'"
+										ng-click="addFailurePoint()"><span
+										class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>Failure Point</a>
+								</div>
+									<div style="padding-top: 20px;" ng-if="viewScen">
+										<div ng-show="loader.loading" class="ng-hide"><center> Please wait...<span class="mif-spinner4 mif-ani-spin fg-amber mif-4x"></span></center>
+													<!-- <img src="loader.gif" /> -->
+										</div>
+										<!-- <i class="fa fa-spin fa-refresh fa-3x" id="loader"></i> -->
+										<div class="container table-responsive" id="userList">
+										  <!-- <label for="exampleInputEmail1">Search:  </label> <input ng-model="search.$"> -->
+										<table id="viewscen" class="table table-striped table-condensed table-bordered vertical">
+										<thead>
+										<tr ng-show="filterTr">
+												<td class="col-md-1"><label><button type="button" class="close" title="close filter" ng-click="closeFilter()">&times;</button></label></td>
+												<td class="col-md-1"></td>
+												<td class="col-md-1"><input  ng-model="search.monkeyType"  class="input-block-level" ng-change="clearMonkeyType()"></td>
+												<td class="col-md-1"><input  ng-model="search.monkeyStrategy"  class="input-block-level" ng-change="clearMonkeyStrategy()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.component"  class="input-block-level" ng-change="clearComponent()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.role" class="input-block-level" ng-change="clearRole()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.processName" class="input-block-level" ng-change="clearProcessName()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.osType" class="input-block-level" ng-change="clearOsType()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.flavor" class="input-block-level" ng-change="clearFlavor()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.failureCategory" class="input-block-level" ng-change="clearFailCategory()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.failureSubCategory" class="input-block-level" ng-change="clearFailSubCatregory()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.mttd" class="input-block-level" ng-change="clearMttd()"></input></td>
+												<td class="col-md-1"><input  ng-model="search.mttr" class="input-block-level" ng-change="clearMttr()"></input></td>
+												
+											</tr>
+											<tr>
+												<th class="col-md-1"><a href="" ng-click="showFilter()"><span class="glyphicon glyphicon-filter" title="Click To Filter On"> </span></a>
+												<span ng-show="'{{UserPrivilege}}'=='admin'"><label>Select/Un Select All</label> <input type="checkbox" ng-model="outcome.success" ng-click="selectAll()" ng-model-options="{getterSetter: true}"/></span></th>
+												<th class="col-md-1">S.No</th>
+												<th class="col-md-2">Monkey Type</th>
+												<th class="col-md-2">Monkey Strategy</th>												
+												<th class="col-md-3">Software Component</th>
+												<th class="col-md-2">Role</th>
+												<th class="col-md-2">Process Name</th>
+												<th class="col-md-2">OS Type</th>
+												<th class="col-md-2">Flavor</th>
+												<th class="col-md-2">Failure Category </th>
+												<th class="col-md-3">Failure SubCategory</th>
+												<th class="col-md-2">MTTD</th>
+												<!-- <th class="col-md-2">Failure Script</th> -->
+												<th class="col-md-2">MTTR</th>
+												
+												
+											</tr>
+											
+										</thead>
+										<tbody>
+											<tr ng-repeat-start="u in data | filter:search:strict"
+												 ng-class-odd="'alt'">
+												<td >
+													<button id="expandbutton{{$index+1}}" title="Click to expand/collapse" class="btn btn-default btn-xs" ng-click="showDetail(u.id)"><span ng-hide="active==u.id"
+														class="glyphicon glyphicon-plus"></span><i
+														ng-show="active==u.id"
+														class="glyphicon glyphicon-minus"></i></button>
+													<!-- <button id="editbutton{{$index+1}}" ng-hide="'{{UserPrivilege}}'=='user'"  title="Edit" class="btn btn-default btn-xs " value="Edit" ng-mouseover="editData.OneScenario = u" ng-click="Edit()"><span class="glyphicon glyphicon-pencil"></span></button> -->
+													<button id="editbutton{{$index+1}}" ng-hide="'{{UserPrivilege}}'=='user'"  title="Edit" class="btn btn-default btn-xs " value="Edit" ng-mouseover="editData.OneScenario = u"><span class="glyphicon glyphicon-pencil"></span></button>
+													<button ng-show="'{{UserPrivilege}}'=='admin'"   title="Delete" class="btn btn-default btn-xs " value="Delete" ng-mouseover="deleteData.OneScenario = u" ng-click="Delete()"><span class="glyphicon glyphicon-trash"></span></button>
+												    <input ng-show="'{{UserPrivilege}}'=='admin'"   type="checkbox" name="selected" ng-model="u.selected"  ng-change="changeCheckAll()" ng-checked="false"> 
+												</td>
+												<td>{{$index+1}}</td>
+												<td id="monkeytype{{$index+1}}">{{u.monkeyType}}</td>
+												<td id="monkeystrategy{{$index+1}}">{{u.monkeyStrategy}}</td>
+												<div ng-show="{{u.serverName}}"><input type="text" ng-model="u.name" /></div>
+												<td >{{u.component}}</td>
+												<td >{{u.role}}</td>
+												<td >{{u.processName}}</td>
+												<td>{{u.osType}}</td>
+												<td>{{u.flavor}}</td>
+												<td >{{u.failureCategory}}</td>
+												<td >{{u.failureSubCategory}}</td>
+												<td >{{u.mttd}}</td>
+												<td >{{u.mttr}}</td>
+												<!-- <td >{{u.failureScript}}</td>
+												<td><span title="{{u.name}}" class="glyphicon glyphicon-info-sign" style="cursor: pointer;"></span></td> -->
+												<!-- <td><button title="Edit" class="btn btn-default btn-xs " value="Edit" ng-mouseover="editData.OneScenario = u" ng-click="Edit()"><span class="glyphicon glyphicon-pencil"></span></button>
+												</td> -->
+											</tr>
+											<tr ng-repeat-end=""
+												ng-show="active==u.id" ng-class-odd="'alt'">
+												<td class="col-md-3 col-xs-6 small">
+													<label></label> <br>
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label></label> <br>
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label>Current Controls</label> <br> {{u.currentControls}}
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label>Detection</label><br> {{u.detection}}
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label>Recovery Action</label> <br>{{u.recoveryAction}}
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label>System Behavior</label><br> {{u.systemBehavior}}
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label>User Behavior</label> <br>{{u.userBehavior}}
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label>Cause of Failure</label>  <br>{{u.causeOfFailure}}
+												</td>
+												<td class="col-md-3 col-xs-6 small">
+													<label>Recommendations</label>  <br>{{u.recommendation}}
+												</td>
+													<td class="col-md-3 col-xs-6 small" id="failuretenet{{$index+1}}">
+													<label>Failure Tenet</label> <br>{{u.failureTenet}}
+													</td>
+													<td class="col-md-3 col-xs-6 small" id="failuremode{{$index+1}}">
+													<label>Failure Mode</label> <br>{{u.failureMode}}
+													</td>
+													<td class="col-md-3 col-xs-6 small">
+													<label>Category</label> <br>{{u.category}} 
+													</td>
+													<td class="col-md-3 col-xs-6 small">
+													<label>Name</label> <br><span title="{{u.name}}" class="glyphicon glyphicon-info-sign" style="cursor: pointer;"></span> 
+													</td>
+											</tr>
+											</tbody>
+										</table>
+									</div>
+							</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
+
+
+
+
+<div id="myBulkDeleteScenario" class="modal fade">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- dialog body -->
+      <div class="modal-body">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+            Success 
+      </div>
+      <!-- dialog buttons -->
+      <div class="modal-footer"><p><h2 ng-bind="scenariosFilterModel.id"></h2>Selected Scenario is Deleted Successfully.</p>
+      <!-- <button type="button" class="closed" ng-click="scenarioRetainValues()">OK</button> -->
+      <button type="button" class="closed" data-dismiss="modal" ng-click="retainDeleteScenario()">OK</button>
+     </div>
+  </div>
+   </div>
+</div> 
+
+
+<style>
+body {
+  background-color: #eee;
+  color:#444;
+}
+
+.fa {
+  color:#666;
+}
+th {
+    font-size: 12px;
+}
+#userList {
+  display:none;
+}
+tr label{
+font-size: 12px;
+}
+
+/* #loader {
+  position:absolute;
+  z-index:2;
+  width:100%;
+  text-align:center;
+  top:40%;
+} */
+#loader {  
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1000;
+    background-color:grey;
+    opacity: .8;
+ }
+</style>

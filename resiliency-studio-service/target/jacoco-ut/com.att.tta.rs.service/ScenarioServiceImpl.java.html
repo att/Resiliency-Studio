@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScenarioServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.service</a> &gt; <span class="el_source">ScenarioServiceImpl.java</span></div><h1>ScenarioServiceImpl.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.service;
+
+import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.att.tta.rs.data.es.repository.EventRepository;
+import com.att.tta.rs.data.es.repository.ScenarioRepository;
+import com.att.tta.rs.model.EventRecorder;
+import com.att.tta.rs.model.EventStatus;
+import com.att.tta.rs.model.EventStatusUpdate;
+import com.att.tta.rs.model.Scenario;
+import com.att.tta.rs.model.ScenarioMonkeyStrategy;
+import com.att.tta.rs.util.AppUtil;
+
+/**
+ * Implementation class for {@link ScenarioService}
+ * 
+ * @author ak983d
+ *
+ */
+
+@Service(&quot;scenarioService&quot;)
+@Transactional
+<span class="fc" id="L65">public class ScenarioServiceImpl implements ScenarioService {</span>
+
+<span class="fc" id="L67">	private static final Logger logger = LoggerFactory.getLogger(ScenarioServiceImpl.class);</span>
+
+	private ScenarioRepository scenarioRepository;
+	private static final String ERROR = &quot;Cannot find event for event Id --&gt;&quot;;
+
+	@Autowired
+	EventRepository eventRepository;
+
+	@Autowired
+	public void setScenarioRepository(ScenarioRepository scenarioRepository) {
+<span class="fc" id="L77">		this.scenarioRepository = scenarioRepository;</span>
+<span class="fc" id="L78">	}</span>
+
+	@Override
+	public Scenario save(Scenario scenario, String teamName) {
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">		if (this.isScenarioExistForTeamName(scenario, teamName)) {</span>
+<span class="nc" id="L83">			return null;</span>
+		}
+<span class="fc" id="L85">		return scenarioRepository.save(scenario);</span>
+	}
+	
+	@Override
+	public Scenario upgradeScenario(Scenario scenario, String teamName) {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		if (this.isScenarioExistForTeamName(scenario, teamName)) {</span>
+<span class="nc" id="L91">			return scenarioRepository.save(scenario);</span>
+		}
+<span class="nc" id="L93">		return null;</span>
+	}
+
+	@Override
+	public boolean save(List&lt;Scenario&gt; scenarios, String teamName) {
+<span class="fc" id="L98">		scenarioRepository.save(scenarios);</span>
+<span class="fc" id="L99">		return true;</span>
+	}
+
+	@Override
+	public Scenario insert(Scenario scenario, String teamName) {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">		if (this.isScenarioExistForTeamName(scenario, teamName)) {</span>
+<span class="fc" id="L105">			logger.debug(&quot;Scenario already exists with name &quot; + scenario.getName());</span>
+<span class="fc" id="L106">			return null;</span>
+		}
+<span class="fc" id="L108">		return save(scenario, teamName);</span>
+	}
+
+	@Override
+	public Scenario update(Scenario scenario, String teamName) {
+<span class="pc bpc" id="L113" title="2 of 4 branches missed.">		if (scenario != null &amp;&amp; !&quot;&quot;.equals(scenario.getId().trim())</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">				&amp;&amp; (scenarioRepository.findOne(scenario.getId()) != null)) {</span>
+<span class="fc" id="L115">			return save(scenario, teamName);</span>
+		}
+<span class="nc" id="L117">		return null;</span>
+	}
+
+	@Override
+	public void delete(Scenario scenario) {
+<span class="fc" id="L122">		scenarioRepository.delete(scenario);</span>
+<span class="fc" id="L123">	}</span>
+
+	@Override
+	public void deleteAllScenarios() {
+<span class="fc" id="L127">		scenarioRepository.deleteAll();</span>
+<span class="fc" id="L128">	}</span>
+
+	@Override
+	public boolean isScenarioExistForTeamName(Scenario scenario, String teamName) {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		boolean exist = findByScenarioNameByTeamName(scenario.getName(), teamName) != null;</span>
+<span class="fc" id="L133">		logger.debug(&quot;Scenario with name &quot; + scenario.getName() + &quot; is already exist: &quot; + exist);</span>
+<span class="fc" id="L134">		return exist;</span>
+	}
+
+	@Override
+	public long count() {
+<span class="fc" id="L139">		return scenarioRepository.count();</span>
+	}
+
+	@Override
+	public Long countByTeamName(String teamName) {
+<span class="fc bfc" id="L144" title="All 2 branches covered.">		if (teamName.trim().equals(AppUtil.getSuperUser()))</span>
+<span class="fc" id="L145">			return scenarioRepository.count();</span>
+		else
+<span class="fc" id="L147">			return scenarioRepository.countByTeamName(teamName);</span>
+	}
+
+	@Override
+	public Scenario findOne(String id) {
+<span class="fc" id="L152">		return scenarioRepository.findOne(id);</span>
+	}
+
+	@Override
+	public Iterable&lt;Scenario&gt; findAll() {
+<span class="fc" id="L157">		return scenarioRepository.findAll();</span>
+	}
+
+	@Override
+	public Page&lt;Scenario&gt; findScenarioListByScenarioNameByTeamName(String name, String teamName, Pageable page) {
+<span class="fc bfc" id="L162" title="All 2 branches covered.">		if (teamName.trim().equalsIgnoreCase(AppUtil.getSuperUser()))</span>
+<span class="fc" id="L163">			return scenarioRepository.findScenariosByName(name, page);</span>
+		else
+<span class="fc" id="L165">			return scenarioRepository.findScenariosByNameAndTeamName(name, teamName, page);</span>
+	}
+
+	@Override
+	public Iterable&lt;Scenario&gt; findAllByTeamName(String teamName) {
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">		if (teamName.trim().equalsIgnoreCase(AppUtil.getSuperUser()))</span>
+<span class="nc" id="L171">			return scenarioRepository.findAll();</span>
+		else
+<span class="fc" id="L173">			return scenarioRepository.findAllForTeamName(teamName, new PageRequest(0, 9999));</span>
+	}
+
+	@Override
+	public Page&lt;Scenario&gt; findByScenarioNameByTeamName(String name, String teamName, Pageable pageable) {
+<span class="fc bfc" id="L178" title="All 2 branches covered.">		if (teamName.trim().equalsIgnoreCase(AppUtil.getSuperUser()))</span>
+<span class="fc" id="L179">			return scenarioRepository.findByName(name, pageable);</span>
+		else
+<span class="fc" id="L181">			return scenarioRepository.findScenariosByNameAndTeamName(name, teamName, pageable);</span>
+	}
+
+	@Override
+	public Scenario findByScenarioNameByTeamName(String name, String teamName) {
+		Scenario scenario;
+<span class="fc bfc" id="L187" title="All 2 branches covered.">		if (AppUtil.getSuperUser().equalsIgnoreCase(teamName.trim()))</span>
+<span class="fc" id="L188">			scenario = scenarioRepository.findScenarioByName(name);</span>
+		else
+<span class="fc" id="L190">			scenario = scenarioRepository.findScenarioByNameAndTeamName(name, teamName);</span>
+<span class="fc" id="L191">		return scenario;</span>
+	}
+
+	@Override
+	public List&lt;Scenario&gt; findByApplicationNameByTeamName(String applicationName, String teamName) {
+		List&lt;Scenario&gt; scenarioList;
+		Page&lt;Scenario&gt; test;
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">		if (AppUtil.getSuperUser().equalsIgnoreCase(teamName.trim()))</span>
+<span class="nc" id="L199">			test = scenarioRepository.findByApplicationName(applicationName,</span>
+					new PageRequest(0, 9999));
+		else
+<span class="fc" id="L202">			test = scenarioRepository.findByApplicationNameAndTeamName(applicationName, teamName,</span>
+				new PageRequest(0, 9999));
+<span class="fc" id="L204">		List&lt;Scenario&gt; pageList = test.getContent();</span>
+<span class="pc bpc" id="L205" title="1 of 4 branches missed.">		if (pageList != null &amp;&amp; !pageList.isEmpty())</span>
+<span class="fc" id="L206">			logger.debug(&quot;Total scenarios found after page  query&quot; + pageList.size());</span>
+		else
+<span class="fc" id="L208">			logger.debug(&quot;\n Nothing found in page query&quot;);</span>
+
+<span class="fc" id="L210">		scenarioList = pageList;</span>
+<span class="fc" id="L211">		return scenarioList;</span>
+	}
+
+	@Override
+	public EventRecorder createEvent(Scenario execScenario, String statusString, String teamName, ScenarioMonkeyStrategy strategy, String creatTS, String execSeq) {
+<span class="fc" id="L216">		EventRecorder evt = new EventRecorder();</span>
+<span class="fc" id="L217">		EventRecorder evt2 = null;</span>
+<span class="fc" id="L218">		Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+		try {
+<span class="fc bfc" id="L220" title="All 2 branches covered.">			for (Field field : execScenario.getClass().getDeclaredFields()) {</span>
+<span class="fc" id="L221">				field.setAccessible(true);</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">				if (!&quot;strategies&quot;.equalsIgnoreCase(field.getName())){</span>
+<span class="fc" id="L223">					Object value = field.get(execScenario);</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">					if (value != null) {</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">						if (&quot;id&quot;.equalsIgnoreCase(field.getName())){</span>
+<span class="fc" id="L226">							map.put(&quot;ScenarioID&quot;, value.toString());</span>
+						}else{
+<span class="fc" id="L228">							map.put(field.getName(), value.toString());</span>
+						}
+					}
+				}
+			}
+<span class="fc" id="L233">			map.put(&quot;@timestamp&quot;, creatTS);</span>
+<span class="fc" id="L234">			map.put(&quot;status&quot;, statusString);</span>
+<span class="fc" id="L235">			map.put(&quot;monkeyStrategy&quot;,strategy.getMonkeyStrategy());</span>
+<span class="fc" id="L236">			map.put(&quot;monkeyStrategyId&quot;, strategy.getMonkeyStrategyId());</span>
+<span class="fc" id="L237">			map.put(&quot;monkeyType&quot;, strategy.getMonkeyType().monkeyType());</span>
+			
+<span class="fc" id="L239">			evt.addFields(map);</span>
+<span class="fc" id="L240">			evt.setTeamName(teamName);</span>
+<span class="fc" id="L241">			evt.setEventStatus(statusString);</span>
+<span class="fc" id="L242">			evt.setExecSequence(execSeq);</span>
+<span class="fc" id="L243">			evt.setEventStatusType(EventStatus.SUBMITTED);</span>
+<span class="fc" id="L244">			evt2 = eventRepository.save(evt);</span>
+<span class="nc" id="L245">		} catch (Exception e) {</span>
+<span class="nc" id="L246">			logger.error(&quot;Failed to insert event in elastic search &quot;, e);</span>
+<span class="fc" id="L247">		}</span>
+<span class="fc" id="L248">		return evt2;</span>
+	}
+
+	@Override
+	public EventRecorder recordEvent(String eventId, String statusString, EventStatus eventStatus, String teamName) {
+<span class="fc" id="L253">		logger.debug(&quot;Event with ID: &quot; + eventId + &quot; is updating with Status--&gt;&quot; + statusString);</span>
+
+<span class="fc" id="L255">		EventRecorder evt = eventRepository.findOneForTeam(eventId, teamName);</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">		if (evt == null) {</span>
+<span class="nc" id="L257">			logger.error(ERROR + eventId);</span>
+<span class="nc" id="L258">			return null;</span>
+		}
+
+<span class="fc" id="L261">		addStatus(evt, statusString);</span>
+<span class="fc" id="L262">		evt.setId(eventId);</span>
+<span class="fc" id="L263">		evt.setEventStatusType(eventStatus);</span>
+<span class="fc" id="L264">		evt = eventRepository.save(evt);</span>
+<span class="fc" id="L265">		return evt;</span>
+	}
+
+	@Override
+	public EventRecorder finalizeEvent(String eventId, String statusString, EventStatus eventStatus, String teamName,
+			String execStatus, String execDuration) {
+<span class="nc" id="L271">		logger.debug(&quot;Event ID: &quot; + eventId + &quot; is updating with final Status--&gt;&quot; + statusString);</span>
+
+<span class="nc" id="L273">		EventRecorder evt = eventRepository.findOneForTeam(eventId, teamName);</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">		if (evt == null) {</span>
+<span class="nc" id="L275">			logger.error(ERROR + eventId);</span>
+<span class="nc" id="L276">			return null;</span>
+		}
+
+<span class="nc" id="L279">		finalStatus(evt, statusString);</span>
+<span class="nc" id="L280">		evt.setId(eventId);</span>
+<span class="nc" id="L281">		evt.setEventStatusType(eventStatus);</span>
+<span class="nc" id="L282">		evt.setExecStatus(execStatus);</span>
+<span class="nc" id="L283">		evt.setExecDuration(execDuration);</span>
+<span class="nc" id="L284">		evt = eventRepository.save(evt);</span>
+<span class="nc" id="L285">		return evt;</span>
+	}
+
+	@Override
+	public EventRecorder finalizeEvent(String eventId, String statusString, EventStatus eventStatus, String teamName) {
+<span class="fc" id="L290">		logger.debug(&quot;Event: &quot; + eventId + &quot; is updating with final Status--&gt;&quot; + statusString);</span>
+
+<span class="fc" id="L292">		EventRecorder evt = eventRepository.findOneForTeam(eventId, teamName);</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">		if (evt == null) {</span>
+<span class="nc" id="L294">			logger.error(ERROR + eventId);</span>
+<span class="nc" id="L295">			return null;</span>
+		}
+
+<span class="fc" id="L298">		finalStatus(evt, statusString);</span>
+<span class="fc" id="L299">		evt.setId(eventId);</span>
+<span class="fc" id="L300">		evt.setEventStatusType(eventStatus);</span>
+<span class="fc" id="L301">		evt = eventRepository.save(evt);</span>
+<span class="fc" id="L302">		return evt;</span>
+	}
+
+	private void addStatus(EventRecorder evt, String value) {
+<span class="fc" id="L306">		String timeStampString = String.valueOf(new Date());</span>
+<span class="fc" id="L307">		EventStatusUpdate eventStatusUpdate = new EventStatusUpdate(timeStampString, value);</span>
+<span class="fc" id="L308">		evt.setEventStatusUpdate(eventStatusUpdate);</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">		if (evt.getEventStatus() == null) {</span>
+<span class="nc" id="L310">			evt.setEventStatus(value);</span>
+<span class="nc" id="L311">			evt.setEventStatusUpdate(eventStatusUpdate);</span>
+		} else {
+<span class="fc" id="L313">			evt.setEventStatus(new StringBuilder().append(evt.getEventStatus()).append(&quot;\n&quot;).append(timeStampString)</span>
+<span class="fc" id="L314">					.append(value).toString());</span>
+<span class="fc" id="L315">			evt.setEventStatusUpdate(eventStatusUpdate);</span>
+		}
+<span class="fc" id="L317">	}</span>
+
+	private void finalStatus(EventRecorder evt, String value) {
+<span class="fc" id="L320">		String timeStampString = String.valueOf(new Date());</span>
+<span class="fc" id="L321">		EventStatusUpdate eventStatusUpdate = new EventStatusUpdate(timeStampString, value);</span>
+<span class="fc" id="L322">		eventStatusUpdate.setStopTryFlag(Boolean.TRUE);</span>
+<span class="fc" id="L323">		evt.setEventStatusUpdate(eventStatusUpdate);</span>
+		String statusStr;
+		String tempStr;
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">		if (evt.getEventStatus() == null) {</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">			int maxLength = (value.length() &lt; 32765) ? value.length() : 32765;</span>
+<span class="nc" id="L328">			statusStr = value.substring(0, maxLength);</span>
+<span class="nc" id="L329">			evt.setEventStatus(statusStr);</span>
+<span class="nc" id="L330">			evt.setEventStatusUpdate(eventStatusUpdate);</span>
+<span class="nc" id="L331">		} else {</span>
+<span class="fc" id="L332">			tempStr = new StringBuilder().append(evt.getEventStatus()).append(&quot;\n&quot;).append(timeStampString)</span>
+<span class="fc" id="L333">					.append(value).toString();</span>
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">			int maxLength = (tempStr.length() &lt; 32765) ? tempStr.length() : 32765;</span>
+<span class="fc" id="L335">			statusStr = tempStr.substring(0, maxLength);</span>
+<span class="fc" id="L336">			evt.setEventStatus(statusStr);</span>
+<span class="fc" id="L337">			evt.setEventStatusUpdate(eventStatusUpdate);</span>
+		}
+<span class="fc" id="L339">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

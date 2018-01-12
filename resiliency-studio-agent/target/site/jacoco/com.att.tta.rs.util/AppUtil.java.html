@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-agent</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.util</a> &gt; <span class="el_source">AppUtil.java</span></div><h1>AppUtil.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+
+package com.att.tta.rs.util;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentMap;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.att.tta.rs.model.EventJobDTO;
+import com.att.tta.rs.model.EventMonkeyStrategyDTO;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
+
+/**
+ * This class provides Utility methods to connect to the UNIX server and run the
+ * script.
+ * 
+ * @author ak983d
+ *
+ */
+public class AppUtil {
+<span class="fc" id="L63">	private static final Logger logger = LoggerFactory.getLogger(AppUtil.class);</span>
+
+	private JSch jschSSH;
+	private Session session;
+
+	private String strUserName;
+	private String strConnectionIP;
+	private String intConnectionPort;
+	private String strConKey;
+<span class="fc" id="L72">	private String errorStr = &quot;Error connecting to the instance with private key, ip --&gt;&quot;;</span>
+<span class="fc" id="L73">	private String successStr = &quot;Successfully connected to --&gt;&quot;;</span>
+	private static final String RSAGENTANSIBLE = &quot;RS-Agent-Ansible&quot;;
+	private static final String RSAGENTUNIX = &quot;RS-Agent-Unix&quot;;
+
+<span class="fc" id="L77">	public AppUtil(String userName, String strConKey, String connectionIP, String port) {</span>
+<span class="fc" id="L78">		jschSSH = new JSch();</span>
+<span class="fc" id="L79">		this.strUserName = userName;</span>
+<span class="fc" id="L80">		this.strConKey = strConKey;</span>
+<span class="fc" id="L81">		this.strConnectionIP = connectionIP;</span>
+<span class="fc" id="L82">		this.intConnectionPort = port;</span>
+<span class="fc" id="L83">	}</span>
+
+	/**
+	 * This method creates a JSCH connection based on private key.
+	 * 
+	 * @param statusString
+	 */
+	public void sessionConPrvaiteKey(StringBuilder statusString) {
+		try {
+<span class="nc" id="L92">			jschSSH.addIdentity(this.strUserName, this.strConKey.getBytes(), null, new byte[0]);</span>
+<span class="nc" id="L93">			session = jschSSH.getSession(this.strUserName, this.strConnectionIP,</span>
+<span class="nc" id="L94">					Integer.valueOf(this.intConnectionPort));</span>
+<span class="nc" id="L95">			setUpHostKey(session);</span>
+<span class="nc" id="L96">			session.connect();</span>
+<span class="fc" id="L97">		} catch (Exception ex) {</span>
+<span class="fc" id="L98">			logger.error(errorStr + this.strConnectionIP + ex);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">			if (statusString != null) {</span>
+<span class="fc" id="L100">				statusString.append(errorStr + this.strConnectionIP);</span>
+<span class="fc" id="L101">				statusString.append(ex.getMessage());</span>
+			}
+
+<span class="nc" id="L104">		}</span>
+<span class="fc" id="L105">		logger.debug(successStr + this.strConnectionIP);</span>
+<span class="fc" id="L106">	}</span>
+
+	/**
+	 * This method creates a JSCH connection based on private key.
+	 * 
+	 * @param statusString
+	 */
+	public void sessionConPrivateFile(StringBuilder statusString) {
+		try {
+<span class="nc" id="L115">			jschSSH.addIdentity(strConKey);</span>
+<span class="nc" id="L116">			session = jschSSH.getSession(this.strUserName, this.strConnectionIP,</span>
+<span class="nc" id="L117">					Integer.valueOf(this.intConnectionPort));</span>
+<span class="nc" id="L118">			setUpHostKey(session);</span>
+<span class="nc" id="L119">			session.connect();</span>
+<span class="nc" id="L120">		} catch (Exception ex) {</span>
+<span class="nc" id="L121">			logger.error(errorStr + this.strConnectionIP + ex);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">			if (statusString != null) {</span>
+<span class="nc" id="L123">				statusString.append(errorStr + this.strConnectionIP);</span>
+<span class="nc" id="L124">				statusString.append(ex.getMessage());</span>
+			}
+
+<span class="nc" id="L127">		}</span>
+<span class="nc" id="L128">		logger.debug(successStr + this.strConnectionIP);</span>
+<span class="nc" id="L129">	}</span>
+
+	/**
+	 * This method creates a JSCH connection based on password.
+	 * 
+	 * @param statusString
+	 */
+	public void sessionConPassword(StringBuilder statusString) {
+		try {
+<span class="fc" id="L138">			session = jschSSH.getSession(this.strUserName, this.strConnectionIP,</span>
+<span class="fc" id="L139">					Integer.valueOf(this.intConnectionPort));</span>
+<span class="fc" id="L140">			session.setPassword(this.strConKey);</span>
+<span class="fc" id="L141">			setUpHostKey(session);</span>
+<span class="nc" id="L142">			session.connect();</span>
+<span class="fc" id="L143">		} catch (Exception ex) {</span>
+<span class="fc" id="L144">			logger.error(errorStr + this.strConnectionIP + ex);</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">			if (statusString != null) {</span>
+<span class="fc" id="L146">				statusString.append(errorStr + this.strConnectionIP);</span>
+<span class="fc" id="L147">				statusString.append(ex.getMessage());</span>
+			}
+
+<span class="nc" id="L150">		}</span>
+<span class="fc" id="L151">		logger.debug(successStr + this.strConnectionIP);</span>
+<span class="fc" id="L152">	}</span>
+
+	/**
+	 * This method sets the JSCH configuration.
+	 * 
+	 * @param session
+	 * 
+	 */
+	private void setUpHostKey(Session session) {
+<span class="fc" id="L161">		java.util.Properties config = new java.util.Properties();</span>
+<span class="fc" id="L162">		config.put(&quot;StrictHostKeyChecking&quot;, &quot;no&quot;);</span>
+<span class="fc" id="L163">		session.setConfig(config);</span>
+<span class="fc" id="L164">	}</span>
+
+	/**
+	 * This method puts Script file, configuration file on the destination
+	 * server.
+	 * 
+	 * @param eventJobDTO
+	 * @param statusString
+	 * @param configFileName
+	 * @param privateKeyName
+	 * @return
+	 */
+	private String putScript(EventJobDTO eventJobDTO, StringBuilder statusString, String configFileName,
+			String privateKeyName, EventMonkeyStrategyDTO eventMonkeyStrategyDTO, String filePath) {
+<span class="nc" id="L178">		String filename = null;</span>
+<span class="nc" id="L179">		Channel channel = null;</span>
+		try {
+<span class="nc" id="L181">			channel = session.openChannel(&quot;sftp&quot;);</span>
+<span class="nc" id="L182">			channel.connect();</span>
+<span class="nc" id="L183">			ChannelSftp channelSftp = (ChannelSftp) channel;</span>
+
+<span class="nc bnc" id="L185" title="All 2 branches missed.">			if (&quot;UNIX Script&quot;.equalsIgnoreCase(eventMonkeyStrategyDTO.getMonkeyScriptType())) {</span>
+<span class="nc" id="L186">				filename = eventMonkeyStrategyDTO.getMonkeyStrategy() + &quot;_&quot; + eventMonkeyStrategyDTO.getMonkeyStrategyVersion() + &quot;_&quot;</span>
+<span class="nc" id="L187">						+ eventMonkeyStrategyDTO.getMonkeyStrategyId() + &quot;_&quot; + eventMonkeyStrategyDTO.getEventId() + &quot;.sh&quot;;</span>
+				
+<span class="nc" id="L189">				channelSftp.mkdir(filePath);</span>
+<span class="nc" id="L190">				channelSftp.put(new ByteArrayInputStream(eventMonkeyStrategyDTO.getMonkeyScriptContent().getBytes()),</span>
+						filePath + &quot;/&quot; + filename);
+			} else {
+<span class="nc" id="L193">				filename = eventMonkeyStrategyDTO.getMonkeyStrategy() + &quot;_&quot; + eventMonkeyStrategyDTO.getMonkeyStrategyVersion() + &quot;_&quot;</span>
+<span class="nc" id="L194">						+ eventMonkeyStrategyDTO.getMonkeyStrategyId() + &quot;_&quot; + eventMonkeyStrategyDTO.getEventId() + &quot;.yml&quot;;</span>
+
+<span class="nc" id="L196">				channelSftp.mkdir(filePath);</span>
+<span class="nc" id="L197">				channelSftp.put(new ByteArrayInputStream(eventMonkeyStrategyDTO.getMonkeyScriptContent().getBytes()),</span>
+						filePath + &quot;/&quot; + filename);
+<span class="nc" id="L199">				channelSftp.put(new ByteArrayInputStream(eventJobDTO.getConfigFile().getBytes()),</span>
+						filePath + &quot;/&quot; + configFileName);
+
+<span class="nc bnc" id="L202" title="All 4 branches missed.">				if (null != eventJobDTO.getPrivateKey() &amp;&amp; null != eventJobDTO.getPrivateKey().getBytes()) {</span>
+<span class="nc" id="L203">					channelSftp.put(new ByteArrayInputStream(eventJobDTO.getPrivateKey().getBytes()),</span>
+							&quot;.ssh/&quot; + privateKeyName);
+				}
+			}
+<span class="nc" id="L207">		} catch (Exception ex) {</span>
+<span class="nc" id="L208">			logger.error(&quot;Error while putting a Script file to the server instance at location: &quot;+ filePath +&quot; . Script File Name--&gt;&quot; + filename + &quot;\n&quot; + ex);</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">			if (statusString != null) {</span>
+<span class="nc" id="L210">				statusString.append(&quot;Error while putting a Script file to the server instance at location: &quot;+ filePath +&quot; . Script File Name--&gt;&quot; + filename + &quot;\n&quot;);</span>
+<span class="nc" id="L211">				statusString.append(ex.getMessage() + &quot;\n&quot;);</span>
+			}
+<span class="nc bnc" id="L213" title="All 2 branches missed.">			if (null != session) {</span>
+<span class="nc" id="L214">				session.disconnect();</span>
+			}
+		} finally {
+<span class="nc bnc" id="L217" title="All 6 branches missed.">			if (null != channel) {</span>
+<span class="nc" id="L218">				channel.disconnect();</span>
+			}
+		}
+<span class="nc" id="L221">		return filename;</span>
+	}
+
+	/**
+	 * This method executes a Shell script.
+	 * 
+	 * @param eventJobDTO
+	 * @param args
+	 * @param statusString
+	 * @param filename
+	 * @param configFileName
+	 * @param eventData
+	 * @return
+	 */
+	private String executeScript(EventJobDTO eventJobDTO, List&lt;String&gt; args, StringBuilder statusString,
+			String filename, String configFileName, ConcurrentMap&lt;String, String&gt; eventData, EventMonkeyStrategyDTO eventMonkeyStrategyDTO, String filePath) {
+<span class="nc" id="L237">		String exitStatusCode = &quot;-11&quot;;</span>
+<span class="nc" id="L238">		ChannelExec channel = null;</span>
+		try {
+<span class="nc" id="L240">			channel = (ChannelExec) session.openChannel(&quot;exec&quot;);</span>
+			
+<span class="nc bnc" id="L242" title="All 2 branches missed.">			if (&quot;UNIX Script&quot;.equalsIgnoreCase(eventMonkeyStrategyDTO.getMonkeyScriptType())) {</span>
+<span class="nc" id="L243">				((ChannelExec) channel).setCommand(&quot;bash &quot; + filePath + &quot;/&quot; + filename + setCommandArguments(args));</span>
+			} else {
+<span class="nc" id="L245">				String command = &quot;ansible-playbook &quot; + filePath + &quot;/&quot; + filename + &quot; -v&quot;;</span>
+<span class="nc" id="L246">				command = &quot;ansible-playbook -i&quot; + filePath + &quot;/&quot; + configFileName + &quot; &quot; + filePath + &quot;/&quot;</span>
+						+ filename + &quot; -v&quot;;
+
+<span class="nc" id="L249">				logger.debug(&quot;Running ansible script with command -&gt;  %s&quot; , command);</span>
+
+<span class="nc" id="L251">				((ChannelExec) channel).setCommand(command);</span>
+<span class="nc" id="L252">				channel.setPty(true);</span>
+			}
+			
+<span class="nc" id="L255">			DateTime dt = new DateTime();</span>
+			
+<span class="nc" id="L257">			String startTime = eventMonkeyStrategyDTO.getMonkeyStrategy() + &quot; Strategy Execution is started at &quot; + dt + &quot;\n&quot;;</span>
+<span class="nc" id="L258">			statusString.append(startTime);</span>
+<span class="nc" id="L259">			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + &quot;\n&quot; + startTime);</span>
+<span class="nc bnc" id="L260" title="All 4 branches missed.">			eventJobDTO.setStartTS((eventJobDTO.getStartTS() == null || &quot;&quot;.equalsIgnoreCase(eventJobDTO.getStartTS().toString())? dt : eventJobDTO.getStartTS()) );</span>
+			
+<span class="nc" id="L262">			channel.setInputStream(null);</span>
+<span class="nc" id="L263">			channel.setOutputStream(System.out);</span>
+<span class="nc" id="L264">			exitStatusCode = getScriptResponse(channel, statusString, eventData, eventJobDTO);</span>
+			
+<span class="nc" id="L266">			dt = new DateTime();</span>
+<span class="nc" id="L267">			String output = eventMonkeyStrategyDTO.getMonkeyStrategy() + &quot; Strategy Execution is completed at &quot;+ dt + &quot; with return code: &quot;+ exitStatusCode + &quot;\n&quot;;</span>
+<span class="nc" id="L268">			statusString.append(output);</span>
+<span class="nc" id="L269">			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + &quot;\n&quot; + output);</span>
+<span class="nc" id="L270">			eventJobDTO.setEndTS(dt);</span>
+			
+<span class="nc" id="L272">		} catch (Exception ex) {</span>
+<span class="nc" id="L273">			logger.error(&quot; Error while running a Script file --&gt;&quot; + filename + &quot;\n&quot; + ex);</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">			if (statusString != null) {</span>
+<span class="nc" id="L275">				statusString.append(&quot; Error while running a Script file --&gt;&quot; + filename);</span>
+<span class="nc" id="L276">				statusString.append(ex.getMessage());</span>
+			}
+<span class="nc bnc" id="L278" title="All 2 branches missed.">			if (null != session) {</span>
+<span class="nc" id="L279">				session.disconnect();</span>
+			}
+		} finally {
+<span class="nc bnc" id="L282" title="All 6 branches missed.">			if (null != channel) {</span>
+<span class="nc" id="L283">				channel.disconnect();</span>
+			}
+		}
+<span class="nc" id="L286">		return exitStatusCode;</span>
+	}
+
+	/**
+	 * This method is to set the command arguments.
+	 * 
+	 * @param args
+	 * @return
+	 */
+	private String setCommandArguments(List&lt;String&gt; args) {
+<span class="nc" id="L296">		StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">		if (args != null) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">			for (String arg : args) {</span>
+<span class="nc" id="L299">				sb.append(&quot; &quot;);</span>
+<span class="nc" id="L300">				sb.append(arg);</span>
+<span class="nc" id="L301">			}</span>
+		}
+<span class="nc" id="L303">		return sb.toString();</span>
+	}
+
+	/**
+	 * This method is to get the script execution response.
+	 * 
+	 * @param channel
+	 * @param statusString
+	 * @param eventData
+	 * @param eventJobDTO
+	 * @return
+	 * @throws IOException
+	 * @throws JSchException
+	 */
+	private String getScriptResponse(ChannelExec channel, StringBuilder statusString,
+			ConcurrentMap&lt;String, String&gt; eventData, EventJobDTO eventJobDTO) throws IOException, JSchException {
+		String exitStatusCode;
+<span class="nc" id="L320">		InputStream out = channel.getInputStream();</span>
+<span class="nc" id="L321">		InputStream stderr = channel.getErrStream();</span>
+<span class="nc" id="L322">		channel.connect();</span>
+
+<span class="nc" id="L324">		StringBuilder outputBuffer = new StringBuilder();</span>
+<span class="nc" id="L325">		StringBuilder outputBuffer1 = new StringBuilder();</span>
+<span class="nc" id="L326">		byte[] tmp = new byte[1024];</span>
+<span class="nc" id="L327">		byte[] tmp2 = new byte[1024];</span>
+		while (true) {
+<span class="nc" id="L329">			boolean getData = false;</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">			while (out.available() &gt; 0) {</span>
+<span class="nc" id="L331">				int i = out.read(tmp, 0, 1024);</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">				if (i &lt; 0) {</span>
+<span class="nc" id="L333">					break;</span>
+				}
+<span class="nc" id="L335">				outputBuffer.append(new String(tmp, 0, i));</span>
+<span class="nc" id="L336">				outputBuffer1.append(new String(tmp, 0, i));</span>
+<span class="nc" id="L337">				getData = true;</span>
+<span class="nc" id="L338">			}</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">			while (stderr.available() &gt; 0) {</span>
+<span class="nc" id="L340">				int i = stderr.read(tmp2, 0, 1024);</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">				if (i &lt; 0) {</span>
+<span class="nc" id="L342">					break;</span>
+				}
+<span class="nc" id="L344">				outputBuffer.append(new String(tmp2, 0, i));</span>
+<span class="nc" id="L345">				outputBuffer1.append(new String(tmp2, 0, i));</span>
+<span class="nc" id="L346">				getData = true;</span>
+<span class="nc" id="L347">			}</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">			if (getData) {</span>
+<span class="nc" id="L349">				eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + &quot;\n&quot; + outputBuffer.toString());</span>
+<span class="nc" id="L350">				eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() );</span>
+<span class="nc" id="L351">				outputBuffer = new StringBuilder();</span>
+				//eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() + &quot;\n&quot; + outputBuffer.toString());
+			}
+
+			/*if (channel.isEOF()) {
+				System.out.println(&quot;is eof condition&quot;);
+				break;
+			}*/
+<span class="nc bnc" id="L359" title="All 2 branches missed.">			if (channel.isClosed()) {</span>
+<span class="nc" id="L360">				break;</span>
+			}
+<span class="nc" id="L362">		}</span>
+<span class="nc" id="L363">		channelCloseWaiting(channel, 5000);</span>
+<span class="nc" id="L364">		exitStatusCode = Integer.toString(channel.getExitStatus()) ;</span>
+<span class="nc" id="L365">		statusString.append(outputBuffer1.toString());</span>
+<span class="nc" id="L366">		return exitStatusCode;</span>
+	}
+	
+	
+	private static void channelCloseWaiting(ChannelExec channel, long maxwaitTimeMS) {
+<span class="nc" id="L371">	    final long maxTS = System.currentTimeMillis() + maxwaitTimeMS;</span>
+	    try {
+<span class="nc bnc" id="L373" title="All 4 branches missed.">	        while (!channel.isClosed() &amp;&amp; System.currentTimeMillis() &lt; maxTS) { </span>
+<span class="nc" id="L374">	        	logger.info(&quot;SFTP channel is not closed yet.&quot;);</span>
+<span class="nc" id="L375">	            Thread.sleep(500);</span>
+	        }
+<span class="nc" id="L377">	    } catch (InterruptedException e) {</span>
+<span class="nc" id="L378">	    	logger.error(&quot;Interrupted Exception while waiting of SFTP Channel to be closed.&quot;);</span>
+<span class="nc" id="L379">	    }</span>
+
+<span class="nc bnc" id="L381" title="All 2 branches missed.">	    if (!channel.isClosed()) {</span>
+<span class="nc" id="L382">	    	logger.error(&quot;Channel is not closed even after waiting of 5 seconds.&quot;);</span>
+	    }
+<span class="nc" id="L384">	}</span>
+
+	/**
+	 * This method is to execute a UNIX script.
+	 * 
+	 * @param eventJobDTO
+	 * @param args
+	 * @param statusString
+	 * @param eventData
+	 * @return
+	 */
+	public String executeUNIXScript(EventJobDTO eventJobDTO, List&lt;String&gt; args, StringBuilder statusString,
+			ConcurrentMap&lt;String, String&gt; eventData, EventMonkeyStrategyDTO eventMonkeyStrategyDTO) {
+<span class="nc" id="L397">		String exitStatusCode = &quot;-11&quot;;</span>
+		try {
+			
+<span class="nc" id="L400">			String filePath=&quot;/tmp/&quot;;</span>
+<span class="nc bnc" id="L401" title="All 4 branches missed.">			if(null != eventJobDTO.getFilePath() &amp;&amp; !&quot;&quot;.equalsIgnoreCase(eventJobDTO.getFilePath())){</span>
+<span class="nc" id="L402">				filePath=eventJobDTO.getFilePath();</span>
+			}
+<span class="nc" id="L404">			filePath = filePath + RSAGENTUNIX + eventMonkeyStrategyDTO.getEventId();</span>
+<span class="nc" id="L405">			String filename = putScript(eventJobDTO, statusString, null, null, eventMonkeyStrategyDTO, filePath);</span>
+<span class="nc bnc" id="L406" title="All 4 branches missed.">			if (null == statusString || &quot;&quot;.equalsIgnoreCase(statusString.toString())) {</span>
+<span class="nc" id="L407">				exitStatusCode = executeScript(eventJobDTO, args, statusString, filename, null, eventData, eventMonkeyStrategyDTO, filePath);</span>
+<span class="nc" id="L408">				removeDir(filePath, statusString);</span>
+				//removeScript(filename, filePath, statusString);
+			}else{
+<span class="nc" id="L411">				eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + &quot;\n&quot; + statusString.toString());</span>
+<span class="nc" id="L412">				eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() );</span>
+			}
+<span class="nc" id="L414">		} catch (Exception e) {</span>
+<span class="nc" id="L415">			logger.error(&quot; Error Running a Shell Script on the instance with private key, ip --&gt;&quot; + this.strConnectionIP</span>
+					+ &quot;\n&quot; + e);
+		} finally {
+<span class="nc bnc" id="L418" title="All 6 branches missed.">			if (null != session) {</span>
+<span class="nc" id="L419">				session.disconnect();</span>
+			}
+		}
+<span class="nc" id="L422">		return exitStatusCode;</span>
+	}
+
+	/**
+	 * This method is to execute a Ansible script.
+	 * 
+	 * @param eventJobDTO
+	 * @param args
+	 * @param statusString
+	 * @param eventData
+	 * @return
+	 */
+	public String executeAnsibleScript(EventJobDTO eventJobDTO, List&lt;String&gt; args, StringBuilder statusString,
+			ConcurrentMap&lt;String, String&gt; eventData, EventMonkeyStrategyDTO eventMonkeyStrategyDTO) {
+<span class="nc" id="L436">		String exitStatusCode = &quot;-11&quot;;</span>
+		try {
+<span class="nc" id="L438">			String filePath=&quot;/tmp/&quot;;</span>
+<span class="nc bnc" id="L439" title="All 4 branches missed.">			if(null != eventJobDTO.getFilePath() &amp;&amp; !&quot;&quot;.equalsIgnoreCase(eventJobDTO.getFilePath())){</span>
+<span class="nc" id="L440">				filePath=eventJobDTO.getFilePath();</span>
+			}
+<span class="nc" id="L442">			filePath = filePath + RSAGENTANSIBLE + eventMonkeyStrategyDTO.getEventId();</span>
+<span class="nc" id="L443">			String configFileName = eventMonkeyStrategyDTO.getMonkeyStrategy() + &quot;_&quot; + eventMonkeyStrategyDTO.getMonkeyStrategyVersion()</span>
+<span class="nc" id="L444">					+ &quot;_&quot; + eventMonkeyStrategyDTO.getMonkeyStrategyId() + &quot;_&quot; + eventMonkeyStrategyDTO.getEventId() + &quot;_config&quot;;</span>
+<span class="nc" id="L445">			String privateKeyName = eventJobDTO.getEventId() + &quot;_&quot; + eventJobDTO.getServerName();</span>
+
+<span class="nc" id="L447">			String filename = putScript(eventJobDTO, statusString, configFileName, privateKeyName, eventMonkeyStrategyDTO, filePath);</span>
+
+<span class="nc bnc" id="L449" title="All 4 branches missed.">			if (null == statusString || &quot;&quot;.equalsIgnoreCase(statusString.toString())) {</span>
+<span class="nc" id="L450">				exitStatusCode = executeScript(eventJobDTO, args, statusString, filename, configFileName, eventData, eventMonkeyStrategyDTO, filePath);</span>
+<span class="nc bnc" id="L451" title="All 4 branches missed.">				if (null != eventJobDTO.getPrivateKey() &amp;&amp; null != eventJobDTO.getPrivateKey().getBytes()) {</span>
+<span class="nc" id="L452">					removeScript(privateKeyName, &quot;.ssh/&quot;, statusString);</span>
+				}
+<span class="nc" id="L454">				removeDir(filePath, statusString);</span>
+
+				/*removeScript(configFileName, parentDirName + &quot;/&quot;, statusString);
+				removeScript(filename, parentDirName + &quot;/&quot;, statusString);
+				removeParentDir(parentDirName, statusString);*/
+				
+			}else{
+<span class="nc" id="L461">				eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + &quot;\n&quot; + statusString.toString());</span>
+<span class="nc" id="L462">				eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() );</span>
+			}
+
+<span class="nc" id="L465">		} catch (Exception e) {</span>
+<span class="nc" id="L466">			logger.error(&quot; Error Running a Shell Script on the instance with private key, ip --&gt;&quot; + this.strConnectionIP</span>
+					+ &quot;\n&quot; + e);
+		} finally {
+<span class="nc bnc" id="L469" title="All 6 branches missed.">			if (null != session) {</span>
+<span class="nc" id="L470">				session.disconnect();</span>
+			}
+		}
+<span class="nc" id="L473">		return exitStatusCode;</span>
+	}
+
+	/**
+	 * This method is to delete a script file from destination server.
+	 * 
+	 * @param fileName
+	 * @param path
+	 * @param statusString
+	 */
+	private void removeScript(String fileName, String path, StringBuilder statusString) {
+<span class="nc" id="L484">		Channel channel = null;</span>
+		try {
+<span class="nc" id="L486">			channel = session.openChannel(&quot;sftp&quot;);</span>
+<span class="nc" id="L487">			channel.connect();</span>
+<span class="nc" id="L488">			ChannelSftp channelSftp = (ChannelSftp) channel;</span>
+<span class="nc" id="L489">			channelSftp.rm(path + fileName);</span>
+<span class="nc" id="L490">		} catch (Exception ex) {</span>
+<span class="nc" id="L491">			logger.error(&quot; Error deleting a file --&gt;&quot; + fileName + &quot;\n&quot; + ex);</span>
+<span class="nc bnc" id="L492" title="All 2 branches missed.">			if (statusString != null) {</span>
+<span class="nc" id="L493">				statusString.append(&quot; Error deleting a file--&gt;&quot; + fileName + &quot; --&gt;&quot;);</span>
+<span class="nc" id="L494">				statusString.append(ex.getMessage());</span>
+			}
+		} finally {
+<span class="nc bnc" id="L497" title="All 6 branches missed.">			if (null != channel) {</span>
+<span class="nc" id="L498">				channel.disconnect();</span>
+			}
+		}
+<span class="nc" id="L501">	}</span>
+
+	/**
+	 * This method is to delete a directory from destination server.
+	 * 
+	 * @param fileName
+	 * @param path
+	 * @param statusString
+	 */
+	private void removeParentDir(String dirName, StringBuilder statusString) {
+<span class="nc" id="L511">		Channel channel = null;</span>
+		try {
+<span class="nc" id="L513">			channel = session.openChannel(&quot;sftp&quot;);</span>
+<span class="nc" id="L514">			channel.connect();</span>
+<span class="nc" id="L515">			ChannelSftp channelSftp = (ChannelSftp) channel;</span>
+<span class="nc" id="L516">			channelSftp.rmdir(dirName);</span>
+<span class="nc" id="L517">		} catch (Exception ex) {</span>
+<span class="nc" id="L518">			logger.error(&quot; Error deleting a Directory --&gt;&quot; + dirName + &quot;\n&quot; + ex);</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">			if (statusString != null) {</span>
+<span class="nc" id="L520">				statusString.append(&quot; Error deleting a Directory --&gt;&quot; + dirName + &quot; --&gt;&quot;);</span>
+<span class="nc" id="L521">				statusString.append(ex.getMessage());</span>
+			}
+		} finally {
+<span class="nc bnc" id="L524" title="All 6 branches missed.">			if (null != channel) {</span>
+<span class="nc" id="L525">				channel.disconnect();</span>
+			}
+		}
+<span class="nc" id="L528">	}</span>
+	
+	/**
+	 * This method is to delete a directory from destination server.
+	 * 
+	 * @param fileName
+	 * @param path
+	 * @param statusString
+	 */
+	private void removeDir(String dirName, StringBuilder statusString) {
+<span class="nc" id="L538">		Channel channel = null;</span>
+		try {
+<span class="nc" id="L540">			channel = session.openChannel(&quot;sftp&quot;);</span>
+<span class="nc" id="L541">			channel.connect();</span>
+<span class="nc" id="L542">			ChannelSftp channelSftp = (ChannelSftp) channel;</span>
+<span class="nc" id="L543">			deleteDirectory(channelSftp, dirName);</span>
+			
+<span class="nc" id="L545">		} catch (Exception ex) {</span>
+<span class="nc" id="L546">			logger.error(&quot; Error deleting a Directory --&gt;&quot; + dirName + &quot;\n&quot; + ex);</span>
+<span class="nc bnc" id="L547" title="All 2 branches missed.">			if (statusString != null) {</span>
+<span class="nc" id="L548">				statusString.append(&quot; Error deleting a Directory --&gt;&quot; + dirName + &quot; --&gt;&quot;);</span>
+<span class="nc" id="L549">				statusString.append(ex.getMessage());</span>
+			}
+		} finally {
+<span class="nc bnc" id="L552" title="All 6 branches missed.">			if (null != channel) {</span>
+<span class="nc" id="L553">				channel.disconnect();</span>
+			}
+		}
+<span class="nc" id="L556">	}</span>
+	
+	@SuppressWarnings(&quot;unchecked&quot;)
+	private void deleteDirectory(ChannelSftp sftp, String dirName) throws SftpException {
+<span class="nc bnc" id="L560" title="All 2 branches missed.">	    if (isDir(sftp, dirName)) {</span>
+<span class="nc" id="L561">	        sftp.cd(dirName);</span>
+<span class="nc" id="L562">			Vector &lt; LsEntry &gt; entries = sftp.ls(&quot;*.*&quot;);</span>
+<span class="nc bnc" id="L563" title="All 2 branches missed.">	        for (LsEntry entry: entries) {</span>
+<span class="nc" id="L564">	            deleteDirectory(sftp, entry.getFilename());</span>
+<span class="nc" id="L565">	        }</span>
+<span class="nc" id="L566">	        sftp.cd(&quot;..&quot;);</span>
+<span class="nc" id="L567">	        sftp.rmdir(dirName);</span>
+<span class="nc" id="L568">	    } else {</span>
+<span class="nc" id="L569">	        sftp.rm(dirName);</span>
+	    }
+<span class="nc" id="L571">	}</span>
+
+	private boolean isDir(ChannelSftp sftp, String entry) throws SftpException {
+<span class="nc" id="L574">	    return sftp.stat(entry).isDir();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

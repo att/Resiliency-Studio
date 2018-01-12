@@ -62,6 +62,7 @@ import com.att.tta.rs.model.EventRecorder;
 import com.att.tta.rs.model.EventStatus;
 import com.att.tta.rs.model.MonkeyType;
 import com.att.tta.rs.model.Scenario;
+import com.att.tta.rs.model.ScenarioMonkeyStrategy;
 import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -322,8 +323,10 @@ public class ScenarioServiceUnitTest {
 		Scenario scenario = createScenario(SCENARIONAME, TEAMNAME);
 		EventRecorder event = createEvent(scenario, statusString);
 		when(eventRepository.save(event)).thenReturn(event);
-
-		EventRecorder eventRecorder = scenarioService.createEvent(scenario, statusString, scenario.getTeamName());
+		
+		org.joda.time.DateTime dt = new org.joda.time.DateTime();
+	
+		EventRecorder eventRecorder = scenarioService.createEvent(scenario, statusString, scenario.getTeamName(), scenario.getStrategies().get(0), dt.toString(), "1");
 		assertNull("Event Object is null.", eventRecorder);
 	}
 
@@ -380,6 +383,16 @@ public class ScenarioServiceUnitTest {
 
 		obj.setApplicationName("sceAppName");
 		obj.setEnvironmentName("QA");
+		
+		ScenarioMonkeyStrategy monkeyObj = new ScenarioMonkeyStrategy();
+		monkeyObj.setExecSequence("1");
+		monkeyObj.setMonkeyScriptType("UNIX Script");
+		monkeyObj.setMonkeyType(MonkeyType.CHAOS);
+		monkeyObj.setMonkeyStrategyId("testMonkeyStrategyId");
+		monkeyObj.setMonkeyStrategy("testMonkeyStrategy");
+		
+		obj.addStrategy(monkeyObj);
+		
 		return obj;
 	}
 

@@ -46,6 +46,13 @@ import com.att.tta.rs.cucumber.framework.ParentPage;
 import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
+/**
+ * This class contains the page objects and functions to test the feature
+ * 
+ * @author sk494t
+ *
+ */
+
 public class AddApplicationOfPrivateKeyPage extends ParentPage {
 
 	protected static PropertyUtil configProp = new PropertyUtil();
@@ -109,8 +116,8 @@ public class AddApplicationOfPrivateKeyPage extends ParentPage {
 	@FindBy(id = "addServerButton")
 	private WebElement ADD_SERVER_BUTTON;
 
-	@FindBy(id = "nextButton")
-	private WebElement NEXT__BUTTON;
+	@FindBy(xpath="//button[text()='Next']")
+	private List<WebElement> NEXT__BUTTON;
 
 	@FindBy(id = "submitButton")
 	private WebElement SUBMIT__BUTTON;
@@ -198,16 +205,14 @@ public class AddApplicationOfPrivateKeyPage extends ParentPage {
 			this.SERVER_NAME_TEXT.sendKeys(appData.serverName);
 			this.ROLE_TEXT.sendKeys(appData.role);
 			this.IP_ADDRESS_TEXTBOX.sendKeys(appData.ipAddress);
-			new Select(this.CPU_SELECTOR).selectByIndex(Integer.parseInt(appData.cpuIndex));
-			new Select(this.OS_SELECTOR).selectByIndex(Integer.parseInt(appData.osIndex));
-			this.STORAGE_SELECTOR.sendKeys(appData.storageIndex);
-			new Select(this.OS_TYPE_SELECTOR).selectByIndex(Integer.parseInt(appData.osTypeIndex));
-			this.MEMORY_SELECTOR.sendKeys(appData.memoryIndex);
+			this.USER_NAME_TEXTBOX.sendKeys(appData.userName);
+			this.PRIVATE_KEY_TEXTAREA.sendKeys(appData.privateKey);
+
 		}
 	}
 
 	public void goToNextTab() {
-		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.NEXT__BUTTON, "click", "0,0");
+		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.NEXT__BUTTON.get(1), "click", "0,0");
 	}
 
 	public void clickSubmit() throws InterruptedException {
@@ -219,8 +224,11 @@ public class AddApplicationOfPrivateKeyPage extends ParentPage {
 	public void fill_tab2_details(List<AddApplicationUITab1Data> appDataList) {
 		for (AddApplicationUITab1Data appData : appDataList) {
 			driver.manage().timeouts().implicitlyWait(PropertyUtil.LONG_TIMEOUT, TimeUnit.SECONDS);
-			this.USER_NAME_TEXTBOX.sendKeys(appData.userName);
-			this.PRIVATE_KEY_TEXTAREA.sendKeys(appData.privateKey);
+			new Select(this.CPU_SELECTOR).selectByIndex(Integer.parseInt(appData.cpuIndex));
+			new Select(this.OS_SELECTOR).selectByIndex(Integer.parseInt(appData.osIndex));
+			this.STORAGE_SELECTOR.sendKeys(appData.storageIndex);
+			new Select(this.OS_TYPE_SELECTOR).selectByIndex(Integer.parseInt(appData.osTypeIndex));
+			this.MEMORY_SELECTOR.sendKeys(appData.memoryIndex);
 		}
 	}
 
@@ -231,14 +239,6 @@ public class AddApplicationOfPrivateKeyPage extends ParentPage {
 			this.PROCESS_NAME_TEXT.sendKeys(appData.processName);
 		}
 
-	}
-
-	public void fill_tab4_details(List<AddApplicationUITab1Data> appDataList) {
-		for (AddApplicationUITab1Data appData : appDataList) {
-			driver.manage().timeouts().implicitlyWait(PropertyUtil.LONG_TIMEOUT, TimeUnit.SECONDS);
-			this.DISCOVERY_NAME_TEXT.sendKeys(appData.discoveryName);
-			this.DISCOVERY_API_TEXT.sendKeys(appData.discoveryApi);
-		}
 	}
 
 	public void fill_tab5_details(List<AddApplicationUITab1Data> appDataList) {

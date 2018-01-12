@@ -59,6 +59,7 @@ public class StepDefinitionAddApplicationPrivateKey extends ParentScenario {
 
 	@Given("^I am on the dash board page for Private Key$")
 	public void I_am_on_the_dash_board_page_for_add_application() throws InterruptedException {
+		navigateTo("/resiliency-studio-ui/#/dashboard");
 		new AddApplicationOfPrivateKeyPage(driver).click_add_application_link();
 	}
 
@@ -83,12 +84,6 @@ public class StepDefinitionAddApplicationPrivateKey extends ParentScenario {
 	public void i_enter_all_the_application_details_in_tab_three(List<AddApplicationUITab1Data> appDataList)
 			throws Throwable {
 		new AddApplicationOfPrivateKeyPage(driver).fill_tab3_details(appDataList);
-	}
-
-	@When("^I enter all the application details in tab four for Private Key$")
-	public void i_enter_all_the_application_details_in_tab_four(List<AddApplicationUITab1Data> appDataList)
-			throws Throwable {
-		new AddApplicationOfPrivateKeyPage(driver).fill_tab4_details(appDataList);
 	}
 
 	@When("^I enter all the application details in tab five for Private Key$")

@@ -31,6 +31,8 @@ package com.att.tta.rs.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +58,11 @@ import com.att.tta.rs.service.TeamUserService;
 import com.att.tta.rs.util.MessageWrapper;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This Class provides certain REST APIs to perform CRUD operations on Event
  * repository.
@@ -64,11 +71,12 @@ import com.google.common.collect.Lists;
  *
  */
 @RestController
+@Api(value = "Event Rest Controller", description = "This REST controller provides REST APIs for performing CRUD Operation on Event Repository")
 public class EventRestController {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventRestController.class);
 	private static final String TIMESTAMP = "@timestamp"; 
-
+	
 	/**
 	 * instance of EventService
 	 */
@@ -87,6 +95,10 @@ public class EventRestController {
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns all Event Objects present in Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned all Event Objects"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Event object found") })
 	@RequestMapping(value = "/api/events/", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> listEvents() {
 		List<EventRecorder> events = Lists.newArrayList(eventService.findAll());
@@ -104,6 +116,10 @@ public class EventRestController {
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns list of all Event objects present in Elastic Search for given team", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned all Application Event for given team"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Event object found for given team") })
 	@RequestMapping(value = "/api/events/team/", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> listAllEvents(HttpServletRequest request) {
 		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();
@@ -112,12 +128,54 @@ public class EventRestController {
 			final String error = "No events found for team " + teamName;
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
-		}	
-		for (EventRecorder eventRecorder : events){
+		}
+
+		Map<String, List<EventRecorder>> eventListMap = new HashMap<>();
+		for (EventRecorder eventRecorder : events) {
 			org.joda.time.DateTime dt = new org.joda.time.DateTime(eventRecorder.field(TIMESTAMP));
 			eventRecorder.fields().put(TIMESTAMP, dt.toString("yyyy-MM-dd HH:mm:ss.SSS"));
-		}		
-		return new ResponseEntity<>(events, HttpStatus.OK);
+			String eventTimestamp = eventRecorder.field(TIMESTAMP);
+			if (eventListMap.containsKey(eventTimestamp)) {
+				eventListMap.get(eventTimestamp).add(eventRecorder);
+			} else {
+				List<EventRecorder> eventRecorderList = new ArrayList<>();
+				eventRecorderList.add(eventRecorder);
+				eventListMap.put(eventTimestamp, eventRecorderList);
+			}
+		}
+		eventListMap.forEach((k, v) -> {
+			v.forEach(eventRecorder -> {
+				eventRecorder.setExecSequence(
+						(null == eventRecorder.getExecSequence() || eventRecorder.getExecSequence().isEmpty()) ? "0"
+								: eventRecorder.getExecSequence());
+			});
+		});
+		eventListMap.forEach((k, v) -> v.sort(Comparator.comparing(EventRecorder::getExecSequence)));
+
+		List<EventRecorder> finalEventRecorderList = new ArrayList<>();
+		eventListMap.forEach((k, v) -> {
+			EventRecorder newEvent = new EventRecorder();
+			int i = 0;
+			for (EventRecorder eventRecorder : v) {
+				String eventStatus = "*** Script Execution O/P for Monkey Strategy: "
+						+ eventRecorder.field("monkeyStrategy") + " *** \n";
+				if (i == 0) {
+					newEvent = eventRecorder;
+					newEvent.setEventStatus(eventStatus + eventRecorder.getEventStatus() + "\n\n");
+				} else {
+					newEvent.setEventStatus(newEvent.getEventStatus() + eventStatus + eventRecorder.getEventStatus()+ "\n\n");
+					newEvent.fields().put("monkeyStrategy",
+							newEvent.field("monkeyStrategy") + ", " + eventRecorder.field("monkeyStrategy"));
+					newEvent.fields().put("monkeyType",
+							newEvent.field("monkeyType") + ", " + eventRecorder.field("monkeyType"));
+					newEvent.setExecStatus("Failed".equalsIgnoreCase(eventRecorder.getExecStatus()) ? "Failed"
+							: newEvent.getExecStatus());
+				}
+				i++;
+			}
+			finalEventRecorderList.add(newEvent);
+		});
+		return new ResponseEntity<>(finalEventRecorderList, HttpStatus.OK);
 	}
 
 	/**
@@ -127,6 +185,10 @@ public class EventRestController {
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns single Event Objects present in Elastic Search for given Event ID", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned single Event Object for given Event ID"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Event object found for given Event ID") })
 	@RequestMapping(value = "/api/events/{id}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> listEvent(HttpServletRequest request, @PathVariable("id") String id) {
 		logger.debug("Listing event for id %s", id);
@@ -147,6 +209,10 @@ public class EventRestController {
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns Event Status Objects present in Elastic Search for given Event ID", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned Event Status Object for given Event ID"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Event Status object found for given Event ID") })
 	@RequestMapping(value = "/api/events/status/{id}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> getstatusupdateforevent(HttpServletRequest request, @PathVariable("id") String id) {
 		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();
@@ -168,6 +234,10 @@ public class EventRestController {
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns count of Event objects available in Elastic Search for given team name", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned count of Event objects for given team name"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "The resource trying to reach is not found") })
 	@RequestMapping(value = "/api/events/count/", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> countByTeamName(HttpServletRequest request) {
 		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();
@@ -183,6 +253,10 @@ public class EventRestController {
 	 * @param applicationName
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns Latest Events per Scenario present in Elastic Search for given App Name", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned Latest Events per Scenario for given App Name"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Event object found for given App Name") })
 	@RequestMapping(value = "/api/events/latestevent/{applicationName}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> listLatestEventsByAppName(HttpServletRequest request,
 			@PathVariable("applicationName") String applicationName) {

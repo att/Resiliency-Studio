@@ -185,15 +185,13 @@ public class EventRestControllerTest {
 
 		events = new ArrayList<>();
 		events.add(createEvent(ALPHATEAMNAME));
-		events.add(createEvent(TEAMNAME));
 
 		when(eventRepository.findAll()).thenReturn(events);
 
 		@SuppressWarnings("unchecked")
 		List<EventRecorder> alphaEventList = (List<EventRecorder>) eventController.listAllEvents(req).getBody();
-		assertEquals(2, alphaEventList.size());
+		assertEquals(1, alphaEventList.size());
 		assertEquals(ALPHATEAMNAME, alphaEventList.get(0).getTeamName());
-		assertEquals(TEAMNAME, alphaEventList.get(1).getTeamName());
 	}
 
 	/**

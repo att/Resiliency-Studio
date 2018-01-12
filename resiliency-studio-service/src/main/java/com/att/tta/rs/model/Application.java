@@ -90,6 +90,24 @@ public class Application implements Serializable {
 	/** Environment Network Architecture Diagram **/
 	private File networkArchitectureDiagram;
 
+	@Field(type = FieldType.String, analyzer = "keyword", store = true)
+	private String filePath;
+
+	/**
+	 * @return the filePath
+	 */
+	public String getFilePath() {
+		return filePath;
+	}
+
+	/**
+	 * @param filePath
+	 *            the filePath to set
+	 */
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
 	public Application() {
 		super();
 	}

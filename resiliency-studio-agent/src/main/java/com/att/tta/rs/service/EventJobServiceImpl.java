@@ -32,9 +32,11 @@ package com.att.tta.rs.service;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.att.tta.rs.model.EventJobDTO;
+import com.att.tta.rs.model.EventMonkeyStrategyDTO;
 import com.att.tta.rs.util.AppUtil;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -60,25 +63,86 @@ public class EventJobServiceImpl implements EventJobService {
 	private static final String COMPLETESTR = "##Completed##";
 	private static final String PRVKEYSTR = "Private key present executing on the instance ";
 	private static final String PDKEYSTR = "password  present executing on the instance ";
-	private static final String ANSIBLERRSTR = "Error connecting to Ansible instance server.";
+	private static final String ANSIBLERRSTR = "Error connecting to Ansible instance server. So Scenario Execution is terminated.";
 	private static final String CONNERR = " Error connecting to instance Name: ";
 	private static final String PORTSTR = " and port: 22 and user: ";
 	private static final String DISCOVERSTR = "No password and No key present executing on the discovery server ";
-	private static final String DISCERR = "No UserId or password found for Discovery Server";
+	private static final String DISCERR = "No UserId or password found for Discovery Server. So Scenario Execution is terminated.";
 	private static final String IPADD = " IP Address ";
+
 	
 	@Autowired
 	Environment env;
 
 	@Override
 	public void executeJob(EventJobDTO eventJobDTO, ConcurrentMap<String, String> eventData) {
-		if (UNIXSCRIPT.equalsIgnoreCase(eventJobDTO.getMonkeyScriptType())) {
-			executeUNIXScript(eventJobDTO, eventData);
-		} else if (ANSIBLESCRIPT.equalsIgnoreCase(eventJobDTO.getMonkeyScriptType())) {
-			executeAnsibleScript(eventJobDTO, eventData);
+		List <EventMonkeyStrategyDTO> execStrategyList =  new ArrayList<>();
+		List <EventMonkeyStrategyDTO> strategyList = eventJobDTO.getEventMonkeyList();
+		strategyList.sort(Comparator.comparing(EventMonkeyStrategyDTO::getExecSequence));
+		boolean errorFlag = false;
+		int prevSeq = -1;
+		for (EventMonkeyStrategyDTO dto: eventJobDTO.getEventMonkeyList()){
+			int currSeq = Integer.parseInt(dto.getExecSequence());
+			if (prevSeq == -1 || prevSeq == currSeq){
+				execStrategyList.add(dto);
+				prevSeq = currSeq;
+			}else if (prevSeq < currSeq){
+				runMonkeyStrategy (eventJobDTO, eventData, execStrategyList);
+				if (checkError (execStrategyList)){
+					errorFlag = true;
+					break;
+				}
+				
+				execStrategyList =  new ArrayList<>();
+				execStrategyList.add(dto);
+				prevSeq = currSeq;
+			}
 		}
+		if (!execStrategyList.isEmpty()  && !errorFlag){
+			runMonkeyStrategy (eventJobDTO, eventData, execStrategyList);
+		}
+		
+		if (null!= eventJobDTO.getStartTS() && null != eventJobDTO.getEndTS()){
+			String execTime = new Duration(eventJobDTO.getStartTS(), eventJobDTO.getEndTS()).getStandardSeconds() + " seconds. ";
+			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + "Scenario Execution completed in " + execTime + "\n");
+			eventJobDTO.setExecDuration(execTime);
+		}
+		
+		eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() + COMPLETESTR);
+		eventJobDTO.setExecStatus("");
 	}
 
+	
+	private boolean checkError (List <EventMonkeyStrategyDTO> strategyList){
+		boolean errorFlag = false;
+		for (EventMonkeyStrategyDTO dto : strategyList){
+			if ("-11".equalsIgnoreCase(dto.getReturnCode())){
+				errorFlag = true;
+				break;
+			}	
+		}
+		return errorFlag;
+	}
+	
+	private void runMonkeyStrategy (EventJobDTO eventJobDTO, ConcurrentMap<String, String> eventData, List <EventMonkeyStrategyDTO> strategyList){
+		strategyList.parallelStream().forEach(eventMonkeyStrategyDTO ->{
+			if (UNIXSCRIPT.equalsIgnoreCase(eventMonkeyStrategyDTO.getMonkeyScriptType())) {
+				executeUNIXScript(eventJobDTO, eventData, eventMonkeyStrategyDTO);
+			} else if (ANSIBLESCRIPT.equalsIgnoreCase(eventMonkeyStrategyDTO.getMonkeyScriptType())) {
+				executeAnsibleScript(eventJobDTO, eventData, eventMonkeyStrategyDTO);
+			}
+		});
+		
+		/*strategyList.forEach(eventMonkeyStrategyDTO -> {
+			ExecutorService service = Executors.newSingleThreadExecutor();
+			if (UNIXSCRIPT.equalsIgnoreCase(eventMonkeyStrategyDTO.getMonkeyScriptType())) {
+				service.execute(() -> executeUNIXScript(eventJobDTO, eventData, eventMonkeyStrategyDTO));
+			} else if (ANSIBLESCRIPT.equalsIgnoreCase(eventMonkeyStrategyDTO.getMonkeyScriptType())) {
+				service.execute(() -> executeAnsibleScript(eventJobDTO, eventData, eventMonkeyStrategyDTO));
+			}
+			service.shutdown();
+		});*/
+	}
 	/**
 	 * This method is used to execute a UNIX Shell Script
 	 * 
@@ -86,10 +150,10 @@ public class EventJobServiceImpl implements EventJobService {
 	 * @param eventData
 	 * @return
 	 */
-	private void executeUNIXScript(EventJobDTO eventJobDTO, ConcurrentMap<String, String> eventData) {
+	private void executeUNIXScript(EventJobDTO eventJobDTO, ConcurrentMap<String, String> eventData, EventMonkeyStrategyDTO eventMonkeyStrategyDTO) {
 		String execStatus;
 		StringBuilder statusStringBuilder = new StringBuilder();
-		boolean pdExecution;
+		boolean pdExecution = true;
 		boolean discoverExecution = false;
 		AppUtil appUtil;
 
@@ -107,9 +171,13 @@ public class EventJobServiceImpl implements EventJobService {
 		} else {
 			if (eventJobDTO.getDiscoverUserId() == null || eventJobDTO.getDiscoverPassword() == null) {
 				execStatus = DISCERR;
+				
+				eventMonkeyStrategyDTO.setExecStatus(eventMonkeyStrategyDTO.getExecStatus() + "\n" + execStatus);
 				eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + execStatus);
-				eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() + COMPLETESTR);
-				eventJobDTO.setReturnCode("-1");
+				eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus());
+				
+				eventJobDTO.setReturnCode("-11");
+				eventMonkeyStrategyDTO.setReturnCode("-11");
 				return;
 			} else {
 				conParam = (eventJobDTO.getDiscoverHostName() != null && eventJobDTO.getDiscoverHostName().trim() != "")
@@ -123,8 +191,8 @@ public class EventJobServiceImpl implements EventJobService {
 		}
 		List<String> params = setParam(pdExecution, eventJobDTO);
 		appUtil = setAppUtilObj(eventJobDTO, pdExecution, discoverExecution, execStatus, eventData, conParam,
-				statusStringBuilder);
-		executeScript(params, appUtil, eventJobDTO, statusStringBuilder, eventData, true);
+				statusStringBuilder,  eventMonkeyStrategyDTO);
+		executeScript(params, appUtil, eventJobDTO, statusStringBuilder, eventData, true, eventMonkeyStrategyDTO);
 	}
 
 	/**
@@ -134,7 +202,7 @@ public class EventJobServiceImpl implements EventJobService {
 	 * @param eventData
 	 * @return
 	 */
-	private void executeAnsibleScript(EventJobDTO eventJobDTO, ConcurrentMap<String, String> eventData) {
+	private void executeAnsibleScript(EventJobDTO eventJobDTO, ConcurrentMap<String, String> eventData,  EventMonkeyStrategyDTO eventMonkeyStrategyDTO) {
 		String execStatus;
 		StringBuilder statusStringBuilder = new StringBuilder();
 		List<String> params = new ArrayList<>();
@@ -142,10 +210,11 @@ public class EventJobServiceImpl implements EventJobService {
 		if (eventJobDTO.getPrivateKey() != null && !eventJobDTO.getPrivateKey().trim().isEmpty()) {
 			execStatus = PRVKEYSTR + eventJobDTO.getHostName() + IPADD + eventJobDTO.getIpAdd();
 			logger.debug(execStatus);
+			eventMonkeyStrategyDTO.setExecStatus(eventMonkeyStrategyDTO.getExecStatus() + "\n" + execStatus);
 			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + execStatus);
 			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus());
 
-			appUtil = setAppUtilForAnsible(eventJobDTO, eventData, statusStringBuilder);
+			appUtil = setAppUtilForAnsible(eventJobDTO, eventData, statusStringBuilder, eventMonkeyStrategyDTO);
 
 		} else if (checkPwdCondition(eventJobDTO)) {
 
@@ -154,14 +223,18 @@ public class EventJobServiceImpl implements EventJobService {
 
 			String conParam = (eventJobDTO.getHostName() != null && eventJobDTO.getHostName().trim() != "")
 					? eventJobDTO.getHostName() : eventJobDTO.getIpAdd();
-			appUtil = setAppUtilObj(eventJobDTO, true, false, execStatus, eventData, conParam, statusStringBuilder);
+			appUtil = setAppUtilObj(eventJobDTO, true, false, execStatus, eventData, conParam, statusStringBuilder, eventMonkeyStrategyDTO);
 
 		} else {
 			if (eventJobDTO.getDiscoverUserId() == null || eventJobDTO.getDiscoverPassword() == null) {
 				execStatus = DISCERR;
+				
+				eventMonkeyStrategyDTO.setExecStatus(eventMonkeyStrategyDTO.getExecStatus() + "\n" + execStatus);
 				eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + execStatus);
-				eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() + COMPLETESTR);
-				eventJobDTO.setReturnCode("-1");
+				eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() );
+				
+				eventJobDTO.setReturnCode("-11");
+				eventMonkeyStrategyDTO.setReturnCode("-11");
 				return;
 			} else {
 				String conParam = (eventJobDTO.getDiscoverHostName() != null
@@ -171,10 +244,10 @@ public class EventJobServiceImpl implements EventJobService {
 						+ eventJobDTO.getDiscoverHostIpAddress();
 				logger.debug(execStatus);
 
-				appUtil = setAppUtilObj(eventJobDTO, true, true, execStatus, eventData, conParam, statusStringBuilder);
+				appUtil = setAppUtilObj(eventJobDTO, true, true, execStatus, eventData, conParam, statusStringBuilder, eventMonkeyStrategyDTO);
 			}
 		}
-		executeScript(params, appUtil, eventJobDTO, statusStringBuilder, eventData, false);
+		executeScript(params, appUtil, eventJobDTO, statusStringBuilder, eventData, false, eventMonkeyStrategyDTO);
 	}
 
 	/**
@@ -188,29 +261,36 @@ public class EventJobServiceImpl implements EventJobService {
 	 * @param unixScript
 	 */
 	private void executeScript(List<String> params, AppUtil appUtil, EventJobDTO eventJobDTO,
-			StringBuilder statusStringBuilder, ConcurrentMap<String, String> eventData, boolean unixScript) {
+			StringBuilder statusStringBuilder, ConcurrentMap<String, String> eventData, boolean unixScript, EventMonkeyStrategyDTO eventMonkeyStrategyDTO) {
 		if ("".equals(statusStringBuilder.toString())) {
 			String returnCode;
 			if (unixScript) {
-				returnCode = appUtil.executeUNIXScript(eventJobDTO, params, statusStringBuilder, eventData);
+				returnCode = appUtil.executeUNIXScript(eventJobDTO, params, statusStringBuilder, eventData, eventMonkeyStrategyDTO);
 			} else {
-				returnCode = appUtil.executeAnsibleScript(eventJobDTO, params, statusStringBuilder, eventData);
+				returnCode = appUtil.executeAnsibleScript(eventJobDTO, params, statusStringBuilder, eventData, eventMonkeyStrategyDTO);
 			}
-			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + statusStringBuilder.toString());
+			
+			eventMonkeyStrategyDTO.setExecStatus(eventMonkeyStrategyDTO.getExecStatus() + "\n" + statusStringBuilder.toString());
+			//eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + statusStringBuilder.toString());
+			
+			eventMonkeyStrategyDTO.setReturnCode(returnCode);
 			eventJobDTO.setReturnCode(returnCode);
-			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() + COMPLETESTR);
+			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus());
 
 		} else {
 			String execStatus;
 			if (unixScript) {
 				execStatus = CONNERR + eventJobDTO.getHostName() + " IP: " + eventJobDTO.getIpAdd() + PORTSTR
-						+ eventJobDTO.getUserName();
+						+ eventJobDTO.getUserName() + ". So Scenario Execution is terminated.";
 			} else {
 				execStatus = ANSIBLERRSTR;
 			}
+			
+			eventMonkeyStrategyDTO.setExecStatus(eventMonkeyStrategyDTO.getExecStatus() + "\n" + execStatus);
 			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + execStatus);
-			eventJobDTO.setReturnCode("-1");
-			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() + COMPLETESTR);
+			eventJobDTO.setReturnCode("-11");
+			eventMonkeyStrategyDTO.setReturnCode("-11");
+			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() );
 		}
 	}
 
@@ -249,8 +329,10 @@ public class EventJobServiceImpl implements EventJobService {
 	 */
 	private AppUtil setAppUtilObj(EventJobDTO eventJobDTO, boolean pdExecution, boolean discoverExecution,
 			String execStatus, ConcurrentMap<String, String> eventData, String conParam,
-			StringBuilder statusStringBuilder) {
+			StringBuilder statusStringBuilder, EventMonkeyStrategyDTO eventMonkeyStrategyDTO) {
 		AppUtil appUtil;
+		
+		eventMonkeyStrategyDTO.setExecStatus(eventMonkeyStrategyDTO.getExecStatus() + "\n" + execStatus);
 		eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + execStatus);
 		eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus());
 		if (pdExecution) {
@@ -278,7 +360,7 @@ public class EventJobServiceImpl implements EventJobService {
 	 * @return
 	 */
 	private AppUtil setAppUtilForAnsible(EventJobDTO eventJobDTO, ConcurrentMap<String, String> eventData,
-			StringBuilder statusStringBuilder) {
+			StringBuilder statusStringBuilder, EventMonkeyStrategyDTO eventMonkeyStrategyDTO) {
 		AppUtil appUtil = null;
 		try {
 			URL privateKeyURL = Resources.getResource(EventJobServiceImpl.class, "/ansibleServer/ansiblePrivateKey");
@@ -289,9 +371,13 @@ public class EventJobServiceImpl implements EventJobService {
 
 		} catch (Exception e) {
 			logger.error(ANSIBLERRSTR + e);
+			statusStringBuilder.append(ANSIBLERRSTR + e);
+			eventMonkeyStrategyDTO.setExecStatus(eventMonkeyStrategyDTO.getExecStatus() + "\n" + ANSIBLERRSTR);
 			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus() + "\n" + ANSIBLERRSTR);
-			eventJobDTO.setReturnCode("-1");
-			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() + COMPLETESTR);
+			
+			eventJobDTO.setReturnCode("-11");
+			eventMonkeyStrategyDTO.setReturnCode("-11");
+			eventData.put(eventJobDTO.getEventId(), eventJobDTO.getExecStatus() );
 		}
 		return appUtil;
 	}

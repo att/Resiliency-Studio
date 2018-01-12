@@ -1,5 +1,10 @@
+# * BSD License
+# *     
+# * Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.       
+# * 
+# *  Redistribution and use in source and binary forms, with or without modification, are permitted
 # *   provided that the following conditions are met:
-# *    
+# *
 # *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
 # *      and the following disclaimer.
 # *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
@@ -9,7 +14,7 @@
 # *      following acknowledgement:  This product includes software developed by the AT&T.
 # *   4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
 # *      promote products derived from this software without specific prior written permission.
-# *    
+# *
 # *   THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
 # *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -21,131 +26,168 @@
 # *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # *   DAMAGE.
 # *******************************************************************************
-# 
-#	Ansible based strategy for simulating network latency
-#
-
 Feature: Resiliency studio Application section
   As a user
   I want to be able to validate the Resiliency studio application
- 
- @RSApplication-DataDriven
+
+  @RSApplication-DataDriven
   Scenario: Testing Resiliency studio application features
-  Given I am on the login page for authenticate
+    Given I am on the login page for authenticate
     When I enter the username and password on login page
     When I click the logon button on login page
     ###########################Add Application##############################
     Given I am on the dash board page for add application
     When I enter all the application details in tab one
-    |applicationName|categoryIndex|environmentIndex|serverName|role|hostName|ipAddress|tierIndex|cpuIndex|memoryIndex|osIndex|storageIndex|osTypeIndex |
-    |CUCUMBERTEST|1            |1               |server-update |admin |hostname       |1.0.0.0|1        |1       |12GB          |UNIX     |12GB        |1 |
-   When I click the next button on add application page
-   When I enter all the application details in tab two
-  |userName|password|
-  | sensk|hellonwheels|
-   When I click the next button on add application page
-   When I enter all the application details in tab three
-   |softwareComponentName|processName|
-   |httpd|java|
-   When I click the next button on add application page
-   When I enter all the application details in tab four
-   |discoveryName|discoveryApi|
-   |discovery1|https://discovery/|
-   When I click the next button on add application page
-   When I enter all the application details in tab five
-   |counterType|monitorApi|
-   |counterType|https://monitor/|
-   When I click the next button on add application page 
-   When I enter all the application details in tab six
-   |logType|logLocation|
-   |sl4j|http://tmp/log/|
-   When I click the submit button on add application page
-   And I click view application link on add application page
-   ############################Add ApplicationRSA###########################
-   Then I am going to another feature of resiliency studio application
-   Given I am on the dash board page for RSA login
+      | applicationName | categoryIndex | environmentIndex | serverName    | role  | hostName | ipAddress | tierIndex | cpuIndex | memoryIndex | osIndex | storageIndex | osTypeIndex |
+      | CUCUMBERTEST    |             1 |                1 | server-update | admin | hostname | 1.0.0.0   |         1 |        1 | 12GB        | UNIX    | 12GB         |           1 |
+    When I click the next button on add application page
+    When I enter all the application details in tab two
+      | userName | password     |
+      | sensk    | hellonwheels |
+    When I click the next button on add application page
+    When I enter all the application details in tab three
+      | softwareComponentName | processName |
+      | httpd                 | java        |
+    When I click the next button on add application page
+    When I enter all the application details in tab four
+      | discoveryName | discoveryApi       |
+      | discovery1    | https://discovery/ |
+    When I click the next button on add application page
+    When I enter all the application details in tab five
+      | counterType | monitorApi       |
+      | counterType | https://monitor/ |
+    When I click the next button on add application page
+    When I enter all the application details in tab six
+      | logType | logLocation     |
+      | sl4j    | http://tmp/log/ |
+    When I click the submit button on add application page
+    And I click view application link on add application page
+    ############################Add ApplicationRSA###########################
+    Given I am on the dash board page for RSA login
     When I enter all the application details in tab one for RSA login
-    |applicationName|categoryIndex|environmentIndex|serverName|role|hostName|ipAddress|tierIndex|cpuIndex|memoryIndex|osIndex|storageIndex|osTypeIndex|
-    |RSA Test|1            |1               |server1   |admin |host1             |1.0.0.2|1  |1       |12GB          |1      |12GB        |1|       
-   When I click the next button on add application page for RSA login
-   When I enter all the application details in tab two for RSA login
-   |userName|
-  |user    | 
-   When I click the next button on add application page for RSA login
-   When I enter all the application details in tab three for RSA login
-   |softwareComponentName|processName|
-   |httpd|web server|
-   When I click the next button on add application page for RSA login
-   When I enter all the application details in tab four for RSA login
-   |discoveryName|discoveryApi|
-   |discovery1|https://discovery/|
-   When I click the next button on add application page for RSA login
-   When I enter all the application details in tab five for RSA login
-   |counterType|monitorApi|
-   |counterType|https://monitor/|
-   When I click the next button on add application page for RSA login 
-   When I enter all the application details in tab six for RSA login
-   |logType|logLocation|
-   |sl4j|http://tmp/log/|
-   When I click the submit button on add application page for RSA login
-   And I click view application link on add application page for RSA login
-   #################################Add Application PrivateKey###########################
-    Then I am going to another feature of resiliency studio application
+      | applicationName | categoryIndex | environmentIndex | serverName | role  | hostName | ipAddress | tierIndex | cpuIndex | memoryIndex | osIndex | storageIndex | osTypeIndex |
+      | RSA Test        |             1 |                1 | server1    | admin | host1    | 1.0.0.2   |         1 |        1 | 12GB        |       1 | 12GB         |           1 |
+    When I click the next button on add application page for RSA login
+    When I enter all the application details in tab two for RSA login
+      | userName |
+      | user     |
+    When I click the next button on add application page for RSA login
+    When I enter all the application details in tab three for RSA login
+      | softwareComponentName | processName |
+      | httpd                 | web server  |
+    When I click the next button on add application page for RSA login
+    When I enter all the application details in tab four for RSA login
+      | discoveryName | discoveryApi       |
+      | discovery1    | https://discovery/ |
+    When I click the next button on add application page for RSA login
+    When I enter all the application details in tab five for RSA login
+      | counterType | monitorApi       |
+      | counterType | https://monitor/ |
+    When I click the next button on add application page for RSA login
+    When I enter all the application details in tab six for RSA login
+      | logType | logLocation     |
+      | sl4j    | http://tmp/log/ |
+    When I click the submit button on add application page for RSA login
+    And I click view application link on add application page for RSA login
+    #################################Add Application PrivateKey###########################
     Given I am on the dash board page for Private Key
     When I enter all the application details in tab one for Private Key
-    |applicationName|categoryIndex|environmentIndex|serverName|role|hostName|ipAddress|tierIndex|cpuIndex|memoryIndex|osIndex|storageIndex|osTypeIndex|
-    |PrivateKey Test|1            |1               |server1   |admin |host1   |1.0.0.3|1  |1       |12GB          |1      |12GB        |1          |      
-   When I click the next button on add application page for Private Key
-   When I enter all the application details in tab two for Private Key
- |userName|privateKey| 
-  | user    |private   | 
-   When I click the next button on add application page for Private Key
-   When I enter all the application details in tab three for Private Key
-   |softwareComponentName|processName|
-   |httpd|web server|
-   When I click the next button on add application page for Private Key
-   When I enter all the application details in tab four for Private Key
-   |discoveryName|discoveryApi|
-   |discovery1|https://discovery/|
-   When I click the next button on add application page for Private Key
-   When I enter all the application details in tab five for Private Key
-   |counterType|monitorApi|
-   |counterType|https://monitor/|
-   When I click the next button on add application page for Private Key 
-   When I enter all the application details in tab six for Private Key
-   |logType|logLocation|
-   |sl4j|http://tmp/log/|
-   When I click the submit button on add application page for Private Key
-   And I click view application link on add application page for Private Key
-   #################################View Application#####################################
-   
+      | applicationName | categoryIndex | environmentIndex | serverName | role  | hostName | ipAddress | tierIndex | cpuIndex | memoryIndex | osIndex | storageIndex | osTypeIndex |
+      | PrivateKey Test |             1 |                1 | server1    | admin | host1    | 1.0.0.3   |         1 |        1 | 12GB        |       1 | 12GB         |           1 |
+    When I click the next button on add application page for Private Key
+    When I enter all the application details in tab two for Private Key
+      | userName | privateKey |
+      | user     | private    |
+    When I click the next button on add application page for Private Key
+    When I enter all the application details in tab three for Private Key
+      | softwareComponentName | processName |
+      | httpd                 | web server  |
+    When I click the next button on add application page for Private Key
+    When I enter all the application details in tab four for Private Key
+      | discoveryName | discoveryApi       |
+      | discovery1    | https://discovery/ |
+    When I click the next button on add application page for Private Key
+    When I enter all the application details in tab five for Private Key
+      | counterType | monitorApi       |
+      | counterType | https://monitor/ |
+    When I click the next button on add application page for Private Key
+    When I enter all the application details in tab six for Private Key
+      | logType | logLocation     |
+      | sl4j    | http://tmp/log/ |
+    When I click the submit button on add application page for Private Key
+    And I click view application link on add application page for Private Key
+    #################################View Application#####################################
+    Given I am on the dash board page for view application page
+    Then I search for an application "CUCUMBERTEST" that is present in the list of aplications
+    Then I click on the expand button to evaluate the mandatory fileds of application are filled with expected values
+      | applicationName | environmentIndex | categoryIndex |
+      | CUCUMBERTEST    | QA               | Application   |
+    Then I click on the server section expand button to evaluate the mandatory fields are filled with expected values
+      | serverName    | hostName | ipAddress | userName |
+      | server-update | hostname | 1.0.0.0   | sensk    |
+    Then I search for an application which is not there in the applications list
     ################################Add MonkeyStartegy######################################
-    Then I am going to another feature of resiliency studio application
     Given I am on the dashboard page for Add MonkeyStrategy
-	  Then I fill up the details in basic tab for add monkey strategy and check the version field is disabled
-	  |monkeyStrategyName|monkeyType|
-      |ProcessStatus|Latency|
-	  Then I will upload the Script and try to modify the code script
-	  Then I add the monkeystrategy only by filling the basic tab and validate the success message 
-	 Then I click on the add monkeystrategy and filling all the basictab data 
-	  Then I add the monkeystrategy by making the generic toggle on and verifying all the fields in the advance tab
-	  |osType|flavor|failureCategory|failureSubCategory|
-	  |1	|1	|software	|all|
-	  Then I click on add button and verify the success message and make sure generic toggle is off
-	  Then I click the generic toggle is on and click on the reset and make sure the generic toggle is off
-	  Then I add a monkey strategy with same name and verify the error message only by filling the basic tab data
-	  ##################################View Monkey Startegy#######################################
-	  Then I am going to another feature of resiliency studio application
-	  Given I am on the dashboard page for View Monkey Strategy
-	 Then I check for the default columns are present on the page load
-	 Then I click on the settings and make sure it contains list of expected columns
-	 Then I click on the checkbox of one of the listed columns and make sure the table got added with the checked column
-	 Then I click on all the checkboxes present in settings button and make sure table got changed
-	 Then I check for a particular monkey strategy "TestMonkey2" to validate the details
-	 Then I click on the view script link and make sure the script window got loaded 
-	 Then I click on the other tabs of monkey types and check for the table change
-	 ###############################Delete Application#####################################
-     Then I am going to another feature of resiliency studio application
+    Then I fill up the details in basic tab for add monkey strategy and check the version field is disabled
+      | monkeyStrategyName | monkeyType |
+      | ProcessStatus      | Latency    |
+    Then I will upload the Script and try to modify the code script
+    Then I add the monkeystrategy only by filling the basic tab and validate the success message
+    Then I click on the add monkeystrategy and filling all the basictab data
+    Then I add the monkeystrategy by making the generic toggle on and verifying all the fields in the advance tab
+      | osType | flavor | failureCategory | failureSubCategory |
+      |      1 |      1 | software        | all                |
+    Then I click on add button and verify the success message and make sure generic toggle is off
+    Then I click the generic toggle is on and click on the reset and make sure the generic toggle is off
+    Then I add a monkey strategy with same name and verify the error message only by filling the basic tab data
+    ##################################View Monkey Startegy#######################################
+    Given I am on the dashboard page for View Monkey Strategy
+    Then I check for the default columns are present on the page load
+    Then I click on the settings and make sure it contains list of expected columns
+    Then I click on the checkbox of one of the listed columns and make sure the table got added with the checked column
+    Then I click on all the checkboxes present in settings button and make sure table got changed
+    Then I check for a particular monkey strategy "TestMonkey2" to validate the details
+    Then I click on the view script link and make sure the script window got loaded
+    Then I click on the other tabs of monkey types and check for the table change
+    ##################################Create Scenario##################################################
+    Given I am on the dash board page for add scenario
+    When I enter all the scenario details on add scenario page
+      | applicationName | environmentIndex | serverIndex | roleIndex | softwareComponentIndex | failureTenetIndex | failureMode | monkeyType | monkeyStrategy    | userBehavior | systemBehavior | potentialCauseFailure | currentControls | detectionMehanism | recoveryMehanism | recommendations | mttd | mttr | failureScript |
+      | PrivateKey Test |                1 |           1 |         1 |                      1 |                 1 | mode        | Latency    | 2spkClonestrategy | user1.0      | system1.0      | failure cause         | currentcontrols | detect            | recovery         | recommendations |   12 |   12 |             1 |
+    When I check the monkey strategy dropdowns visible after the page load
+    When I enter the monkey strategy details seaparately
+      | monkeyType   | monkeyStrategyName |
+      | Chaos Monkey | TestMonkey2        |
+    When I click the submit button on add scenario page
+    Then I should check for the values retained properly after submitting the scenario
+      | applicationName   | environmentIndex | serverIndex | softwareComponentIndex | failureTenetIndex |
+      | PrivateKey Test23 | QA               | server1     | httpd                  | Fault             |
+    When I enter all the scenario details on add scenario page second time for duplicate scenario creation
+      | roleIndex | failureMode | monkeyType | monkeyStrategy |
+      |         1 | mode        | Latency    | ProcessStatus  |
+    When I click the submit button on add scenario page for duplicate scenario creation
+    Then I validate the error text for the duplicate Scenario
+    And I click the button on add scenario page
+    ##############################View Scenario####################################################
+    Given I am on the dash board page
+    When I select application name environment name in the view scenario page
+      | applicationName | environmentSelector |
+      | PrivateKey Test |                   1 |
+    And I click the view button on view scenario page
+    And I should check the table is there or not for view scenario
+    When I need to check the Mandatory fields are filled for view scenario
+      | failureTenet | failureMode | monkeyStrategy |
+      | Fault        | mode        | TestMonkey2    |
+    ###############################Delete Scenario##################################################
+    Given I am on the dash board page for scenario delete
+    When I select the applicationName and environment on View Scenario page
+      | applicationName | environmentSelector |
+      | PrivateKey Test |                   1 |
+    When I click on view button for delete a scenario on view scenario page
+    When I mark a check box to delete a scenario
+    When I click on delete button on view scenario page
+    When I click on yes button to conform delete
+    ###############################Delete Application###############################################
     Given I am on the dash board page for application delete
     When I enter the application delete name as "RSA Test"
     When I click on delete icon button to delete a application
@@ -156,13 +198,13 @@ Feature: Resiliency studio Application section
     When I enter the application delete name as "PrivateKey Test"
     When I click on delete icon button to delete a application
     And I click yes button on delete application page
-	 ##################################Delete MonkeyStartegy###########################################
-	 Then I am going to another feature of resiliency studio application
-	 Given I am on the dashboard page for Delete MonkeyStrategy
-	  When I enter the monkeytype and monkeystrategy to delete
-	  |monkeyStrategyName|monkeyType|
-   |ProcessStatus|LATENCY|
-    |TestMonkey2|CHAOS|
-	  When I click the delete icon on MonkeyStrategy page
-	  When I click the yes to confirm delete on MonkeyStrategy
-	  
+    ##################################Delete MonkeyStartegy###########################################
+    Given I am on the dashboard page for Delete MonkeyStrategy
+    When I enter the monkeytype and monkeystrategy to delete
+      | monkeyStrategyName | monkeyType |
+      | ProcessStatus      | LATENCY    |
+      | TestMonkey2        | CHAOS      |
+    When I click the delete icon on MonkeyStrategy page
+    When I click the yes to confirm delete on MonkeyStrategy
+    ##################################Log Out###########################################################
+    When I click on log out button to come out of application

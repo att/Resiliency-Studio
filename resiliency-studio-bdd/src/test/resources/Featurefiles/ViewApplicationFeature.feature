@@ -1,5 +1,10 @@
- # *   provided that the following conditions are met:
-# *    
+# * BSD License
+# *     
+# * Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.       
+# * 
+# *  Redistribution and use in source and binary forms, with or without modification, are permitted
+# *   provided that the following conditions are met:
+# *
 # *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
 # *      and the following disclaimer.
 # *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
@@ -9,7 +14,7 @@
 # *      following acknowledgement:  This product includes software developed by the AT&T.
 # *   4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
 # *      promote products derived from this software without specific prior written permission.
-# *    
+# *
 # *   THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
 # *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -21,22 +26,19 @@
 # *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # *   DAMAGE.
 # *******************************************************************************
-# 
-#	Ansible based strategy for simulating network latency
-#
- Feature: View Application Page
+Feature: View Application Page
   As a user
   I want to be able to view applications in the system
- 
- @ViewApplication-DataDriven
+
+  @ViewApplication
   Scenario: View application
-  	Given I am Entering credentials for View applications    
+    ##Given I am Entering credentials for View applications
     Given I am on the dash board page for view application page
-    Then I search for an application "cucumbertest24" that is present in the list of aplications
+    Then I search for an application "CUCUMBERTEST" that is present in the list of aplications
     Then I click on the expand button to evaluate the mandatory fileds of application are filled with expected values
-   |applicationName|environmentIndex|categoryIndex|
-   |CUCUMBERTEST24|QA|Application|
+      | applicationName | environmentIndex | categoryIndex |
+      | CUCUMBERTEST    | QA               | Application   |
     Then I click on the server section expand button to evaluate the mandatory fields are filled with expected values
-    |serverName|hostName|ipAddress|userName|
-    |server-update|hostname       |1.0.0.0|sensk|
+      | serverName    | hostName | ipAddress | userName |
+      | server-update | hostname | 1.0.0.0   | sensk    |
     Then I search for an application which is not there in the applications list

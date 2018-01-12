@@ -41,6 +41,13 @@ import com.att.tta.rs.cucumber.framework.ParentPage;
 import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
+
+/**
+ * This class contains the page objects and functions to test the feature
+ * @author sk494t
+ *
+ */
+
 public class LoginPage extends ParentPage {
 
 	protected static PropertyUtil configProp = new PropertyUtil();
@@ -65,6 +72,12 @@ public class LoginPage extends ParentPage {
 	@FindBy(id = "userlogout")
 	private WebElement CLICK_LOGOUT_BUTTON;
 
+	@FindBy(xpath = "//*[@id='myNavbar']/ul/li[2]/a/span[1]")
+	private WebElement LOG_OUT_DROPDOWN;
+
+	@FindBy(xpath = "//a[@href='#/logout']")
+	private WebElement LOG_OUT_BUTTON;
+
 	protected WebDriver driver;
 
 	public LoginPage(WebDriver driver) {
@@ -73,13 +86,15 @@ public class LoginPage extends ParentPage {
 		PageFactory.initElements(driver, this);
 	}
 
-	public void enter_valid_user() {
+	public void enter_valid_user()throws InterruptedException {
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		this.USERID_TEXTBOX.sendKeys(configProp.getValue("username"));
 		this.PASSWORD_TEXTBOX.sendKeys(configProp.getValue("password"));
 	}
 
-	public void click_logon_button() {
+	public void click_logon_button() throws InterruptedException {
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.LOGIN_BUTTON, "click", "0,0");
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 	}
 
 	public void click_success_button() throws InterruptedException {
@@ -91,7 +106,11 @@ public class LoginPage extends ParentPage {
 
 	public void click_logout_button() throws InterruptedException {
 		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
-		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.SELECT_LOGOUT, "click", "0,0");
-		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CLICK_LOGOUT_BUTTON, "click", "0,0");
+		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.LOG_OUT_DROPDOWN, "click", "0,0");
+		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.LOG_OUT_BUTTON, "click", "0,0");
+	}
+
+	public void closingbrowser() {
+		driver.quit();
 	}
 }

@@ -37,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import com.att.tta.rs.model.EventRecorder;
 import com.att.tta.rs.model.EventStatus;
 import com.att.tta.rs.model.Scenario;
+import com.att.tta.rs.model.ScenarioMonkeyStrategy;
 
 /**
  * This interface provides the declaration of CRUD operations for Scenario repository.
@@ -77,6 +78,13 @@ public interface ScenarioService {
 	 * @return
 	 */
 	Scenario update(Scenario scenario, String teamName);
+	
+	/** method to update existing scenario to new structure
+	 * @param scenario
+	 * @param teamName
+	 * @return
+	 */
+	Scenario upgradeScenario(Scenario scenario, String teamName);
 	
 	/**
 	 * This method is to delete the Scenario object.
@@ -174,7 +182,7 @@ public interface ScenarioService {
 	 * @param teamName
 	 * @return
 	 */
-	EventRecorder createEvent(Scenario execScenario, String statusString, String teamName);
+	EventRecorder createEvent(Scenario execScenario, String statusString, String teamName, ScenarioMonkeyStrategy strategy, String creatTS, String execSeq);
 	
 	
 	/**
@@ -209,5 +217,5 @@ public interface ScenarioService {
 	 * @return
 	 */
 	EventRecorder finalizeEvent(String eventId, String statusString,
-			EventStatus sventStatus, String teamName, String execStatus);
+			EventStatus sventStatus, String teamName, String execStatus, String execDuration);
 }

@@ -47,13 +47,13 @@ public class StepDefinitionViewMonkeyStrategiesFeature extends ParentScenario {
 	@Given("^I am entering the credentials for View Monkey Strategy$")
 	public void entering_credentials_for_view_monkey_Startegies() throws InterruptedException {
 		navigateTo("/resiliency-studio-ui/#/dashboard");
-
 		new LoginPage(driver).enter_valid_user();
 		new LoginPage(driver).click_logon_button();
 	}
 
 	@Given("^I am on the dashboard page for View Monkey Strategy$")
 	public void view_monkey_strategies_dashboard_click() throws InterruptedException {
+		navigateTo("/resiliency-studio-ui/#/dashboard");
 		new ViewMonkeyStrategy(driver).clicking_on_view_monkey();
 	}
 

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.util</a> &gt; <span class="el_source">AppUtil.java</span></div><h1>AppUtil.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.util;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
+
+import org.jclouds.Constants;
+import org.jclouds.compute.domain.ExecResponse;
+import org.jclouds.domain.LoginCredentials;
+import org.jclouds.ssh.SshClient;
+import org.jclouds.ssh.jsch.JschSshClient;
+import org.jclouds.ssh.jsch.config.JschSshClientModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.common.net.HostAndPort;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.name.Names;
+
+public class AppUtil {
+<span class="fc" id="L55">	private static final Logger logger = LoggerFactory.getLogger(AppUtil.class);</span>
+	private static final String SU = &quot;alpha&quot;;
+
+<span class="nc" id="L58">	private AppUtil() {</span>
+		/*
+		 * Empty constructor
+		 */
+<span class="nc" id="L62">	}</span>
+
+	/**
+	 * This utility method returns Super Administrator team name
+	 * 
+	 * @return
+	 */
+	public static String getSuperUser() {
+<span class="fc" id="L70">		return SU;</span>
+	}
+
+	/**
+	 * This method returns SSH Connection Object for given Host Server details.
+	 * 
+	 * @param instanceName
+	 * @param ip
+	 * @param port
+	 * @param user
+	 * @param password
+	 * @return
+	 */
+	public static SshClient getSSHClient(String instanceName, String ip, String port, String user, String password) {
+<span class="nc" id="L84">		JschSshClient ssh = null;</span>
+		try {
+<span class="nc" id="L86">			final Injector i = Guice.createInjector(new JschSshClientModule(), new AbstractModule() {</span>
+				@Override
+				protected void configure() {
+<span class="nc" id="L89">					Names.bindProperties(binder(), new Properties());</span>
+<span class="nc" id="L90">					bindConstant().annotatedWith(Names.named(Constants.PROPERTY_CONNECTION_TIMEOUT)).to(9000);</span>
+<span class="nc" id="L91">				}</span>
+			});
+
+<span class="nc bnc" id="L94" title="All 4 branches missed.">			String conString = (null != instanceName &amp;&amp; !&quot;&quot;.equalsIgnoreCase(instanceName.trim())) ? instanceName : ip;</span>
+
+<span class="nc" id="L96">			final SshClient.Factory factory = i.getInstance(SshClient.Factory.class);</span>
+<span class="nc" id="L97">			ssh = JschSshClient.class.cast(factory.create(HostAndPort.fromParts(conString, Integer.valueOf(port)),</span>
+<span class="nc" id="L98">					sshConfigure(user, password)));</span>
+<span class="nc" id="L99">			ssh.connect();</span>
+<span class="nc" id="L100">		} catch (Exception e) {</span>
+<span class="nc" id="L101">			logger.debug(&quot;ERROR connecting to host &quot; + ip, e);</span>
+<span class="nc" id="L102">			return null;</span>
+<span class="nc" id="L103">		}</span>
+<span class="nc" id="L104">		return ssh;</span>
+	}
+
+	public static SshClient getSSHClientFromKey(String instanceName, String ip, String port, String user, String key) {
+<span class="nc" id="L108">		JschSshClient ssh = null;</span>
+		try {
+<span class="nc" id="L110">			final Injector i = Guice.createInjector(new JschSshClientModule(), new AbstractModule() {</span>
+				@Override
+				protected void configure() {
+<span class="nc" id="L113">					Names.bindProperties(binder(), new Properties());</span>
+<span class="nc" id="L114">					bindConstant().annotatedWith(Names.named(Constants.PROPERTY_CONNECTION_TIMEOUT)).to(5000);</span>
+<span class="nc" id="L115">				}</span>
+			});
+
+<span class="nc" id="L118">			final SshClient.Factory factory = i.getInstance(SshClient.Factory.class);</span>
+<span class="nc bnc" id="L119" title="All 4 branches missed.">			String conString = (null != instanceName &amp;&amp; !&quot;&quot;.equalsIgnoreCase(instanceName.trim())) ? instanceName : ip;</span>
+
+<span class="nc" id="L121">			ssh = JschSshClient.class.cast(factory.create(HostAndPort.fromParts(conString, Integer.valueOf(port)),</span>
+<span class="nc" id="L122">					LoginCredentials.builder().user(user).privateKey(key).build()));</span>
+
+<span class="nc" id="L124">			ssh.connect();</span>
+<span class="nc" id="L125">		} catch (Exception e) {</span>
+<span class="nc" id="L126">			logger.error(&quot; ERROR connecting to the instance with private key, instanceName --&gt;&quot; + instanceName</span>
+					+ &quot; , ip --&gt;&quot; + ip + &quot;, port --&gt;&quot; + port + &quot;, user --&gt;&quot; + user + &quot;, key --&gt;&quot; + key, e);
+<span class="nc" id="L128">			return null;</span>
+<span class="nc" id="L129">		}</span>
+
+<span class="nc" id="L131">		logger.debug(&quot;Successfully connected to --&gt;&quot; + ip);</span>
+
+<span class="nc" id="L133">		return ssh;</span>
+	}
+
+	private static LoginCredentials sshConfigure(String user, String password) {
+<span class="nc" id="L137">		return LoginCredentials.builder().user(user).password(password).build();</span>
+	}
+
+	private static URL getResourceURL(String scriptName) {
+<span class="nc" id="L141">		URL url = null;</span>
+		try {
+<span class="nc" id="L143">			url = Resources.getResource(AppUtil.class, &quot;/real_time_scripts/&quot; + scriptName);</span>
+<span class="nc" id="L144">		} catch (Exception e) {</span>
+<span class="nc" id="L145">			logger.error(&quot;Exception occured : &quot;, e);</span>
+<span class="nc" id="L146">			url = Resources.getResource(AppUtil.class, &quot;/on_demand_scripts/&quot; + scriptName);</span>
+<span class="nc" id="L147">		}</span>
+<span class="nc" id="L148">		return url;</span>
+	}
+
+	/**
+	 * This method executes a Shell Script.
+	 * 
+	 * @param sshinstance
+	 * @param scriptName
+	 * @param args
+	 * @return
+	 */
+	public static String executeHardwareDiscoveryScript(SshClient sshinstance, String scriptName, List&lt;String&gt; args) {
+<span class="nc" id="L160">		ExecResponse response = null;</span>
+<span class="nc" id="L161">		logger.debug(&quot;Running a Shell script on the SSH Instance&quot;);</span>
+		try {
+<span class="nc" id="L163">			String filename = scriptName + &quot;.sh&quot;;</span>
+<span class="nc" id="L164">			logger.debug(&quot;Running script name: &quot; + filename);</span>
+
+<span class="nc" id="L166">			URL url = getResourceURL(filename);</span>
+<span class="nc" id="L167">			logger.debug(&quot;URL for Script is --&gt;&quot; + url);</span>
+
+			try {
+<span class="nc" id="L170">				String script = Resources.toString(url, Charsets.UTF_8);</span>
+<span class="nc" id="L171">				sshinstance.put(&quot;/tmp/&quot; + filename, script);</span>
+
+<span class="nc" id="L173">			} catch (IOException e) {</span>
+<span class="nc" id="L174">				logger.error(&quot; Exception while placing a script --&gt;&quot;, e);</span>
+<span class="nc" id="L175">				return null;</span>
+<span class="nc" id="L176">			}</span>
+
+<span class="nc" id="L178">			StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">			if (args != null) {</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">				for (String arg : args) {</span>
+<span class="nc" id="L181">					sb.append(&quot; &quot;);</span>
+<span class="nc" id="L182">					sb.append(arg);</span>
+<span class="nc" id="L183">				}</span>
+			}
+
+<span class="nc" id="L186">			logger.debug(&quot;Command executed --&gt;&quot; + &quot;/bin/bash /tmp/&quot; + filename + sb.toString());</span>
+<span class="nc" id="L187">			response = sshinstance.exec(&quot;/bin/bash /tmp/&quot; + filename + sb.toString());</span>
+
+<span class="nc bnc" id="L189" title="All 2 branches missed.">			if (response.getExitStatus() != 0) {</span>
+<span class="nc" id="L190">				logger.debug(&quot;Non-zero output after running Script:&quot; + response);</span>
+			}
+<span class="nc" id="L192">		} catch (Exception e) {</span>
+<span class="nc" id="L193">			logger.error(&quot; Exception while running a script--&gt;&quot;, e);</span>
+<span class="nc" id="L194">			return null;</span>
+<span class="nc" id="L195">		}</span>
+<span class="nc" id="L196">		return response.getOutput();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

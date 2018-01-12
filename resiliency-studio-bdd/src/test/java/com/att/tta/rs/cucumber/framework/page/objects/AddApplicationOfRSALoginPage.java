@@ -46,6 +46,12 @@ import com.att.tta.rs.cucumber.framework.ParentPage;
 import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
+/**
+ * This class contains the page objects and functions to test the feature
+ * 
+ * @author sk494t
+ *
+ */
 public class AddApplicationOfRSALoginPage extends ParentPage {
 
 	protected static PropertyUtil configProp = new PropertyUtil();
@@ -109,8 +115,8 @@ public class AddApplicationOfRSALoginPage extends ParentPage {
 	@FindBy(id = "addServerButton")
 	private WebElement ADD_SERVER_BUTTON;
 
-	@FindBy(id = "nextButton")
-	private WebElement NEXT__BUTTON;
+	@FindBy(xpath="//button[text()='Next']")
+	private List<WebElement> NEXT__BUTTON;
 
 	@FindBy(id = "submitButton")
 	private WebElement SUBMIT__BUTTON;
@@ -179,6 +185,7 @@ public class AddApplicationOfRSALoginPage extends ParentPage {
 		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		Assert.assertTrue("Unable to Visible the Element", elementIsPresent(this.CLICK_ONBOARDAPPLICATION));
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CLICK_ONBOARDAPPLICATION, "click", "0,0");
 		Thread.sleep(PropertyUtil.LONG_MILLISEC);
@@ -192,7 +199,7 @@ public class AddApplicationOfRSALoginPage extends ParentPage {
 			driver.manage().timeouts().implicitlyWait(PropertyUtil.MEDIUM_TIMEOUT, TimeUnit.SECONDS);
 			APPLICATION_NAME = appData.applicationName;
 			this.APPLICATION_NAME_TEXTBOX.sendKeys(appData.applicationName);
-			Thread.sleep(1000);
+			Thread.sleep(PropertyUtil.LOW_MILLISEC);
 			new Select(this.ENVIRONMENT_SELECTOR).selectByIndex(Integer.parseInt(appData.environmentIndex));
 			new Select(this.CATEGORY_SELECTOR).selectByIndex(Integer.parseInt(appData.categoryIndex));
 			driver.manage().timeouts().implicitlyWait(PropertyUtil.MEDIUM_TIMEOUT, TimeUnit.SECONDS);
@@ -202,16 +209,15 @@ public class AddApplicationOfRSALoginPage extends ParentPage {
 			this.IP_ADDRESS_TEXTBOX.sendKeys(appData.ipAddress);
 
 			this.HOST_NAME_TEXTBOX.sendKeys(appData.hostName);
-			new Select(this.CPU_SELECTOR).selectByIndex(Integer.parseInt(appData.cpuIndex));
-			new Select(this.OS_SELECTOR).selectByIndex(Integer.parseInt(appData.osIndex));
-			this.STORAGE_SELECTOR.sendKeys(appData.storageIndex);
-			new Select(this.OS_TYPE_SELECTOR).selectByIndex(Integer.parseInt(appData.osTypeIndex));
-			this.MEMORY_SELECTOR.sendKeys(appData.memoryIndex);
+			this.USER_NAME_TEXTBOX.sendKeys(appData.userName);
+			Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
+			jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CLICK_RSA_LOGIN, "click", "0,0");
+		
 		}
 	}
 
 	public void goToNextTab() {
-		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.NEXT__BUTTON, "click", "0,0");
+		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.NEXT__BUTTON.get(1), "click", "0,0");
 	}
 
 	public void clickSubmit() throws InterruptedException {
@@ -226,10 +232,13 @@ public class AddApplicationOfRSALoginPage extends ParentPage {
 		for (AddApplicationUITab1Data appData : appDataList) {
 			driver.manage().timeouts().implicitlyWait(PropertyUtil.LONG_TIMEOUT, TimeUnit.SECONDS);
 
-			this.USER_NAME_TEXTBOX.sendKeys(appData.userName);
-			Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
-			jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CLICK_RSA_LOGIN, "click", "0,0");
-		}
+			new Select(this.CPU_SELECTOR).selectByIndex(Integer.parseInt(appData.cpuIndex));
+			new Select(this.OS_SELECTOR).selectByIndex(Integer.parseInt(appData.osIndex));
+			this.STORAGE_SELECTOR.sendKeys(appData.storageIndex);
+			new Select(this.OS_TYPE_SELECTOR).selectByIndex(Integer.parseInt(appData.osTypeIndex));
+			this.MEMORY_SELECTOR.sendKeys(appData.memoryIndex);
+			
+			}
 	}
 
 	public void fill_tab3_details(List<AddApplicationUITab1Data> appDataList) {
@@ -238,14 +247,6 @@ public class AddApplicationOfRSALoginPage extends ParentPage {
 			driver.manage().timeouts().implicitlyWait(PropertyUtil.LONG_TIMEOUT, TimeUnit.SECONDS);
 			this.SOFTWARE_COMPONENT_TEXT.sendKeys(appData.softwareComponentName);
 			this.PROCESS_NAME_TEXT.sendKeys(appData.processName);
-		}
-	}
-
-	public void fill_tab4_details(List<AddApplicationUITab1Data> appDataList) {
-		for (AddApplicationUITab1Data appData : appDataList) {
-			driver.manage().timeouts().implicitlyWait(PropertyUtil.LONG_TIMEOUT, TimeUnit.SECONDS);
-			this.DISCOVERY_NAME_TEXT.sendKeys(appData.discoveryName);
-			this.DISCOVERY_API_TEXT.sendKeys(appData.discoveryApi);
 		}
 	}
 

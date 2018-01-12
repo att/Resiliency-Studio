@@ -29,16 +29,38 @@
  *******************************************************************************/
 package com.att.tta.rs.util;
 
-public class AppUtil {
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 
+import org.jclouds.Constants;
+import org.jclouds.compute.domain.ExecResponse;
+import org.jclouds.domain.LoginCredentials;
+import org.jclouds.ssh.SshClient;
+import org.jclouds.ssh.jsch.JschSshClient;
+import org.jclouds.ssh.jsch.config.JschSshClientModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.common.net.HostAndPort;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.name.Names;
+
+public class AppUtil {
+	private static final Logger logger = LoggerFactory.getLogger(AppUtil.class);
 	private static final String SU = "alpha";
 
-	private AppUtil(){
+	private AppUtil() {
 		/*
 		 * Empty constructor
 		 */
 	}
-	
+
 	/**
 	 * This utility method returns Super Administrator team name
 	 * 
@@ -46,5 +68,131 @@ public class AppUtil {
 	 */
 	public static String getSuperUser() {
 		return SU;
+	}
+
+	/**
+	 * This method returns SSH Connection Object for given Host Server details.
+	 * 
+	 * @param instanceName
+	 * @param ip
+	 * @param port
+	 * @param user
+	 * @param password
+	 * @return
+	 */
+	public static SshClient getSSHClient(String instanceName, String ip, String port, String user, String password) {
+		JschSshClient ssh = null;
+		try {
+			final Injector i = Guice.createInjector(new JschSshClientModule(), new AbstractModule() {
+				@Override
+				protected void configure() {
+					Names.bindProperties(binder(), new Properties());
+					bindConstant().annotatedWith(Names.named(Constants.PROPERTY_CONNECTION_TIMEOUT)).to(9000);
+				}
+			});
+
+			String conString = (null != instanceName && !"".equalsIgnoreCase(instanceName.trim())) ? instanceName : ip;
+
+			final SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
+			ssh = JschSshClient.class.cast(factory.create(HostAndPort.fromParts(conString, Integer.valueOf(port)),
+					sshConfigure(user, password)));
+			ssh.connect();
+		} catch (Exception e) {
+			logger.debug("ERROR connecting to host " + ip, e);
+			return null;
+		}
+		return ssh;
+	}
+
+	public static SshClient getSSHClientFromKey(String instanceName, String ip, String port, String user, String key) {
+		JschSshClient ssh = null;
+		try {
+			final Injector i = Guice.createInjector(new JschSshClientModule(), new AbstractModule() {
+				@Override
+				protected void configure() {
+					Names.bindProperties(binder(), new Properties());
+					bindConstant().annotatedWith(Names.named(Constants.PROPERTY_CONNECTION_TIMEOUT)).to(5000);
+				}
+			});
+
+			final SshClient.Factory factory = i.getInstance(SshClient.Factory.class);
+			String conString = (null != instanceName && !"".equalsIgnoreCase(instanceName.trim())) ? instanceName : ip;
+
+			ssh = JschSshClient.class.cast(factory.create(HostAndPort.fromParts(conString, Integer.valueOf(port)),
+					LoginCredentials.builder().user(user).privateKey(key).build()));
+
+			ssh.connect();
+		} catch (Exception e) {
+			logger.error(" ERROR connecting to the instance with private key, instanceName -->" + instanceName
+					+ " , ip -->" + ip + ", port -->" + port + ", user -->" + user + ", key -->" + key, e);
+			return null;
+		}
+
+		logger.debug("Successfully connected to -->" + ip);
+
+		return ssh;
+	}
+
+	private static LoginCredentials sshConfigure(String user, String password) {
+		return LoginCredentials.builder().user(user).password(password).build();
+	}
+
+	private static URL getResourceURL(String scriptName) {
+		URL url = null;
+		try {
+			url = Resources.getResource(AppUtil.class, "/real_time_scripts/" + scriptName);
+		} catch (Exception e) {
+			logger.error("Exception occured : ", e);
+			url = Resources.getResource(AppUtil.class, "/on_demand_scripts/" + scriptName);
+		}
+		return url;
+	}
+
+	/**
+	 * This method executes a Shell Script.
+	 * 
+	 * @param sshinstance
+	 * @param scriptName
+	 * @param args
+	 * @return
+	 */
+	public static String executeHardwareDiscoveryScript(SshClient sshinstance, String scriptName, List<String> args) {
+		ExecResponse response = null;
+		logger.debug("Running a Shell script on the SSH Instance");
+		try {
+			String filename = scriptName + ".sh";
+			logger.debug("Running script name: " + filename);
+
+			URL url = getResourceURL(filename);
+			logger.debug("URL for Script is -->" + url);
+
+			try {
+				String script = Resources.toString(url, Charsets.UTF_8);
+				sshinstance.put("/tmp/" + filename, script);
+
+			} catch (IOException e) {
+				logger.error(" Exception while placing a script -->", e);
+				return null;
+			}
+
+			StringBuilder sb = new StringBuilder();
+			if (args != null) {
+				for (String arg : args) {
+					sb.append(" ");
+					sb.append(arg);
+				}
+			}
+
+			logger.debug("Command executed -->" + "/bin/bash /tmp/" + filename + sb.toString());
+			response = sshinstance.exec("/bin/bash /tmp/" + filename + sb.toString());
+
+			if (response.getExitStatus() != 0) {
+				logger.debug("Non-zero output after running Script:" + response);
+			}
+		} catch (Exception e) {
+			logger.error(" Exception while running a script-->", e);
+			return null;
+		}
+		return response.getOutput();
 	}
 }

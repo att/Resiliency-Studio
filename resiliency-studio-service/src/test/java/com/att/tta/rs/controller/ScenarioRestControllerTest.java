@@ -68,6 +68,7 @@ import com.att.tta.rs.data.es.repository.TeamUserRepository;
 import com.att.tta.rs.model.MonkeyType;
 import com.att.tta.rs.model.Scenario;
 import com.att.tta.rs.model.ScenarioAdapter;
+import com.att.tta.rs.model.ScenarioMonkeyStrategy;
 import com.att.tta.rs.model.TeamUser;
 import com.att.tta.rs.service.ApplicationServiceImpl;
 import com.att.tta.rs.service.MonkeyStrategyServiceImpl;
@@ -722,6 +723,15 @@ public class ScenarioRestControllerTest {
 
 		obj.setApplicationName("sceAppName");
 		obj.setEnvironmentName("QA");
+		
+		ScenarioMonkeyStrategy monkeyObj = new ScenarioMonkeyStrategy();
+		monkeyObj.setExecSequence("1");
+		monkeyObj.setMonkeyScriptType("UNIX Script");
+		monkeyObj.setMonkeyType(MonkeyType.CHAOS);
+		monkeyObj.setMonkeyStrategyId("testMonkeyStrategyId");
+		monkeyObj.setMonkeyStrategy("testMonkeyStrategy");
+		
+		obj.addStrategy(monkeyObj);
 		return obj;
 	}
 

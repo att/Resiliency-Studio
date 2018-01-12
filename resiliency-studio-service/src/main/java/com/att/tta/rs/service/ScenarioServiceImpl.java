@@ -50,6 +50,7 @@ import com.att.tta.rs.model.EventRecorder;
 import com.att.tta.rs.model.EventStatus;
 import com.att.tta.rs.model.EventStatusUpdate;
 import com.att.tta.rs.model.Scenario;
+import com.att.tta.rs.model.ScenarioMonkeyStrategy;
 import com.att.tta.rs.util.AppUtil;
 
 /**
@@ -82,6 +83,14 @@ public class ScenarioServiceImpl implements ScenarioService {
 			return null;
 		}
 		return scenarioRepository.save(scenario);
+	}
+	
+	@Override
+	public Scenario upgradeScenario(Scenario scenario, String teamName) {
+		if (this.isScenarioExistForTeamName(scenario, teamName)) {
+			return scenarioRepository.save(scenario);
+		}
+		return null;
 	}
 
 	@Override
@@ -185,7 +194,12 @@ public class ScenarioServiceImpl implements ScenarioService {
 	@Override
 	public List<Scenario> findByApplicationNameByTeamName(String applicationName, String teamName) {
 		List<Scenario> scenarioList;
-		Page<Scenario> test = scenarioRepository.findByApplicationNameAndTeamName(applicationName, teamName,
+		Page<Scenario> test;
+		if (AppUtil.getSuperUser().equalsIgnoreCase(teamName.trim()))
+			test = scenarioRepository.findByApplicationName(applicationName,
+					new PageRequest(0, 9999));
+		else
+			test = scenarioRepository.findByApplicationNameAndTeamName(applicationName, teamName,
 				new PageRequest(0, 9999));
 		List<Scenario> pageList = test.getContent();
 		if (pageList != null && !pageList.isEmpty())
@@ -198,24 +212,34 @@ public class ScenarioServiceImpl implements ScenarioService {
 	}
 
 	@Override
-	public EventRecorder createEvent(Scenario execScenario, String statusString, String teamName) {
+	public EventRecorder createEvent(Scenario execScenario, String statusString, String teamName, ScenarioMonkeyStrategy strategy, String creatTS, String execSeq) {
 		EventRecorder evt = new EventRecorder();
 		EventRecorder evt2 = null;
 		Map<String, String> map = new HashMap<>();
 		try {
 			for (Field field : execScenario.getClass().getDeclaredFields()) {
 				field.setAccessible(true);
-				Object value = field.get(execScenario);
-				if (value != null) {
-					map.put(field.getName(), value.toString());
+				if (!"strategies".equalsIgnoreCase(field.getName())){
+					Object value = field.get(execScenario);
+					if (value != null) {
+						if ("id".equalsIgnoreCase(field.getName())){
+							map.put("ScenarioID", value.toString());
+						}else{
+							map.put(field.getName(), value.toString());
+						}
+					}
 				}
 			}
-			org.joda.time.DateTime dt = new org.joda.time.DateTime();
-			map.put("@timestamp", dt.toString());
+			map.put("@timestamp", creatTS);
 			map.put("status", statusString);
-
+			map.put("monkeyStrategy",strategy.getMonkeyStrategy());
+			map.put("monkeyStrategyId", strategy.getMonkeyStrategyId());
+			map.put("monkeyType", strategy.getMonkeyType().monkeyType());
+			
 			evt.addFields(map);
 			evt.setTeamName(teamName);
+			evt.setEventStatus(statusString);
+			evt.setExecSequence(execSeq);
 			evt.setEventStatusType(EventStatus.SUBMITTED);
 			evt2 = eventRepository.save(evt);
 		} catch (Exception e) {
@@ -243,7 +267,7 @@ public class ScenarioServiceImpl implements ScenarioService {
 
 	@Override
 	public EventRecorder finalizeEvent(String eventId, String statusString, EventStatus eventStatus, String teamName,
-			String execStatus) {
+			String execStatus, String execDuration) {
 		logger.debug("Event ID: " + eventId + " is updating with final Status-->" + statusString);
 
 		EventRecorder evt = eventRepository.findOneForTeam(eventId, teamName);
@@ -256,6 +280,7 @@ public class ScenarioServiceImpl implements ScenarioService {
 		evt.setId(eventId);
 		evt.setEventStatusType(eventStatus);
 		evt.setExecStatus(execStatus);
+		evt.setExecDuration(execDuration);
 		evt = eventRepository.save(evt);
 		return evt;
 	}

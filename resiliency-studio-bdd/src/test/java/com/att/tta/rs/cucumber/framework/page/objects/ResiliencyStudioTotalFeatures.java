@@ -39,6 +39,12 @@ import com.att.tta.rs.cucumber.framework.ParentPage;
 import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
+/**
+ * This class contains the page objects and functions to test the feature
+ * @author sk494t
+ *
+ */
+
 public class ResiliencyStudioTotalFeatures extends ParentPage {
 
 	protected static PropertyUtil configProp = new PropertyUtil();

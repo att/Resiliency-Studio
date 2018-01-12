@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventJobDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.model</a> &gt; <span class="el_source">EventJobDTO.java</span></div><h1>EventJobDTO.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L35">public class EventJobDTO {</span>
+
+	private String eventId;
+	private String teamName;
+
+	private String monkeyScriptType;
+	private String monkeyStrategyName;
+	private String monkeyStrategyVersion;
+	private String monkeyStrategyId;
+	private String monkeyScriptContent;
+
+	private String serverName;
+	private String hostName;
+	private String ipAdd;
+
+	private String discoverHostName;
+	private String discoverHostIpAddress;
+	private String discoverHostPort;
+	private String discoverUserId;
+	private String discoverPassword;
+
+	private String userName;
+	private String privateKey;
+	private String password;
+
+	private String processName;
+	private String failureMode;
+	private String scenarioServerName;
+
+	private String connectionType;
+	private String configFile;
+
+	private String execStatus;
+	private String returnCode;
+	private String filePath;
+	
+	private String execDuration;
+	
+	public String getExecDuration() {
+<span class="nc" id="L74">		return execDuration;</span>
+	}
+
+	public void setExecDuration(String execDuration) {
+<span class="nc" id="L78">		this.execDuration = execDuration;</span>
+<span class="nc" id="L79">	}</span>
+	
+	/** The List of Monkey Strategies tagged to this Scenario.*/
+	private List&lt;EventMonkeyStrategyDTO&gt; eventMonkeyList;
+
+	public String getExecStatus() {
+<span class="nc" id="L85">		return execStatus;</span>
+	}
+
+	public void setExecStatus(String execStatus) {
+<span class="nc" id="L89">		this.execStatus = execStatus;</span>
+<span class="nc" id="L90">	}</span>
+
+	public String getReturnCode() {
+<span class="nc" id="L93">		return returnCode;</span>
+	}
+
+	public void setReturnCode(String returnCode) {
+<span class="nc" id="L97">		this.returnCode = returnCode;</span>
+<span class="nc" id="L98">	}</span>
+
+	public String getScenarioServerName() {
+<span class="nc" id="L101">		return scenarioServerName;</span>
+	}
+
+	public void setScenarioServerName(String scenarioServerName) {
+<span class="nc" id="L105">		this.scenarioServerName = scenarioServerName;</span>
+<span class="nc" id="L106">	}</span>
+
+	public String getDiscoverHostPort() {
+<span class="nc" id="L109">		return discoverHostPort;</span>
+	}
+
+	public void setDiscoverHostPort(String discoverHostPort) {
+<span class="nc" id="L113">		this.discoverHostPort = discoverHostPort;</span>
+<span class="nc" id="L114">	}</span>
+
+	public String getDiscoverUserId() {
+<span class="nc" id="L117">		return discoverUserId;</span>
+	}
+
+	public void setDiscoverUserId(String discoverUserId) {
+<span class="nc" id="L121">		this.discoverUserId = discoverUserId;</span>
+<span class="nc" id="L122">	}</span>
+
+	public String getDiscoverPassword() {
+<span class="nc" id="L125">		return discoverPassword;</span>
+	}
+
+	public void setDiscoverPassword(String discoverPassword) {
+<span class="nc" id="L129">		this.discoverPassword = discoverPassword;</span>
+<span class="nc" id="L130">	}</span>
+
+	public String getDiscoverHostName() {
+<span class="nc" id="L133">		return discoverHostName;</span>
+	}
+
+	public void setDiscoverHostName(String discoverHostName) {
+<span class="nc" id="L137">		this.discoverHostName = discoverHostName;</span>
+<span class="nc" id="L138">	}</span>
+
+	public String getDiscoverHostIpAddress() {
+<span class="nc" id="L141">		return discoverHostIpAddress;</span>
+	}
+
+	public void setDiscoverHostIpAddress(String discoverHostIpAddress) {
+<span class="nc" id="L145">		this.discoverHostIpAddress = discoverHostIpAddress;</span>
+<span class="nc" id="L146">	}</span>
+
+	public String getMonkeyScriptType() {
+<span class="nc" id="L149">		return monkeyScriptType;</span>
+	}
+
+	public void setMonkeyScriptType(String monkeyScriptType) {
+<span class="nc" id="L153">		this.monkeyScriptType = monkeyScriptType;</span>
+<span class="nc" id="L154">	}</span>
+
+	public String getMonkeyStrategyName() {
+<span class="nc" id="L157">		return monkeyStrategyName;</span>
+	}
+
+	public void setMonkeyStrategyName(String monkeyStrategyName) {
+<span class="nc" id="L161">		this.monkeyStrategyName = monkeyStrategyName;</span>
+<span class="nc" id="L162">	}</span>
+
+	public String getMonkeyStrategyVersion() {
+<span class="nc" id="L165">		return monkeyStrategyVersion;</span>
+	}
+
+	public void setMonkeyStrategyVersion(String monkeyStrategyVersion) {
+<span class="nc" id="L169">		this.monkeyStrategyVersion = monkeyStrategyVersion;</span>
+<span class="nc" id="L170">	}</span>
+
+	public String getMonkeyStrategyId() {
+<span class="nc" id="L173">		return monkeyStrategyId;</span>
+	}
+
+	public void setMonkeyStrategyId(String monkeyStrategyId) {
+<span class="nc" id="L177">		this.monkeyStrategyId = monkeyStrategyId;</span>
+<span class="nc" id="L178">	}</span>
+
+	public String getMonkeyScriptContent() {
+<span class="nc" id="L181">		return monkeyScriptContent;</span>
+	}
+
+	public void setMonkeyScriptContent(String monkeyScriptContent) {
+<span class="nc" id="L185">		this.monkeyScriptContent = monkeyScriptContent;</span>
+<span class="nc" id="L186">	}</span>
+
+	public String getProcessName() {
+<span class="nc" id="L189">		return processName;</span>
+	}
+
+	public void setProcessName(String processName) {
+<span class="nc" id="L193">		this.processName = processName;</span>
+<span class="nc" id="L194">	}</span>
+
+	public String getFailureMode() {
+<span class="nc" id="L197">		return failureMode;</span>
+	}
+
+	public void setFailureMode(String failureMode) {
+<span class="nc" id="L201">		this.failureMode = failureMode;</span>
+<span class="nc" id="L202">	}</span>
+
+	public String getConfigFile() {
+<span class="nc" id="L205">		return configFile;</span>
+	}
+
+	public void setConfigFile(String configFile) {
+<span class="nc" id="L209">		this.configFile = configFile;</span>
+<span class="nc" id="L210">	}</span>
+
+	public String getEventId() {
+<span class="nc" id="L213">		return eventId;</span>
+	}
+
+	public void setEventId(String eventId) {
+<span class="nc" id="L217">		this.eventId = eventId;</span>
+<span class="nc" id="L218">	}</span>
+
+	public String getTeamName() {
+<span class="nc" id="L221">		return teamName;</span>
+	}
+
+	public void setTeamName(String teamName) {
+<span class="nc" id="L225">		this.teamName = teamName;</span>
+<span class="nc" id="L226">	}</span>
+
+	public String getServerName() {
+<span class="nc" id="L229">		return serverName;</span>
+	}
+
+	public void setServerName(String serverName) {
+<span class="nc" id="L233">		this.serverName = serverName;</span>
+<span class="nc" id="L234">	}</span>
+
+	public String getHostName() {
+<span class="nc" id="L237">		return hostName;</span>
+	}
+
+	public void setHostName(String hostName) {
+<span class="nc" id="L241">		this.hostName = hostName;</span>
+<span class="nc" id="L242">	}</span>
+
+	public String getIpAdd() {
+<span class="nc" id="L245">		return ipAdd;</span>
+	}
+
+	public void setIpAdd(String ipAdd) {
+<span class="nc" id="L249">		this.ipAdd = ipAdd;</span>
+<span class="nc" id="L250">	}</span>
+
+	public String getUserName() {
+<span class="nc" id="L253">		return userName;</span>
+	}
+
+	public void setUserName(String userName) {
+<span class="nc" id="L257">		this.userName = userName;</span>
+<span class="nc" id="L258">	}</span>
+
+	public String getPrivateKey() {
+<span class="nc" id="L261">		return privateKey;</span>
+	}
+
+	public void setPrivateKey(String privateKey) {
+<span class="nc" id="L265">		this.privateKey = privateKey;</span>
+<span class="nc" id="L266">	}</span>
+
+	public String getPassword() {
+<span class="nc" id="L269">		return password;</span>
+	}
+
+	public void setPassword(String password) {
+<span class="nc" id="L273">		this.password = password;</span>
+<span class="nc" id="L274">	}</span>
+
+	public String getConnectionType() {
+<span class="nc" id="L277">		return connectionType;</span>
+	}
+
+	public void setConnectionType(String connectionType) {
+<span class="nc" id="L281">		this.connectionType = connectionType;</span>
+<span class="nc" id="L282">	}</span>
+	
+
+	/**
+	 * @return the filePath
+	 */
+	public String getFilePath() {
+<span class="nc" id="L289">		return filePath;</span>
+	}
+
+	/**
+	 * @param filePath the filePath to set
+	 */
+	public void setFilePath(String filePath) {
+<span class="nc" id="L296">		this.filePath = filePath;</span>
+<span class="nc" id="L297">	}</span>
+
+	public List&lt;EventMonkeyStrategyDTO&gt; getEventMonkeyList() {
+<span class="nc" id="L300">		return eventMonkeyList;</span>
+	}
+
+	public void setEventMonkeyList(List&lt;EventMonkeyStrategyDTO&gt; eventMonkeyList) {
+<span class="nc" id="L304">		this.eventMonkeyList = eventMonkeyList;</span>
+<span class="nc" id="L305">	}</span>
+
+	public void addEventMonkey(EventMonkeyStrategyDTO strategy) {
+<span class="nc bnc" id="L308" title="All 2 branches missed.">		if (this.eventMonkeyList == null)</span>
+<span class="nc" id="L309">			this.eventMonkeyList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L310">		this.eventMonkeyList.add(strategy);</span>
+<span class="nc" id="L311">	}</span>
+
+	public EventMonkeyStrategyDTO getStrategyWithName(String strategyName) {
+<span class="nc bnc" id="L314" title="All 2 branches missed.">		if (this.eventMonkeyList != null) {</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">			for (EventMonkeyStrategyDTO eventMonkeyStrategy : this.eventMonkeyList) {</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">				if (eventMonkeyStrategy.getMonkeyStrategy().trim().equalsIgnoreCase(strategyName))</span>
+<span class="nc" id="L317">					return eventMonkeyStrategy;</span>
+<span class="nc" id="L318">			}</span>
+		}
+<span class="nc" id="L320">		return null;</span>
+	}
+
+	public EventMonkeyStrategyDTO getStrategyWithId(String strategyId) {
+<span class="nc bnc" id="L324" title="All 2 branches missed.">		if (this.eventMonkeyList != null) {</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">			for (EventMonkeyStrategyDTO eventMonkeyStrategy : this.eventMonkeyList) {</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">				if (eventMonkeyStrategy.getMonkeyStrategyId().trim().equalsIgnoreCase(strategyId))</span>
+<span class="nc" id="L327">					return eventMonkeyStrategy;</span>
+<span class="nc" id="L328">			}</span>
+		}
+<span class="nc" id="L330">		return null;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

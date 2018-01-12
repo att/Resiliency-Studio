@@ -31,10 +31,12 @@
 package com.att.tta.rs.cucumber.framework.glue;
 
 import com.att.tta.rs.cucumber.framework.ParentScenario;
+import com.att.tta.rs.cucumber.framework.page.objects.LoginPage;
 import com.att.tta.rs.cucumber.framework.page.objects.ResiliencyStudioTotalFeatures;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
 
 public class StepDefinitionResiliencystudiototalfeatures extends ParentScenario {
 
@@ -46,5 +48,9 @@ public class StepDefinitionResiliencystudiototalfeatures extends ParentScenario 
 	@Then("^I am going to another feature of resiliency studio application$")
 	public void i_am_going_to_another_feature_of_resiliency_studio_application() throws Throwable {
 		new ResiliencyStudioTotalFeatures(driver).transferring_to_other_feature();
+	}
+	@When("^I click on log out button to come out of application$")
+	public void i_click_on_logout_button_to_come_out_of_application() throws Throwable{
+		new LoginPage(driver).click_logout_button();
 	}
 }

@@ -49,23 +49,36 @@ import com.att.tta.rs.service.TeamUserService;
 import com.att.tta.rs.util.MessageWrapper;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
- * This Class provides certain REST APIs to perform CRUD operations on TeamUser repository. 
+ * This Class provides certain REST APIs to perform CRUD operations on TeamUser
+ * repository.
+ * 
  * @author ak983d
  *
  */
 @RestController
+@Api(value = "TeamUser Rest Controller", description = "This REST controller provides REST APIs for performing CRUD Operation on TeamUser Repository")
 public class TeamUserController {
 	private static final Logger logger = LoggerFactory.getLogger(TeamUserController.class);
-	
+
 	@Autowired
 	TeamUserService userDetailsService;
-	
+
 	/**
-	 * This API returns list of all users available in TeamUser repository. 
+	 * This API returns list of all users available in TeamUser repository.
+	 * 
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns all TeamUser Objects present in Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned all TeamUser Objects"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No TeamUser object found") })
 	@RequestMapping(value = "/api/users/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getAllUsers() {
 		logger.debug("Fetching All Users ");
@@ -78,13 +91,18 @@ public class TeamUserController {
 		}
 		return new ResponseEntity<>(userList, HttpStatus.OK);
 	}
-	
 
 	/**
-	 * This API returns TeamUser object of a user present in Request Session object.
+	 * This API returns TeamUser object of a user present in Request Session
+	 * object.
+	 * 
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns TeamUser Object present in Elastic Search for current user", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned TeamUser Object for current user"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No TeamUser object found for current user") })
 	@RequestMapping(value = "/api/user/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getCurrentTeamOfUser(HttpServletRequest request) {
 		logger.debug("Fetching Current Team for user name.");
@@ -97,24 +115,30 @@ public class TeamUserController {
 		}
 		return new ResponseEntity<>(teamUser, HttpStatus.OK);
 	}
-	
 
 	/**
 	 * This API updates a TeamName of a User present in Request Session object.
+	 * 
 	 * @param request
 	 * @param newteamname
 	 * @return
 	 */
+	@ApiOperation(value = "This API updates TeamUser Objects into Elastic Search for current user", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "TeamUser objects successfully updated into ES for current user"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Update operation"),
+			@ApiResponse(code = 404, message = "TeamUser object not found in ES for current user"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/user/{newteamname}", method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<Object> updateTeamOfUser(HttpServletRequest request,
-			@PathVariable("newteamname") String newteamname) {		
+			@PathVariable("newteamname") String newteamname) {
 		if (newteamname == null || "".equals(newteamname.trim())) {
 			final String error = "TeamUser cannot be modified as new Team Name is null";
 			logger.debug(error);
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
 		}
-		
+
 		TeamUser teamUser = userDetailsService.getCurrentTeamForUser(request);
 		if (teamUser == null) {
 			final String error = "TeamUser object not found in ES Repository.";
@@ -122,7 +146,7 @@ public class TeamUserController {
 			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);
 			return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
 		}
-		logger.debug("Updating User %s team : %s " , teamUser.getUserName() ,newteamname);
+		logger.debug("Updating User %s team : %s ", teamUser.getUserName(), newteamname);
 		teamUser.setTeamName(newteamname);
 		userDetailsService.update(teamUser);
 		return new ResponseEntity<>(teamUser, HttpStatus.OK);

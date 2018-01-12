@@ -102,7 +102,7 @@ public class ApplicationRestControllerTest {
 	private static final String APPCATEGORY = "Application";
 	private static final String TESTAPPID = "testAppID";
 	private static final String OTHERTEAM = "otherTeam";
-	
+
 	@Before
 	public void setupMock() {
 		MockitoAnnotations.initMocks(this);
@@ -383,11 +383,11 @@ public class ApplicationRestControllerTest {
 		when(applicationRepository.findByApplicationNameAndCategoryAndTeamName(noExistAppName, category, TEAMNAME))
 				.thenReturn(null);
 
-		MessageWrapper apiError = (MessageWrapper) appController.getApplicationByNameAndCategory(req, noExistAppName, category)
-				.getBody();
+		MessageWrapper apiError = (MessageWrapper) appController
+				.getApplicationByNameAndCategory(req, noExistAppName, category).getBody();
 		assertEquals(HttpStatus.NOT_FOUND, apiError.getStatus());
-		assertEquals("application with name " + noExistAppName + " and category " + category + " not found " + " for Team "
-				+ TEAMNAME, apiError.getStatusMessage());
+		assertEquals("application with name " + noExistAppName + " and category " + category + " not found "
+				+ " for Team " + TEAMNAME, apiError.getStatusMessage());
 	}
 
 	/**

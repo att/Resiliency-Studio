@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FailurePoint.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.model</a> &gt; <span class="el_source">FailurePoint.java</span></div><h1>FailurePoint.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.model;
+
+import java.io.Serializable;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
+/**
+ * This class is the representation of 'FailurePoint' type in the Elastic Search.
+ * 
+ * @author ak983d
+ */
+
+@Document(indexName = &quot;resiliencystudio&quot;, type = &quot;failurepoint&quot;)
+<span class="fc" id="L46">public class FailurePoint implements Serializable {</span>
+
+	private static final long serialVersionUID = 1L;
+
+	/** The FailurePoint Id . */
+	@Id
+	private String id;
+
+	/** The FailurePoint name . */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String name;	
+
+	/** The application category. */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String category;
+
+	/** role/type */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String role;
+
+	/** The component */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String component;
+
+	/** The Process Name */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String processName;
+
+	private String failureTenet;
+
+	/** Failure Mode */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String failureMode;
+
+	/** The cause of failure */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String causeOfFailure;
+
+	/** The cause of Current Controls */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String currentControls;
+
+	/** Detection */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String detection;
+
+	/** Recovery Action */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String recoveryAction;
+
+	/** recommendation */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String recommendation;
+
+	/** mttd */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String mttd;
+
+	/** mttr */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String mttr;
+
+	/** User Behavior */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String userBehavior;
+
+	/** The systemBehavior . */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String systemBehavior;
+
+	/** Monkey Strategy */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String monkeyStrategy;
+
+	/** osType */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String osType;
+
+	/** Flavor */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String flavor;
+
+	/** Failure Category */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String failureCategory;
+
+	/** Failure Sub Category*/
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String failureSubCategory;
+	
+	private MonkeyType monkeyType;
+
+	public String getName() {
+<span class="fc" id="L139">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="fc" id="L143">		this.name = name;</span>
+<span class="fc" id="L144">	}</span>
+
+	public String getId() {
+<span class="fc" id="L147">		return id;</span>
+	}
+
+	public void setId(String id) {
+<span class="fc" id="L151">		this.id = id;</span>
+<span class="fc" id="L152">	}</span>
+
+	public String getCategory() {
+<span class="fc" id="L155">		return category;</span>
+	}
+
+	public void setCategory(String category) {
+<span class="fc" id="L159">		this.category = category;</span>
+<span class="fc" id="L160">	}</span>
+
+	public String getRole() {
+<span class="fc" id="L163">		return role;</span>
+	}
+
+	public void setRole(String role) {
+<span class="fc" id="L167">		this.role = role;</span>
+<span class="fc" id="L168">	}</span>
+
+	public String getComponent() {
+<span class="fc" id="L171">		return component;</span>
+	}
+
+	public void setComponent(String component) {
+<span class="fc" id="L175">		this.component = component;</span>
+<span class="fc" id="L176">	}</span>
+
+	public String getProcessName() {
+<span class="fc" id="L179">		return processName;</span>
+	}
+
+	public void setProcessName(String processName) {
+<span class="fc" id="L183">		this.processName = processName;</span>
+<span class="fc" id="L184">	}</span>
+
+	public String getFailureTenet() {
+<span class="nc" id="L187">		return failureTenet;</span>
+	}
+
+	public void setFailureTenet(String failureTenet) {
+<span class="fc" id="L191">		this.failureTenet = failureTenet;</span>
+<span class="fc" id="L192">	}</span>
+
+	public String getFailureMode() {
+<span class="fc" id="L195">		return failureMode;</span>
+	}
+
+	public void setFailureMode(String failureMode) {
+<span class="fc" id="L199">		this.failureMode = failureMode;</span>
+<span class="fc" id="L200">	}</span>
+
+	public String getCauseOfFailure() {
+<span class="nc" id="L203">		return causeOfFailure;</span>
+	}
+
+	public void setCauseOfFailure(String causeOfFailure) {
+<span class="fc" id="L207">		this.causeOfFailure = causeOfFailure;</span>
+<span class="fc" id="L208">	}</span>
+
+	public String getCurrentControls() {
+<span class="nc" id="L211">		return currentControls;</span>
+	}
+
+	public void setCurrentControls(String currentControls) {
+<span class="nc" id="L215">		this.currentControls = currentControls;</span>
+<span class="nc" id="L216">	}</span>
+
+	public String getDetection() {
+<span class="nc" id="L219">		return detection;</span>
+	}
+
+	public void setDetection(String detection) {
+<span class="nc" id="L223">		this.detection = detection;</span>
+<span class="nc" id="L224">	}</span>
+
+	public String getRecoveryAction() {
+<span class="nc" id="L227">		return recoveryAction;</span>
+	}
+
+	public void setRecoveryAction(String recoveryAction) {
+<span class="nc" id="L231">		this.recoveryAction = recoveryAction;</span>
+<span class="nc" id="L232">	}</span>
+
+	public String getRecommendation() {
+<span class="nc" id="L235">		return recommendation;</span>
+	}
+
+	public void setRecommendation(String recommendation) {
+<span class="nc" id="L239">		this.recommendation = recommendation;</span>
+<span class="nc" id="L240">	}</span>
+
+	public String getMttd() {
+<span class="nc" id="L243">		return mttd;</span>
+	}
+
+	public void setMttd(String mttd) {
+<span class="nc" id="L247">		this.mttd = mttd;</span>
+<span class="nc" id="L248">	}</span>
+
+	public String getMttr() {
+<span class="nc" id="L251">		return mttr;</span>
+	}
+
+	public MonkeyType getMonkeyType() {
+<span class="fc" id="L255">		return monkeyType;</span>
+	}
+
+	public void setMonkeyType(MonkeyType monkeyType) {
+<span class="fc" id="L259">		this.monkeyType = monkeyType;</span>
+<span class="fc" id="L260">	}</span>
+
+	public void setMttr(String mttr) {
+<span class="nc" id="L263">		this.mttr = mttr;</span>
+<span class="nc" id="L264">	}</span>
+
+	public String getUserBehavior() {
+<span class="nc" id="L267">		return userBehavior;</span>
+	}
+
+	public void setUserBehavior(String userBehavior) {
+<span class="nc" id="L271">		this.userBehavior = userBehavior;</span>
+<span class="nc" id="L272">	}</span>
+
+	public String getSystemBehavior() {
+<span class="nc" id="L275">		return systemBehavior;</span>
+	}
+
+	public void setSystemBehavior(String systemBehavior) {
+<span class="nc" id="L279">		this.systemBehavior = systemBehavior;</span>
+<span class="nc" id="L280">	}</span>
+
+	public String getMonkeyStrategy() {
+<span class="nc" id="L283">		return monkeyStrategy;</span>
+	}
+
+	public void setMonkeyStrategy(String monkeyStrategy) {
+<span class="fc" id="L287">		this.monkeyStrategy = monkeyStrategy;</span>
+<span class="fc" id="L288">	}</span>
+
+	public String getOsType() {
+<span class="nc" id="L291">		return osType;</span>
+	}
+
+	public void setOsType(String osType) {
+<span class="fc" id="L295">		this.osType = osType;</span>
+<span class="fc" id="L296">	}</span>
+
+	public String getFlavor() {
+<span class="nc" id="L299">		return flavor;</span>
+	}
+
+	public void setFlavor(String flavor) {
+<span class="fc" id="L303">		this.flavor = flavor;</span>
+<span class="fc" id="L304">	}</span>
+
+	public String getFailureCategory() {
+<span class="nc" id="L307">		return failureCategory;</span>
+	}
+
+	public void setFailureCategory(String failureCategory) {
+<span class="fc" id="L311">		this.failureCategory = failureCategory;</span>
+<span class="fc" id="L312">	}</span>
+
+	public String getFailureSubCategory() {
+<span class="nc" id="L315">		return failureSubCategory;</span>
+	}
+
+	public void setFailureSubCategory(String failureSubCategory) {
+<span class="fc" id="L319">		this.failureSubCategory = failureSubCategory;</span>
+<span class="fc" id="L320">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

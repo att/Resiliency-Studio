@@ -61,6 +61,11 @@ import com.att.tta.rs.util.AppUtil;
 import com.att.tta.rs.util.MessageWrapper;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This Class provides certain REST APIs to perform CRUD operations on Monkey
  * Strategy repository.
@@ -69,6 +74,7 @@ import com.google.common.collect.Lists;
  *
  */
 @RestController
+@Api(value = "Monkey Strategy Rest Controller", description = "This REST controller provides REST APIs for performing CRUD Operation on Monkey Strategy Repository")
 public class MonkeyStrategyRestController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonkeyStrategyRestController.class);
@@ -94,6 +100,10 @@ public class MonkeyStrategyRestController {
 	 * 
 	 * @return ResponseEntity<Object>
 	 */
+	@ApiOperation(value = "This API returns all Monkey Strategy Objects present in Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned all Monkey Strategy Objects"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Monkey Strategy object found") })
 	@RequestMapping(value = "/api/monkeystrategies/", method = RequestMethod.GET)
 	public ResponseEntity<Object> listAllMonkeyStrategies() {
 		List<MonkeyStrategy> monkeyStrategies = Lists.newArrayList(monkeyStrategyService.findAllMonkeyStrategies());
@@ -112,6 +122,10 @@ public class MonkeyStrategyRestController {
 	 * @param request
 	 * @return list of AllMonkeyStrategy
 	 */
+	@ApiOperation(value = "This API returns list of all Monkey Strategy objects present in Elastic Search for given team", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned all Monkey Strategy Objects for given team"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Monkey Strategy object found for given team") })
 	@RequestMapping(value = "/api/monkeystrategies/team-strategies/", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> listAllMonkeyStrategy(HttpServletRequest request) {
 		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();
@@ -132,6 +146,10 @@ public class MonkeyStrategyRestController {
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns List of Monkey Type", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Returned Monkey Type values"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "The resource trying to reach is not found") })
 	@RequestMapping(value = "/api/monkeytypes/", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> listAllMonkeyTypes() {
 		return new ResponseEntity<>(Arrays.asList(MonkeyType.values()), HttpStatus.OK);
@@ -145,6 +163,11 @@ public class MonkeyStrategyRestController {
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns single Monkey Strategy Object present in Elastic Search for given Monkey Strategy ID", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned single Monkey Strategy Object for given Monkey Strategy ID"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Monkey Strategy object found for given Monkey Strategy ID") })
 	@RequestMapping(value = "/api/monkeystrategies/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getMonkeyStrategy(HttpServletRequest request, @PathVariable("id") String id) {
 		logger.debug("Fetching monkeyStrategy with id : %s ", id);
@@ -169,6 +192,11 @@ public class MonkeyStrategyRestController {
 	 * @param name
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns single Monkey Strategy Object present in Elastic Search for given Monkey Strategy Name", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned Monkey Strategy Object for given Monkey Strategy Name"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Monkey Strategy object found for given Monkey Strategy Name") })
 	@RequestMapping(value = "/api/monkeystrategies/monkeystrategybyname/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getMonkeyStrategyByName(HttpServletRequest request,
 			@PathVariable("name") String name) {
@@ -193,6 +221,11 @@ public class MonkeyStrategyRestController {
 	 * @param monkeyTypeStr
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns single Default Monkey Strategy Object present in Elastic Search for given Monkey Strategy Name & Monkey Type", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned Monkey Strategy Object for given Monkey Strategy Name & Monkey Type"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Monkey Strategy object found for given Monkey Strategy Name & Monkey Type") })
 	@RequestMapping(value = "/api/monkeystrategies/defaultmonkeystrategy/{name}/{monkeytype}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getDefaultMonkeyStrategy(HttpServletRequest request,
 			@PathVariable("name") String name, @PathVariable("monkeytype") String monkeyTypeStr) {
@@ -219,8 +252,13 @@ public class MonkeyStrategyRestController {
 	 * @param version
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns single Default Monkey Strategy Object present in Elastic Search for given Monkey Strategy Name & Version", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned Monkey Strategy Object for given Monkey Strategy Name & Version"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Monkey Strategy object found for given Monkey Strategy Name & Version") })
 	@RequestMapping(value = "/api/monkeystrategies/{name}/{version}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> getApplicationByNameAndCategory(HttpServletRequest request,
+	public ResponseEntity<Object> getMonkeyStrategyByNameAndVersion(HttpServletRequest request,
 			@PathVariable("name") String name, @PathVariable("version") String version) {
 		logger.debug("Fetching monkeyStrategy : %s and version: %s", name, version);
 
@@ -243,6 +281,11 @@ public class MonkeyStrategyRestController {
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns count of Monkey Strategy objects available in Elastic Search for a team", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned count of Monkey Strategy objects for given team"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "The resource trying to reach is not found") })
 	@RequestMapping(value = "/api/monkeystrategies/count/", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> countByTeamName(HttpServletRequest request) {
 		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();
@@ -259,6 +302,11 @@ public class MonkeyStrategyRestController {
 	 * @param environmentname
 	 * @return
 	 */
+	@ApiOperation(value = "This API returns Monkey Strategy Objects present in Elastic Search for given App Emvironment and team name", response = ResponseEntity.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned Monkey Strategy Object for given App Emvironment and team name"),
+			@ApiResponse(code = 401, message = "User is not authorized to view requested object"),
+			@ApiResponse(code = 404, message = "No Monkey Strategy object found for given App Emvironment and team name") })
 	@RequestMapping(value = "/api/monkeystrategies/autodiscover/{applicationname}/{environmentname}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getFailurePointByApplicationEnvironmentAndTeamName(HttpServletRequest request,
 			@PathVariable("applicationname") String applicationname,
@@ -306,6 +354,12 @@ public class MonkeyStrategyRestController {
 	 * @param ucBuilder
 	 * @return
 	 */
+	@ApiOperation(value = "This API inserts a Monkey Strategy Object into Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Monkey Strategy object successfully inserted into ES"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Add operation"),
+			@ApiResponse(code = 409, message = "Monkey Strategy with same name is already exist"),
+			@ApiResponse(code = 404, message = "The resource trying to reach is not found"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/monkeystrategy/", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<Object> addMonkeyStrategy(HttpServletRequest request,
 			@RequestBody MonkeyStrategy monkeyStrategy, UriComponentsBuilder ucBuilder) {
@@ -368,6 +422,12 @@ public class MonkeyStrategyRestController {
 	 * @param toModifyMonkeyStrategy
 	 * @return
 	 */
+	@ApiOperation(value = "This API updates a Monkey Strategy Objects into Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Monkey Strategy object successfully updated into ES"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Update operation"),
+			@ApiResponse(code = 409, message = "Monkey Strategy can be changed only by the owning team"),
+			@ApiResponse(code = 404, message = "Monkey Strategy object not found in ES for given Monkey Strategy ID"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/monkeystrategies/{id}", method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<Object> updateMonkeyStrategy(HttpServletRequest request, @PathVariable("id") String id,
 			@RequestBody MonkeyStrategy toModifyMonkeyStrategy) {
@@ -441,6 +501,12 @@ public class MonkeyStrategyRestController {
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "This API deletes a Monkey Strategy Objects from Elastic Search", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Monkey Strategy object successfully deleted from ES"),
+			@ApiResponse(code = 401, message = "User is not authorized to perform Delete operation"),
+			@ApiResponse(code = 409, message = "Monkey Strategy can be delted only by the owning team"),
+			@ApiResponse(code = 404, message = "Monkey Strategy object not found in ES for given Monkey Strategy ID"),
+			@ApiResponse(code = 400, message = "Input Request object is not valid") })
 	@RequestMapping(value = "/api/monkeystrategies/{id}", method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<Object> deletemonkeystrategy(HttpServletRequest request, @PathVariable("id") String id) {
 		logger.debug("Deleting monkeystrategy with id %s", id);

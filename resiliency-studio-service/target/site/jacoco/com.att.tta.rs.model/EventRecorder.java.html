@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventRecorder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.model</a> &gt; <span class="el_source">EventRecorder.java</span></div><h1>EventRecorder.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.model;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
+/**
+ * This class is the representation of 'Event' type in the Elastic Search.
+ * 
+ * @author ak983d
+ */
+@Document(indexName = &quot;resiliencystudio&quot;, type = &quot;event&quot;)
+public class EventRecorder implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	/** The event id. */
+	@Id
+	private String id;
+
+	/** The Team name . */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String eventStatus;
+
+	/** The Team name . */
+	@Field(type = FieldType.Nested, analyzer = &quot;keyword&quot;, store = true)
+	private EventStatusUpdate eventStatusUpdate;
+
+	/** The Team name . */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String teamName;
+
+	/** The Scenario id . */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String scenarioId;
+
+	@Field(type = FieldType.Date, store = true)
+	private Date eventStartTime;
+
+	/** Job Execution Result. */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String execStatus;
+
+	/** The fields. */
+<span class="fc" id="L83">	private Map&lt;String, String&gt; fields = new HashMap&lt;&gt;();</span>
+
+	/** The event time. */
+	private Date date;
+
+	/** The event status */
+	private EventStatus eventStatusType;
+
+	/** The Event Execution Duration. */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String execDuration;
+
+	/** The Event Execution Duration. */
+	@Field(type = FieldType.String, analyzer = &quot;keyword&quot;, store = true)
+	private String execSequence;
+
+	
+	public String getExecSequence() {
+<span class="fc" id="L101">		return execSequence;</span>
+	}
+
+	public void setExecSequence(String execSequence) {
+<span class="fc" id="L105">		this.execSequence = execSequence;</span>
+<span class="fc" id="L106">	}</span>
+
+	public String getExecDuration() {
+<span class="nc" id="L109">		return execDuration;</span>
+	}
+
+	public void setExecDuration(String execDuration) {
+<span class="nc" id="L113">		this.execDuration = execDuration;</span>
+<span class="nc" id="L114">	}</span>
+
+	/**
+	 * Constructor.
+	 *
+	 */
+<span class="fc" id="L120">	public EventRecorder() {</span>
+		/*
+		 * This is the empty constructor.
+		 */
+<span class="fc" id="L124">	}</span>
+	
+	public String getScenarioId() {
+<span class="nc" id="L127">		return scenarioId;</span>
+	}
+
+	public void setScenarioId(String scenarioId) {
+<span class="nc" id="L131">		this.scenarioId = scenarioId;</span>
+<span class="nc" id="L132">	}</span>
+
+	public String getExecStatus() {
+<span class="nc" id="L135">		return execStatus;</span>
+	}
+
+	public void setExecStatus(String execStatus) {
+<span class="fc" id="L139">		this.execStatus = execStatus;</span>
+<span class="fc" id="L140">	}</span>
+
+	
+
+	public String getId() {
+<span class="fc" id="L145">		return id;</span>
+	}
+
+	public void setId(String id) {
+<span class="fc" id="L149">		this.id = id;</span>
+<span class="fc" id="L150">	}</span>
+
+	public Date eventTime() {
+<span class="nc" id="L153">		return new Date(date.getTime());</span>
+	} 
+
+	@JsonAnyGetter
+	public Map&lt;String, String&gt; fields() {
+<span class="fc" id="L158">		return fields;</span>
+	}
+
+	public String field(String name) {
+<span class="fc" id="L162">		return fields.get(name);</span>
+	}
+
+	@JsonAnySetter
+	public EventRecorder addField(String name, String value) {
+<span class="nc" id="L167">		fields.put(name, value);</span>
+<span class="nc" id="L168">		return this;</span>
+	}
+
+	public void removeField(String name, String value) {
+<span class="nc" id="L172">		fields.remove(name, value);</span>
+
+<span class="nc" id="L174">	}</span>
+
+	/**
+	 * Adds the fields.
+	 *
+	 * @param toAdd
+	 *            the fields to set
+	 * @return &lt;b&gt;this&lt;/b&gt; so you can chain many addFields calls together
+	 */
+	public EventRecorder addFields(Map&lt;String, String&gt; toAdd) {
+<span class="fc" id="L184">		fields.putAll(toAdd);</span>
+<span class="fc" id="L185">		return this;</span>
+	}
+
+	public String getTeamName() {
+<span class="fc" id="L189">		return teamName;</span>
+	}
+
+	public void setTeamName(String teamName) {
+<span class="fc" id="L193">		this.teamName = teamName;</span>
+<span class="fc" id="L194">	}</span>
+
+	public Date getEventStartTime() {
+<span class="nc" id="L197">		return eventStartTime;</span>
+	}
+
+	public void setEventStartTime(Date eventStartTime) {
+<span class="nc" id="L201">		this.eventStartTime = eventStartTime;</span>
+<span class="nc" id="L202">	}</span>
+
+	public String getEventStatus() {
+<span class="fc" id="L205">		return eventStatus;</span>
+	}
+
+	public void setEventStatus(String eventStatus) {
+<span class="fc" id="L209">		this.eventStatus = eventStatus;</span>
+<span class="fc" id="L210">	}</span>
+
+	public EventStatusUpdate getEventStatusUpdate() {
+<span class="fc" id="L213">		return eventStatusUpdate;</span>
+	}
+
+	public void setEventStatusUpdate(EventStatusUpdate eventStatusUpdate) {
+<span class="fc" id="L217">		this.eventStatusUpdate = eventStatusUpdate;</span>
+<span class="fc" id="L218">	}</span>
+
+	public EventStatus getEventStatusType() {
+<span class="fc" id="L221">		return eventStatusType;</span>
+	}
+
+	public void setEventStatusType(EventStatus eventStatusType) {
+<span class="fc" id="L225">		this.eventStatusType = eventStatusType;</span>
+<span class="fc" id="L226">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

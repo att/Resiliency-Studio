@@ -57,7 +57,7 @@ public class StepDefinitionDeleteMonkeyStrategy extends ParentScenario {
 
 	@Given("^I am on the dashboard page for Delete MonkeyStrategy$")
 	public void I_am_on_the_dashboard_page_for_Delete_MonkeyStrategy() throws InterruptedException {
-
+		navigateTo("/resiliency-studio-ui/#/dashboard");
 		new DeleteMonkeyStrategyPage(driver).click_monkey_strategy_link();
 	}
 

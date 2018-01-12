@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TeamUserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.service</a> &gt; <span class="el_source">TeamUserServiceImpl.java</span></div><h1>TeamUserServiceImpl.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.service;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.att.ajsc.logging.AjscEelfManager;
+import com.att.eelf.configuration.EELFLogger;
+import com.att.tta.rs.data.es.repository.TeamUserRepository;
+import com.att.tta.rs.model.TeamUser;
+
+/** 
+ * Implementation class for {@link TeamUserService}
+ * @author ak983d
+ *
+ */
+
+@Service(&quot;teamUserService&quot;)
+@Transactional
+<span class="fc" id="L65">public class TeamUserServiceImpl implements TeamUserService {</span>
+<span class="fc" id="L66">	private static EELFLogger logger = AjscEelfManager.getInstance().getLogger(TeamUserServiceImpl.class);</span>
+
+	private TeamUserRepository teamUserRepository;
+
+	@Autowired
+	public void setTeamUserRepository(TeamUserRepository teamUserRepository) {
+<span class="fc" id="L72">		this.teamUserRepository = teamUserRepository;</span>
+<span class="fc" id="L73">	}</span>
+
+	private TeamUser save(TeamUser teamUser) {
+<span class="fc" id="L76">		return teamUserRepository.save(teamUser);</span>
+	}
+
+	@Override
+	public TeamUser findOne(String id) {
+<span class="nc" id="L81">		return teamUserRepository.findOne(id);</span>
+	}
+
+	@Override
+	public Iterable&lt;TeamUser&gt; findAll() {
+<span class="fc" id="L86">		return teamUserRepository.findAll();</span>
+	}
+
+	@Override
+	public Page&lt;TeamUser&gt; findByTeamName(String name, Pageable pageable) {
+<span class="fc" id="L91">		return teamUserRepository.findByTeamName(name, pageable);</span>
+	}
+
+	@Override
+	public TeamUser findByTeamName(String name) {
+<span class="fc" id="L96">		return teamUserRepository.findByTeamName(name);</span>
+	}
+
+	@Override
+	public Page&lt;TeamUser&gt; findByUserName(String name, Pageable pageable) {
+<span class="fc" id="L101">		return teamUserRepository.findByUserName(name, pageable);</span>
+	}
+
+	@Override
+	public TeamUser findByUserName(String name) {
+<span class="fc" id="L106">		return teamUserRepository.findByUserNameAndDefaultFlag(name, &quot;Y&quot;);</span>
+	}
+
+	@Override
+	public long count() {
+<span class="fc" id="L111">		return teamUserRepository.count();</span>
+	}
+
+	@Override
+	public void delete(TeamUser teamUser) {
+<span class="fc" id="L116">		teamUserRepository.delete(teamUser);</span>
+<span class="fc" id="L117">	}</span>
+
+	@Override
+	public void deleteAllTeamUsers() {
+<span class="nc" id="L121">		teamUserRepository.deleteAll();</span>
+<span class="nc" id="L122">	}</span>
+
+	@Override
+	public boolean isTeamExist(TeamUser teamUser) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		return findByTeamName(teamUser.getTeamName()) != null;</span>
+	}
+
+	@Override
+	public boolean isUserExist(TeamUser teamUser) {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		return findByUserNameAndDefaultFlag(teamUser.getUserName(), &quot;Y&quot;) != null;</span>
+	}
+
+	@Override
+	public TeamUser update(TeamUser teamUser) {
+
+<span class="pc bpc" id="L137" title="2 of 4 branches missed.">		if (teamUser != null &amp;&amp; !&quot;&quot;.equals(teamUser.getId().trim())</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">				&amp;&amp; (teamUserRepository.findOne(teamUser.getId()) != null)) {</span>
+<span class="fc" id="L139">			return save(teamUser);</span>
+		}
+<span class="fc" id="L141">		logger.debug(&quot;Not able to update Team User object.&quot;);</span>
+<span class="fc" id="L142">		return null;</span>
+	}
+
+	@Override
+	public TeamUser insert(TeamUser teamUser) {
+<span class="fc bfc" id="L147" title="All 2 branches covered.">		if (this.isTeamUserExist(teamUser)) {</span>
+<span class="fc" id="L148">			logger.debug(&quot;TeamUser entry already exists with Team name &quot; + teamUser.getTeamName() + &quot; and User Name: &quot;</span>
+<span class="fc" id="L149">					+ teamUser.getUserName());</span>
+<span class="fc" id="L150">			return null;</span>
+		}
+<span class="fc" id="L152">		return save(teamUser);</span>
+	}
+
+	@Override
+	public boolean isTeamUserExist(TeamUser teamUser) {
+<span class="fc bfc" id="L157" title="All 2 branches covered.">		return findByTeamNameAndUserName(teamUser.getTeamName(), teamUser.getUserName()) != null;</span>
+	}
+
+	@Override
+	public TeamUser findByTeamNameAndUserName(String teamName, String userName) {
+<span class="fc" id="L162">		return teamUserRepository.findByTeamNameAndUserName(teamName, userName);</span>
+	}
+
+	@Override
+	public TeamUser findByUserNameAndDefaultFlag(String userName, String defaultFlag) {
+<span class="fc" id="L167">		TeamUser teamUser = teamUserRepository.findByUserNameAndDefaultFlag(userName, defaultFlag);</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">		if (teamUser == null)</span>
+<span class="nc" id="L169">			logger.error(&quot; User info from ES is null !!&quot;);</span>
+<span class="fc" id="L170">		return teamUser;</span>
+	}
+
+	@Override
+	public TeamUser getCurrentTeamForUser(HttpServletRequest request) {
+<span class="fc" id="L175">		String userName = getUserIdFromAuth(request);		 </span>
+<span class="fc" id="L176">		return this.findByUserName(userName);</span>
+	}
+
+	/**
+	 * This function return the User name from Authentication header.
+	 * 
+	 * @param request
+	 * @return User name
+	 */
+	private static String getUserIdFromAuth(HttpServletRequest request) {
+<span class="fc" id="L186">		HttpSession session = request.getSession(true);</span>
+<span class="fc" id="L187">		SecurityContextImpl secSession = (SecurityContextImpl) session.getAttribute(&quot;SPRING_SECURITY_CONTEXT&quot;);</span>
+<span class="fc" id="L188">		UserDetails principal = (UserDetails) secSession.getAuthentication().getPrincipal();</span>
+<span class="fc" id="L189">		String userString = principal.getUsername();</span>
+<span class="fc" id="L190">		return userString.split(&quot;\\|&quot;)[0];</span>
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+<span class="nc" id="L195">		TeamUser user = findByUserName(username);</span>
+<span class="nc" id="L196">		List&lt;GrantedAuthority&gt; authorities = buildUserAuthority(user.getRoles());</span>
+<span class="nc" id="L197">		return buildUserForAuthentication(user, authorities);</span>
+	}
+
+	/**
+	 * Converts TeamUser to org.springframework.security.core.userdetails.User
+	 * 
+	 * @param user
+	 * @param authorities
+	 * @return
+	 */
+	private User buildUserForAuthentication(TeamUser user, List&lt;GrantedAuthority&gt; authorities) {
+<span class="nc" id="L208">		return new User(user.getUserName(), user.getTeamName(), true, true, true, true, authorities);</span>
+	}
+
+	private List&lt;GrantedAuthority&gt; buildUserAuthority(String role) {
+<span class="nc" id="L212">		Set&lt;GrantedAuthority&gt; setAuths = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L213">		setAuths.add(new SimpleGrantedAuthority(role));</span>
+<span class="nc" id="L214">		return new ArrayList&lt;&gt;(setAuths);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

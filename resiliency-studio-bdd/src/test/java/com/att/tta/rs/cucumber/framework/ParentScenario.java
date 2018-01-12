@@ -41,7 +41,7 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 
 public class ParentScenario {
 
-	protected WebDriver driver = null;
+	protected static WebDriver driver = null;
 	protected static String broserURL = null;
 
 	protected static Map<String, WebDriver> drivers = new HashMap<String, WebDriver>();
@@ -49,17 +49,21 @@ public class ParentScenario {
 	protected static PropertyUtil configProp = new PropertyUtil();
 
 	protected void startBrowser() {
+		
 		broserURL = configProp.getValue("chromeDriverURL");
+		
 		driver = getBrowser(configProp.getValue("browser"));
 		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
 	}
 
 	protected void navigateTo(String url) {
-		driver.navigate().to(configProp.getValue("baseurl") + url);
+		
+		driver.navigate().to(configProp.getValue("baseurl")+url);
 	}
 
 	protected void closeBrowser() {
+		driver.close();
 		driver.quit();
 	}
 
@@ -85,14 +89,17 @@ public class ParentScenario {
 			}
 			break;
 		case "chrome":
+			
 			driver = drivers.get("Chrome");
 			if (driver == null) {
 				System.setProperty("webdriver.chrome.driver", broserURL);
 				driver = new ChromeDriver();
+				
 				drivers.put("Chrome", driver);
 			}
 			break;
 		}
+		
 		return driver;
 	}
 

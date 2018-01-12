@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventRestController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">resiliency-studio-service</a> &gt; <a href="index.source.html" class="el_package">com.att.tta.rs.controller</a> &gt; <span class="el_source">EventRestController.java</span></div><h1>EventRestController.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ *   BSD License
+ *    
+ *   Copyright (c) 2017, AT&amp;T Intellectual Property.  All other rights reserved.
+ *    
+ *   Redistribution and use in source and binary forms, with or without modification, are permitted
+ *   provided that the following conditions are met:
+ *    
+ *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ *      and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *      conditions and the following disclaimer in the documentation and/or other materials provided
+ *      with the distribution.
+ *   3. All advertising materials mentioning features or use of this software must display the
+ *      following acknowledgement:  This product includes software developed by the AT&amp;T.
+ *   4. Neither the name of AT&amp;T nor the names of its contributors may be used to endorse or
+ *      promote products derived from this software without specific prior written permission.
+ *    
+ *   THIS SOFTWARE IS PROVIDED BY AT&amp;T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
+ *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ *   SHALL AT&amp;T INTELLECTUAL PROPERTY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE, DATA, OR PROFITS;
+ *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *   DAMAGE.
+ *******************************************************************************/
+package com.att.tta.rs.controller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.att.tta.rs.model.EventRecorder;
+import com.att.tta.rs.model.EventStatusUpdate;
+import com.att.tta.rs.service.EventService;
+import com.att.tta.rs.service.TeamUserService;
+import com.att.tta.rs.util.MessageWrapper;
+import com.google.common.collect.Lists;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+/**
+ * This Class provides certain REST APIs to perform CRUD operations on Event
+ * repository.
+ * 
+ * @author mb6872,ak983d
+ *
+ */
+@RestController
+@Api(value = &quot;Event Rest Controller&quot;, description = &quot;This REST controller provides REST APIs for performing CRUD Operation on Event Repository&quot;)
+<span class="fc" id="L75">public class EventRestController {</span>
+
+<span class="fc" id="L77">	private static final Logger logger = LoggerFactory.getLogger(EventRestController.class);</span>
+	private static final String TIMESTAMP = &quot;@timestamp&quot;; 
+	
+	/**
+	 * instance of EventService
+	 */
+	@Autowired
+	EventService eventService;
+
+	/**
+	 * instance of TeamUserService
+	 */
+	@Autowired
+	TeamUserService userDetailsService;
+
+	/**
+	 * This API returns list of all Event objects available in Event Repository.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns all Event Objects present in Elastic Search&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned all Event Objects&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Event object found&quot;) })
+	@RequestMapping(value = &quot;/api/events/&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; listEvents() {
+<span class="fc" id="L104">		List&lt;EventRecorder&gt; events = Lists.newArrayList(eventService.findAll());</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">		if (events.isEmpty()) {</span>
+<span class="fc" id="L106">			final String error = &quot;No events found !!!&quot;;</span>
+<span class="fc" id="L107">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L108">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L110">		return new ResponseEntity&lt;&gt;(events, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns all Event records for a User's current team.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns list of all Event objects present in Elastic Search for given team&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned all Application Event for given team&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Event object found for given team&quot;) })
+	@RequestMapping(value = &quot;/api/events/team/&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; listAllEvents(HttpServletRequest request) {
+<span class="fc" id="L125">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L126">		List&lt;EventRecorder&gt; events = Lists.newArrayList(eventService.findAllByTeamName(teamName));</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		if (events.isEmpty()) {</span>
+<span class="fc" id="L128">			final String error = &quot;No events found for team &quot; + teamName;</span>
+<span class="fc" id="L129">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L130">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="fc" id="L133">		Map&lt;String, List&lt;EventRecorder&gt;&gt; eventListMap = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">		for (EventRecorder eventRecorder : events) {</span>
+<span class="fc" id="L135">			org.joda.time.DateTime dt = new org.joda.time.DateTime(eventRecorder.field(TIMESTAMP));</span>
+<span class="fc" id="L136">			eventRecorder.fields().put(TIMESTAMP, dt.toString(&quot;yyyy-MM-dd HH:mm:ss.SSS&quot;));</span>
+<span class="fc" id="L137">			String eventTimestamp = eventRecorder.field(TIMESTAMP);</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">			if (eventListMap.containsKey(eventTimestamp)) {</span>
+<span class="nc" id="L139">				eventListMap.get(eventTimestamp).add(eventRecorder);</span>
+			} else {
+<span class="fc" id="L141">				List&lt;EventRecorder&gt; eventRecorderList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L142">				eventRecorderList.add(eventRecorder);</span>
+<span class="fc" id="L143">				eventListMap.put(eventTimestamp, eventRecorderList);</span>
+			}
+<span class="fc" id="L145">		}</span>
+<span class="fc" id="L146">		eventListMap.forEach((k, v) -&gt; {</span>
+<span class="fc" id="L147">			v.forEach(eventRecorder -&gt; {</span>
+<span class="fc" id="L148">				eventRecorder.setExecSequence(</span>
+<span class="pc bpc" id="L149" title="3 of 4 branches missed.">						(null == eventRecorder.getExecSequence() || eventRecorder.getExecSequence().isEmpty()) ? &quot;0&quot;</span>
+<span class="nc" id="L150">								: eventRecorder.getExecSequence());</span>
+<span class="fc" id="L151">			});</span>
+<span class="fc" id="L152">		});</span>
+<span class="fc" id="L153">		eventListMap.forEach((k, v) -&gt; v.sort(Comparator.comparing(EventRecorder::getExecSequence)));</span>
+
+<span class="fc" id="L155">		List&lt;EventRecorder&gt; finalEventRecorderList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L156">		eventListMap.forEach((k, v) -&gt; {</span>
+<span class="fc" id="L157">			EventRecorder newEvent = new EventRecorder();</span>
+<span class="fc" id="L158">			int i = 0;</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">			for (EventRecorder eventRecorder : v) {</span>
+<span class="fc" id="L160">				String eventStatus = &quot;*** Script Execution O/P for Monkey Strategy: &quot;</span>
+<span class="fc" id="L161">						+ eventRecorder.field(&quot;monkeyStrategy&quot;) + &quot; *** \n&quot;;</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">				if (i == 0) {</span>
+<span class="fc" id="L163">					newEvent = eventRecorder;</span>
+<span class="fc" id="L164">					newEvent.setEventStatus(eventStatus + eventRecorder.getEventStatus() + &quot;\n\n&quot;);</span>
+				} else {
+<span class="nc" id="L166">					newEvent.setEventStatus(newEvent.getEventStatus() + eventStatus + eventRecorder.getEventStatus()+ &quot;\n\n&quot;);</span>
+<span class="nc" id="L167">					newEvent.fields().put(&quot;monkeyStrategy&quot;,</span>
+<span class="nc" id="L168">							newEvent.field(&quot;monkeyStrategy&quot;) + &quot;, &quot; + eventRecorder.field(&quot;monkeyStrategy&quot;));</span>
+<span class="nc" id="L169">					newEvent.fields().put(&quot;monkeyType&quot;,</span>
+<span class="nc" id="L170">							newEvent.field(&quot;monkeyType&quot;) + &quot;, &quot; + eventRecorder.field(&quot;monkeyType&quot;));</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">					newEvent.setExecStatus(&quot;Failed&quot;.equalsIgnoreCase(eventRecorder.getExecStatus()) ? &quot;Failed&quot;</span>
+<span class="nc" id="L172">							: newEvent.getExecStatus());</span>
+				}
+<span class="fc" id="L174">				i++;</span>
+<span class="fc" id="L175">			}</span>
+<span class="fc" id="L176">			finalEventRecorderList.add(newEvent);</span>
+<span class="fc" id="L177">		});</span>
+<span class="fc" id="L178">		return new ResponseEntity&lt;&gt;(finalEventRecorderList, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns Event object for given Id
+	 * 
+	 * @param request
+	 * @param id
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns single Event Objects present in Elastic Search for given Event ID&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned single Event Object for given Event ID&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Event object found for given Event ID&quot;) })
+	@RequestMapping(value = &quot;/api/events/{id}&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; listEvent(HttpServletRequest request, @PathVariable(&quot;id&quot;) String id) {
+<span class="fc" id="L194">		logger.debug(&quot;Listing event for id %s&quot;, id);</span>
+<span class="fc" id="L195">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L196">		EventRecorder event = eventService.findOneForTeam(id, teamName);</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">		if (event == null) {</span>
+<span class="fc" id="L198">			final String error = &quot;No event found  for team &quot; + teamName + &quot; and id &quot; + id;</span>
+<span class="fc" id="L199">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L200">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L202">		return new ResponseEntity&lt;&gt;(event, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns the latest Event Status for given Event Id
+	 * 
+	 * @param request
+	 * @param id
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns Event Status Objects present in Elastic Search for given Event ID&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned Event Status Object for given Event ID&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Event Status object found for given Event ID&quot;) })
+	@RequestMapping(value = &quot;/api/events/status/{id}&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; getstatusupdateforevent(HttpServletRequest request, @PathVariable(&quot;id&quot;) String id) {
+<span class="fc" id="L218">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L219">		EventRecorder event = eventService.findOneForTeam(id, teamName);</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">		if (event == null) {</span>
+<span class="fc" id="L221">			final String error = &quot;No events found !!! for team &quot; + teamName;</span>
+<span class="fc" id="L222">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L223">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+<span class="fc" id="L225">		EventStatusUpdate update = event.getEventStatusUpdate();</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">		if (update == null)</span>
+<span class="nc" id="L227">			logger.debug(&quot; No update&quot;);</span>
+<span class="fc" id="L228">		return new ResponseEntity&lt;&gt;(update, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API returns count of Events under a User's current team.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns count of Event objects available in Elastic Search for given team name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned count of Event objects for given team name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;The resource trying to reach is not found&quot;) })
+	@RequestMapping(value = &quot;/api/events/count/&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; countByTeamName(HttpServletRequest request) {
+<span class="fc" id="L243">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L244">		logger.debug(&quot;count of Events for team %s&quot;, teamName);</span>
+<span class="fc" id="L245">		Long count = eventService.countByTeamName(teamName);</span>
+<span class="fc" id="L246">		return new ResponseEntity&lt;&gt;(count.toString(), HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This API provides the latest Event List for a given application name.
+	 * 
+	 * @param request
+	 * @param applicationName
+	 * @return
+	 */
+	@ApiOperation(value = &quot;This API returns Latest Events per Scenario present in Elastic Search for given App Name&quot;, response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = &quot;Returned Latest Events per Scenario for given App Name&quot;),
+			@ApiResponse(code = 401, message = &quot;User is not authorized to view requested object&quot;),
+			@ApiResponse(code = 404, message = &quot;No Event object found for given App Name&quot;) })
+	@RequestMapping(value = &quot;/api/events/latestevent/{applicationName}&quot;, method = RequestMethod.GET, produces = &quot;application/json&quot;)
+	public ResponseEntity&lt;Object&gt; listLatestEventsByAppName(HttpServletRequest request,
+			@PathVariable(&quot;applicationName&quot;) String applicationName) {
+<span class="fc" id="L263">		logger.debug(&quot;Listing Latest Events for given application: %s&quot;, applicationName);</span>
+
+<span class="fc" id="L265">		final String teamName = userDetailsService.getCurrentTeamForUser(request).getTeamName();</span>
+<span class="fc" id="L266">		List&lt;EventRecorder&gt; events = Lists.newArrayList(eventService.findByAppName(teamName, applicationName));</span>
+<span class="fc" id="L267">		Map&lt;String, EventRecorder&gt; latestEventMap = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">		if (!events.isEmpty()) {</span>
+<span class="fc" id="L269">			setLatestEventMap(latestEventMap, events);</span>
+		}
+<span class="fc bfc" id="L271" title="All 2 branches covered.">		if (latestEventMap.isEmpty()) {</span>
+<span class="fc" id="L272">			final String error = &quot; No events found for team &quot; + teamName + &quot; and for Application Name: &quot;</span>
+					+ applicationName;
+<span class="fc" id="L274">			final MessageWrapper apiError = new MessageWrapper(HttpStatus.NOT_FOUND, error, error);</span>
+<span class="fc" id="L275">			return new ResponseEntity&lt;&gt;(apiError, new HttpHeaders(), apiError.getStatus());</span>
+		}
+
+<span class="fc" id="L278">		return new ResponseEntity&lt;&gt;(latestEventMap, HttpStatus.OK);</span>
+	}
+
+	/**
+	 * This method creates a Map object containing latest events for each
+	 * Scenario name.
+	 * 
+	 * @param latestEventMap
+	 * @param events
+	 */
+	private void setLatestEventMap(Map&lt;String, EventRecorder&gt; latestEventMap, List&lt;EventRecorder&gt; events) {
+<span class="fc bfc" id="L289" title="All 2 branches covered.">		for (EventRecorder event : events) {</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">			if (latestEventMap.containsKey(event.field(&quot;name&quot;))) {</span>
+<span class="fc" id="L291">				eventDateComparison(latestEventMap, event);</span>
+			} else {
+<span class="fc" id="L293">				latestEventMap.put(event.field(&quot;name&quot;), event);</span>
+			}
+<span class="fc" id="L295">		}</span>
+<span class="fc" id="L296">	}</span>
+
+	private void eventDateComparison(Map&lt;String, EventRecorder&gt; latestEventMap, EventRecorder event) {
+<span class="fc" id="L299">		EventRecorder prevEvent = latestEventMap.get(event.field(&quot;name&quot;));</span>
+		Date prevEventDt;
+		Date curEventDt;
+		try {
+<span class="fc" id="L303">			prevEventDt = new SimpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss&quot;).parse(prevEvent.field(TIMESTAMP));</span>
+<span class="fc" id="L304">			curEventDt = new SimpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss&quot;).parse(event.field(TIMESTAMP));</span>
+<span class="pc bpc" id="L305" title="3 of 6 branches missed.">			if (null != prevEventDt &amp;&amp; null != curEventDt &amp;&amp; (curEventDt.getTime() - prevEventDt.getTime()) &gt; 0) {</span>
+<span class="nc" id="L306">				latestEventMap.put(event.field(&quot;name&quot;), event);</span>
+			}
+<span class="nc" id="L308">		} catch (ParseException e) {</span>
+<span class="nc" id="L309">			logger.error(&quot;Parsing error while parsing Timestamp: &quot;, e);</span>
+<span class="fc" id="L310">		}</span>
+<span class="fc" id="L311">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

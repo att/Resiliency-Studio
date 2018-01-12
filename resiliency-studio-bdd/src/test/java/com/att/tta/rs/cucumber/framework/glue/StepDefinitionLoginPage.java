@@ -30,16 +30,20 @@
 
 package com.att.tta.rs.cucumber.framework.glue;
 
+import org.testng.annotations.AfterSuite;
+
 import com.att.tta.rs.cucumber.framework.ParentScenario;
+import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.att.tta.rs.cucumber.framework.page.objects.LoginPage;
 
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 
 public class StepDefinitionLoginPage extends ParentScenario {
 
-	@Before
+	@Before()
 	public void beforeScenario() {
 		startBrowser();
 	}
@@ -47,16 +51,41 @@ public class StepDefinitionLoginPage extends ParentScenario {
 	@Given("^I am on the login page for authenticate$")
 	public void I_am_on_the_login_page_for_authenticate() {
 		navigateTo("/resiliency-studio-ui/#/dashboard");
+		
 	}
 
 	@When("^I enter the username and password on login page$")
-	public void I_enter_the_username_and_password_on_login_page() {
+	public void I_enter_the_username_and_password_on_login_page() throws InterruptedException {
 		new LoginPage(driver).enter_valid_user();
 	}
 
 	@When("^I click the logon button on login page$")
-	public void I_click_on_logon_button_on_login_page() {
+	public void I_click_on_logon_button_on_login_page() throws Throwable {
 		new LoginPage(driver).click_logon_button();
+	}
+
+	@Given("^I want to Log out from the RS application$")
+	public void i_want_to_log_out_from_rs_app() throws Throwable {
+		new LoginPage(driver).click_logout_button();
+	}
+
+	@And("^we are closing the browser after logging out$")
+	public void we_are_closing_the_browser() throws Throwable {
+		new LoginPage(driver).closingbrowser();
+	}
+
+	@Given("^I am enetering credentials for Log out feature$")
+	public void I_am_entering_cred_for_adding_application() throws InterruptedException {
+		navigateTo("/resiliency-studio-ui/#/dashboard");
+		new LoginPage(driver).enter_valid_user();
+		new LoginPage(driver).click_logon_button();
+
+	}
+	@AfterSuite
+	void closingthebrowser()
+	{
+		System.out.println("i am in after suite");
+		driver.quit();
 	}
 
 }

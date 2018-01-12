@@ -424,7 +424,7 @@ public class MonkeyStrategyRestControllerTest {
 		when(monkeyStrategyRepository.findByMonkeyStrategyNameAndTeamNameAndMonkeyStrategyVersion(MONKEYSTRATEGYNAME,
 				TEAMNAME, monkeyStrategy.getMonkeyStrategyVersion())).thenReturn(monkeyStrategy);
 
-		MonkeyStrategy getMonkeyStrategy = (MonkeyStrategy) monkeyStrategyController.getApplicationByNameAndCategory(
+		MonkeyStrategy getMonkeyStrategy = (MonkeyStrategy) monkeyStrategyController.getMonkeyStrategyByNameAndVersion(
 				req, monkeyStrategy.getMonkeyStrategyName(), monkeyStrategy.getMonkeyStrategyVersion()).getBody();
 		assertEquals(MONKEYSTRATEGYNAME, getMonkeyStrategy.getMonkeyStrategyName());
 		assertEquals(TEAMNAME, getMonkeyStrategy.getTeamName());
@@ -447,7 +447,7 @@ public class MonkeyStrategyRestControllerTest {
 				TEAMNAME, monkeyStrategy.getMonkeyStrategyVersion())).thenReturn(null);
 
 		MessageWrapper apiError = (MessageWrapper) monkeyStrategyController
-				.getApplicationByNameAndCategory(req, MONKEYSTRATEGYNAME, monkeyStrategy.getMonkeyStrategyVersion())
+				.getMonkeyStrategyByNameAndVersion(req, MONKEYSTRATEGYNAME, monkeyStrategy.getMonkeyStrategyVersion())
 				.getBody();
 		assertEquals(HttpStatus.NOT_FOUND, apiError.getStatus());
 		assertEquals("monkeyStrategy " + MONKEYSTRATEGYNAME + " and verion " + monkeyStrategy.getMonkeyStrategyVersion()

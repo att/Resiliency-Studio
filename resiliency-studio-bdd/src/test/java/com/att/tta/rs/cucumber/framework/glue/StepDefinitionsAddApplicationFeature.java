@@ -60,7 +60,7 @@ public class StepDefinitionsAddApplicationFeature extends ParentScenario {
 
 	@Given("^I am on the dash board page for add application$")
 	public void I_am_on_the_dash_board_page_for_add_application() throws InterruptedException {
-
+		
 		new AddApplicationPage(driver).click_add_application_link();
 	}
 
@@ -86,12 +86,6 @@ public class StepDefinitionsAddApplicationFeature extends ParentScenario {
 	public void i_enter_all_the_application_details_in_tab_three(List<AddApplicationUITab1Data> appDataList)
 			throws Throwable {
 		new AddApplicationPage(driver).fill_tab3_details(appDataList);
-	}
-
-	@When("^I enter all the application details in tab four$")
-	public void i_enter_all_the_application_details_in_tab_four(List<AddApplicationUITab1Data> appDataList)
-			throws Throwable {
-		new AddApplicationPage(driver).fill_tab4_details(appDataList);
 	}
 
 	@When("^I enter all the application details in tab five$")

@@ -46,6 +46,13 @@ import com.att.tta.rs.cucumber.framework.ParentPage;
 import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
+/**
+ * This class contains the page objects and functions to test the feature
+ * 
+ * @author sk494t
+ *
+ */
+
 public class AddMonkeyStrategyFeature extends ParentPage {
 
 	protected static PropertyUtil configProp = new PropertyUtil();
@@ -112,7 +119,8 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		AssertJUnit.assertTrue("not available", this.MONKEY_STRATEGY_LINK_CLICK.isDisplayed());
 		this.MONKEY_STRATEGY_LINK_CLICK.click();
-		Thread.sleep(8000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 	}
 
 	public void fill_the_basic_tab_data(List<CloneMonkeyStrategyBasicTabUIData> basicdata) throws InterruptedException {
@@ -121,7 +129,7 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		CloneMonkeyStrategyBasicTabUIData basictabdata = iterator.next();
 		monkeystrategyname = basictabdata.monkeyStrategyName;
 		monkeytype = basictabdata.monkeyType;
-		Thread.sleep(6000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		this.MONKEY_STRATEGY_NAME.sendKeys(basictabdata.monkeyStrategyName);
 		new Select(this.MONKEY_TYPE).selectByVisibleText(basictabdata.monkeyType);
 		AssertJUnit.assertTrue("version is enabled which is not expected", !(this.VERSION.isEnabled()));
@@ -131,9 +139,9 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		// upload the script and code the script and do a permutation like that
 		new Select(this.SCRIPT_CATEGORY).selectByVisibleText("UNIX Script");
 		this.SCRIPT_DATA.get(1).click();
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		this.CODE_SCRIPT.click();
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		Set<String> windows = driver.getWindowHandles();
 		Iterator<String> itr1 = windows.iterator();
 		String windowid = itr1.next();
@@ -141,18 +149,22 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		WebElement textcode = driver.findElement(By.xpath("//*[@id='myBody']/textarea"));
 		textcode.click();
 		textcode.sendKeys("text here");
+		textcode.clear();
 		driver.findElement(By.xpath("//*[@id='writeScriptModal']/div/div/div[3]/button[2]")).click();
-
-		Thread.sleep(2000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		this.SCRIPT_DATA.get(0).click();
-		Thread.sleep(3000);
+
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
+		this.FILE_UPLOAD.sendKeys(System.getProperty("user.dir") + "//src//test//resources//ProcessStatus.sh");
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.ADD_MONKEY, "click", "0,0");
 	}
 
 	public void add_monkey_and_verify_success_message() throws InterruptedException {
 		// click on add button and verify the success message and see the all
 		// the filled fields got reset
-		Thread.sleep(10000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		AssertJUnit.assertTrue("unable to display the message", this.MESSAGE_BODY.isDisplayed());
 
 		AssertJUnit.assertTrue("monkey strategy name is not as expected",
@@ -160,7 +172,7 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		AssertJUnit.assertTrue("doesnt selected upload script properly", this.SCRIPT_DATA.get(0).isSelected());
 		AssertJUnit.assertTrue("unable to reset the monkey type",
 				new Select(this.MONKEY_TYPE).getFirstSelectedOption().getText().contains("Select Monkey"));
-		Thread.sleep(1000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 	}
 
 	public void click_on_addmonkey_of_html_fillup_basictab_data() throws InterruptedException {
@@ -172,9 +184,9 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 
 		new Select(this.SCRIPT_CATEGORY).selectByVisibleText("UNIX Script");
 		this.SCRIPT_DATA.get(1).click();
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CODE_SCRIPT, "click", "0,0");
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 
 		Set<String> windows = driver.getWindowHandles();
 		Iterator<String> itr1 = windows.iterator();
@@ -183,13 +195,16 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		WebElement textcode = driver.findElement(By.xpath("//*[@id='myBody']/textarea"));
 		textcode.click();
 		textcode.sendKeys("text here");
+		textcode.clear();
 		driver.findElement(By.xpath("//*[@id='writeScriptModal']/div/div/div[3]/button[2]")).click();
 
-		Thread.sleep(2000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		this.SCRIPT_DATA.get(0).click();
-		Thread.sleep(3000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
+		this.FILE_UPLOAD.sendKeys(System.getProperty("user.dir") + "//src//test//resources//monkeyscript.sh");
+
 		this.ADVANCED_TAB_CLICK.click();
-		Thread.sleep(4000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 
 		AssertJUnit.assertTrue("unable to go to advance tab ", this.OSTYPE.isDisplayed());
 	}
@@ -207,20 +222,20 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		if (!(this.GENERIC_TOGGLE.isSelected())) {
 			this.GENERIC_TOGGLE.click();
-			Thread.sleep(8000);
+			Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		}
 
 		AssertJUnit.assertTrue("not set to required", this.OSTYPE.getAttribute("required").equals("true"));
 		new Select(this.OSTYPE).selectByIndex(advancedata.osType);
 		this.ADD_MONKEY.click();
-		Thread.sleep(2000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		AssertJUnit.assertTrue("should not be displayed", this.MESSAGE_BODY.isDisplayed());
 		new Select(this.FLAVOR).selectByIndex(advancedata.flavor);
 		this.ADD_MONKEY.click();
-		Thread.sleep(2000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		AssertJUnit.assertTrue("should not be displayed", this.MESSAGE_BODY.isDisplayed());
 
-		Thread.sleep(2000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		new Select(this.FAILURE_CATEGORY).selectByVisibleText(advancedata.failureCategory);
 		AssertJUnit.assertTrue("not disabled ideally should be disabled", !(this.FLAVOR.isEnabled()));
 
@@ -228,7 +243,7 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 			new Select(this.FAILURE_SUBCATEGORY).selectByVisibleText(advancedata.failureSubCategory);
 		}
 		this.ADD_MONKEY.click();
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		AssertJUnit.assertTrue("ideally should be displayed", this.MESSAGE_BODY.isDisplayed());
 	}
 
@@ -236,23 +251,23 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		// click on the add button and verify the success message and make sure
 
 		AssertJUnit.assertTrue("unexpected message may be dupliacte", this.MESSAGE_BODY.isDisplayed());
-		Thread.sleep(6000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 	}
 
 	public void adding_monkey_with_samename_and_validate_error_message() throws InterruptedException {
 		// fill up the basic tab data with same monkey strategy and verify the
 		// error message
 		this.BASIC_TAB_CLICK.click();
-		Thread.sleep(3000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		this.MONKEY_STRATEGY_NAME.sendKeys("TestMonkey2");
 		new Select(this.MONKEY_TYPE).selectByIndex(1);
 		new Select(this.SCRIPT_CATEGORY).selectByVisibleText("UNIX Script");
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.SCRIPT_DATA.get(1), "click", "0,0");
 
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CODE_SCRIPT, "click", "0,0");
 
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		Set<String> windows = driver.getWindowHandles();
 		Iterator<String> itr1 = windows.iterator();
 		String windowid = itr1.next();
@@ -261,25 +276,26 @@ public class AddMonkeyStrategyFeature extends ParentPage {
 		textcode.click();
 		textcode.sendKeys("text here");
 		driver.findElement(By.xpath("//*[@id='writeScriptModal']/div/div/div[3]/button[2]")).click();
-		Thread.sleep(2000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.ADD_MONKEY, "click", "0,0");
 
-		Thread.sleep(4000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		AssertJUnit.assertTrue("message which is displayed is not as expected", this.ERROR_MESSAGE.isDisplayed());
 	}
 
 	public void click_on_toggle_and_reset() throws InterruptedException {
 		// by clicking on the generic toggle on and click the reset button
 		this.GENERIC_TOGGLE.click();
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		if (!(driver.findElement(By.id("genericFlagId")).isSelected())) {
 			this.GENERIC_TOGGLE.click();
-			Thread.sleep(8000);
+			Thread.sleep(PropertyUtil.LONG_MILLISEC);
+			Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		}
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 		AssertJUnit.assertTrue("generic toggle is not selected",
 				driver.findElement(By.id("genericFlagId")).isSelected());
 		this.RESET_BUTTON.click();
-		Thread.sleep(6000);
+		Thread.sleep(PropertyUtil.LONG_MILLISEC);
 	}
 }

@@ -1,5 +1,10 @@
+# * BSD License
+# *     
+# * Copyright (c) 2017, AT&T Intellectual Property.  All other rights reserved.       
+# * 
+# *  Redistribution and use in source and binary forms, with or without modification, are permitted
 # *   provided that the following conditions are met:
-# *    
+# *
 # *   1. Redistributions of source code must retain the above copyright notice, this list of conditions
 # *      and the following disclaimer.
 # *   2. Redistributions in binary form must reproduce the above copyright notice, this list of
@@ -9,7 +14,7 @@
 # *      following acknowledgement:  This product includes software developed by the AT&T.
 # *   4. Neither the name of AT&T nor the names of its contributors may be used to endorse or
 # *      promote products derived from this software without specific prior written permission.
-# *    
+# *
 # *   THIS SOFTWARE IS PROVIDED BY AT&T INTELLECTUAL PROPERTY ''AS IS'' AND ANY EXPRESS OR
 # *   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -21,40 +26,32 @@
 # *   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # *   DAMAGE.
 # *******************************************************************************
-# 
-#	Ansible based strategy for simulating network latency
-#
 Feature: Application section
   As a user
   I want to be able to add a new application in the system
- 
- @AddApplication-DataDriven
+
+  @AddApplication
   Scenario: Add a new application
-  Given I am enetering credentials for Add Application
+   ##Given I am enetering credentials for Add Application
     Given I am on the dash board page for add application
     When I enter all the application details in tab one
-    |applicationName|categoryIndex|environmentIndex|serverName|role|hostName|ipAddress|tierIndex|cpuIndex|memoryIndex|osIndex|storageIndex|osTypeIndex |
-    |CUCUMBERTEST24|1            |1               |server-update |admin |hostname       |1.0.0.0|1        |1       |12GB          |UNIX     |12GB        |1 |
+      | applicationName | categoryIndex | environmentIndex | serverName    | role  | hostName | ipAddress | tierIndex | userName | password     |
+      | CUCUMBERTEST    |             1 |                1 | server-update | admin | hostname | 1.0.0.0   |         1 |sensk    | hellonwheels |
+     When I click the next button on add application page
+    When I enter all the application details in tab two
+     | cpuIndex | memoryIndex | osIndex | storageIndex | osTypeIndex |
+     |        1 | 12GB        | unix   | 12GB         |           1  | 
    When I click the next button on add application page
-   When I enter all the application details in tab two
-  |userName|password|
-  | sensk|hellonwheels|
-   When I click the next button on add application page
-   When I enter all the application details in tab three
-   |softwareComponentName|processName|
-   |httpd|java|
-   When I click the next button on add application page
-   When I enter all the application details in tab four
-   |discoveryName|discoveryApi|
-   |discovery1|https://discovery/|
-   When I click the next button on add application page
-   When I enter all the application details in tab five
-   |counterType|monitorApi|
-   |counterType|https://monitor/|
-   When I click the next button on add application page 
-   When I enter all the application details in tab six
-   |logType|logLocation|
-   |sl4j|http://tmp/log/|
-   When I click the submit button on add application page
-   And I click view application link on add application page 
-    
+    When I enter all the application details in tab three
+      | softwareComponentName | processName |
+      | httpd                 | java        |
+    When I click the next button on add application page
+    When I enter all the application details in tab five
+      | counterType | monitorApi       |
+      | counterType | https://monitor/ |
+    When I click the next button on add application page
+    When I enter all the application details in tab six
+      | logType | logLocation     |
+      | sl4j    | http://tmp/log/ |
+    When I click the submit button on add application page
+    And I click view application link on add application page

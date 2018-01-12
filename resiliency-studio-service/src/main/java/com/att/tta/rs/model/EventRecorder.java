@@ -88,6 +88,31 @@ public class EventRecorder implements Serializable {
 	/** The event status */
 	private EventStatus eventStatusType;
 
+	/** The Event Execution Duration. */
+	@Field(type = FieldType.String, analyzer = "keyword", store = true)
+	private String execDuration;
+
+	/** The Event Execution Duration. */
+	@Field(type = FieldType.String, analyzer = "keyword", store = true)
+	private String execSequence;
+
+	
+	public String getExecSequence() {
+		return execSequence;
+	}
+
+	public void setExecSequence(String execSequence) {
+		this.execSequence = execSequence;
+	}
+
+	public String getExecDuration() {
+		return execDuration;
+	}
+
+	public void setExecDuration(String execDuration) {
+		this.execDuration = execDuration;
+	}
+
 	/**
 	 * Constructor.
 	 *

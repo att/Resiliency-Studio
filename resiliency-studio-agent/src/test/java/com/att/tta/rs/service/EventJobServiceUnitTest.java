@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  *   BSD License
  *    
@@ -32,6 +31,8 @@ package com.att.tta.rs.service;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -43,6 +44,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.att.tta.rs.model.EventJobDTO;
+import com.att.tta.rs.model.EventMonkeyStrategyDTO;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = com.att.tta.rs.Application.class)
@@ -53,55 +55,59 @@ public class EventJobServiceUnitTest {
 	EventJobService eventJobService;
 
 	private String privateKey  = "\nPrivate key";
-	private String password  = "\npassword ";
+	private String pd  = "\npassword ";
 	private String unixErr2 = " Error connecting to instance Name: host IP: 1.1.1.1 and port: 22 and user: user";
 	private String unixErr1 = " present executing on the instance host IP Address 1.1.1.1\n"; 
-	private String ansibleErr = "Error connecting to Ansible instance server.";
+	private String ansibleErr = "Error connecting to Ansible instance server. So Scenario Execution is terminated.";
 	private String err = "\nNo password and No key present executing on the discovery server discoverHostName IP Address null\n";
-	private String fuelErr = "\nNo UserId or password found for Discovery Server";
-			
-	private String pvtKeyErr = privateKey+unixErr1+unixErr2;
+	private String fuelErr = "\nNo UserId or password found for Discovery Server. So Scenario Execution is terminated.";
+	private String sceTermination = ". So Scenario Execution is terminated.";
+	private String pvtKeyErr = privateKey+unixErr1+unixErr2+sceTermination;
 	private String ansiblePvtKeyErr = privateKey+unixErr1+ansibleErr;
-	private String passwordKeyErr = password+unixErr1+unixErr2;	
-	private String ansiblePasswordKeyErr = password+unixErr1+ansibleErr;
-	private String fuelDiscoverErr = err+unixErr2;
+	private String pdKeyErr = pd+unixErr1+unixErr2+sceTermination;	
+	private String ansiblePdKeyErr = pd+unixErr1+ansibleErr;
+	private String fuelDiscoverErr = err+unixErr2+sceTermination;
 	private String ansibleFuelDiscoverErr = err+ansibleErr;
 
-	private String returnCode = "-1";
+	private String returnCode = "-11";
 	private String ansibleScript = "Ansible Script";
-
+	
 	/**
 	 * This Test method validates the functionality of UNIX Script Execution
 	 * 
 	 */
 	@Test
 	public void testUNIXScriptExecutionErrCndtn() {
+		
 		ConcurrentMap<String, String> eventData = new ConcurrentHashMap<>();
 		EventJobDTO dto = createEventJobDTO();
+		String status = dto.getEventMonkeyList().get(0).getExecStatus();
+		
+				
 		eventJobService.executeJob(dto, eventData);
-		assertEquals(pvtKeyErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
+		assertEquals(status  + pvtKeyErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
 
 		dto = createEventJobDTO();
 		dto.setPrivateKey("");
 		eventJobService.executeJob(dto, eventData);
-		assertEquals(passwordKeyErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
+		assertEquals(status+pdKeyErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
 
 		dto = createEventJobDTO();
 		dto.setPrivateKey("");
 		dto.setPassword("");
 		eventJobService.executeJob(dto, eventData);
-		assertEquals(fuelErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
+		assertEquals(status+fuelErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
 
 		dto = createEventJobDTO();
 		dto.setPrivateKey("");
 		dto.setPassword("");
 		setDiscoverDetails(dto);
 		eventJobService.executeJob(dto, eventData);
-		assertEquals(fuelDiscoverErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
+		assertEquals(status+fuelDiscoverErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
 	}
 
 	/**
@@ -112,35 +118,37 @@ public class EventJobServiceUnitTest {
 	public void testAnsibleScriptExecutionErrCndtn() {
 		ConcurrentMap<String, String> eventData = new ConcurrentHashMap<>();
 		EventJobDTO dto = createEventJobDTO();
-		dto.setMonkeyScriptType(ansibleScript);
+		String status = dto.getEventMonkeyList().get(0).getExecStatus();
+		
+		dto.getEventMonkeyList().get(0).setMonkeyScriptType(ansibleScript);
 		eventJobService.executeJob(dto, eventData);
-		assertEquals(ansiblePvtKeyErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
+		assertEquals(status+ansiblePvtKeyErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
 
 		dto = createEventJobDTO();
-		dto.setMonkeyScriptType(ansibleScript);
+		dto.getEventMonkeyList().get(0).setMonkeyScriptType(ansibleScript);
 		dto.setPrivateKey("");
 		eventJobService.executeJob(dto, eventData);
-		assertEquals(ansiblePasswordKeyErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
+		assertEquals(status+ansiblePdKeyErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
 
 		dto = createEventJobDTO();
-		dto.setMonkeyScriptType(ansibleScript);
-		dto.setPrivateKey("");
-		dto.setPassword("");
-		eventJobService.executeJob(dto, eventData);
-		assertEquals(fuelErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
-
-		dto = createEventJobDTO();
+		dto.getEventMonkeyList().get(0).setMonkeyScriptType(ansibleScript);
 		dto.setPrivateKey("");
 		dto.setPassword("");
-		dto.setMonkeyScriptType(ansibleScript);
+		eventJobService.executeJob(dto, eventData);
+		assertEquals(status+fuelErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
+
+		dto = createEventJobDTO();
+		dto.setPrivateKey("");
+		dto.setPassword("");
+		dto.getEventMonkeyList().get(0).setMonkeyScriptType(ansibleScript);
 		setDiscoverDetails(dto);
 		eventJobService.executeJob(dto, eventData);
 
-		assertEquals(ansibleFuelDiscoverErr, dto.getExecStatus());
-		assertEquals(returnCode, dto.getReturnCode());
+		assertEquals(status+ansibleFuelDiscoverErr, dto.getEventMonkeyList().get(0).getExecStatus());
+		assertEquals(returnCode, dto.getEventMonkeyList().get(0).getReturnCode());
 	}
 
 	/**
@@ -170,6 +178,20 @@ public class EventJobServiceUnitTest {
 		eventDTO.setExecStatus("");
 		eventDTO.setReturnCode("0");
 
+		List<EventMonkeyStrategyDTO> eventMonkeyStrategyDTOs = new ArrayList<>();
+		EventMonkeyStrategyDTO dto = new EventMonkeyStrategyDTO();
+		
+		dto.setEventId("eventID");
+		dto.setExecSequence("1");
+		dto.setMonkeyStrategy("testMonkeyStrategy");
+		dto.setMonkeyStrategyId("testMonkeyStrategyId");
+		dto.setMonkeyScriptContent("echo test");
+		dto.setMonkeyScriptType("UNIX Script");
+		dto.setMonkeyStrategyVersion("1");
+		
+		eventMonkeyStrategyDTOs.add(dto);
+		eventDTO.setEventMonkeyList(eventMonkeyStrategyDTOs);
+		
 		return eventDTO;
 	}
 

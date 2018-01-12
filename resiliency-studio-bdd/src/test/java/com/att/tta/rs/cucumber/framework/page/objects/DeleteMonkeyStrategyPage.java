@@ -47,6 +47,13 @@ import com.att.tta.rs.cucumber.framework.ParentPage;
 import com.att.tta.rs.cucumber.framework.PropertyUtil;
 import com.thoughtworks.selenium.webdriven.JavascriptLibrary;
 
+/**
+ * This class contains the page objects and functions to test the feature
+ * 
+ * @author sk494t
+ *
+ */
+
 public class DeleteMonkeyStrategyPage extends ParentPage {
 
 	protected static PropertyUtil configProp = new PropertyUtil();
@@ -95,7 +102,7 @@ public class DeleteMonkeyStrategyPage extends ParentPage {
 
 	public void click_monkey_strategy_link() throws InterruptedException {
 		driver.manage().timeouts().implicitlyWait(PropertyUtil.LONG_MILLISEC, TimeUnit.MILLISECONDS);
-		Thread.sleep(4000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 		Assert.assertTrue("Unable to Visible the Element", elementIsPresent(this.CLICK_CHAOSMONKEY));
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CLICK_CHAOSMONKEY, "click", "0,0");
 		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
@@ -107,10 +114,10 @@ public class DeleteMonkeyStrategyPage extends ParentPage {
 		for (CloneMonkeyStrategyBasicTabUIData monkeydata : monkeybasicuidata) {
 			if (!monkeydata.monkeyType.equalsIgnoreCase("chaos")) {
 
-				Thread.sleep(3000);
+				Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 				driver.findElement(By.partialLinkText(monkeydata.monkeyType)).click();
 			}
-			Thread.sleep(3000);
+			Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 			monkeytypetemp = monkeydata.monkeyType.toLowerCase();
 			List<WebElement> TABLE_MONKEYSTRATGIES_COUNT = driver
 					.findElements(By.xpath("//*[@id='frame_" + monkeytypetemp + "']/table/tbody/tr"));
@@ -120,11 +127,11 @@ public class DeleteMonkeyStrategyPage extends ParentPage {
 				if (monkeyname.getText().equalsIgnoreCase(monkeydata.monkeyStrategyName)) {
 					WebElement deletemonkey = driver.findElement(By
 							.xpath("//*[@id='frame_" + monkeytypetemp + "']/table/tbody/tr[" + i + "]/td[13]/button"));
+					
 					Actions action = new Actions(driver);
 					Action clicking = action.moveToElement(deletemonkey).click().build();
 					clicking.perform();
-
-					Thread.sleep(2000);
+					Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
 					click_yes_to_confirm();
 					break;
 				}
@@ -145,6 +152,7 @@ public class DeleteMonkeyStrategyPage extends ParentPage {
 	public void click_yes_to_confirm() throws InterruptedException {
 		driver.manage().timeouts().implicitlyWait(PropertyUtil.LONG_MILLISEC, TimeUnit.MILLISECONDS);
 		jsLib.callEmbeddedSelenium(driver, "triggerMouseEventAt", this.CLICK_YES_CONFIRM, "click", "0,0");
-		Thread.sleep(5000);
+		Thread.sleep(PropertyUtil.MEDIUM_MILLISEC);
+
 	}
 }

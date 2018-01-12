@@ -51,7 +51,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.att.tta.rs.model.EventJobDTO;
+import com.att.tta.rs.model.EventMonkeyStrategyDTO;
 import com.att.tta.rs.service.EventJobService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * This REST Controller provided suite of REST APIs to execute a Script and
@@ -63,13 +69,14 @@ import com.att.tta.rs.service.EventJobService;
 @EnableWebMvc
 @RestController
 @RequestMapping("/api")
+@Api(value = "Event Execution Controller", description = "This REST controller provides suit of REST APIs to execute a Scenario and stream the real time event status")
 public class EventJobExecutionController {
 	public static final Logger logger = LoggerFactory.getLogger(EventJobExecutionController.class);
 
 	private static final ConcurrentMap<String, String> eventData = new ConcurrentHashMap<>();
 
 	private String completeString = "##Completed##";
-	private String startString = "Job Execution has been started at Agent Controller.";
+	private String startString = "Job Execution has been started at Agent Controller for Monkey Strategy: ";
 	private boolean entryFlag = false;
 	private int retry = 0;
 
@@ -83,36 +90,65 @@ public class EventJobExecutionController {
 	 * @param ucBuilder
 	 * @return
 	 */
+	@ApiOperation(value = "This API executes a Monkey Scripts for given Scenario Object", response = ResponseEntity.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Scenario is executed Successfully"),
+			@ApiResponse(code = 404, message = "The resource trying to reach is not found") })
 	@RequestMapping(value = "/execJob/", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<Object> executeJob(@RequestBody EventJobDTO eventJobDTO) {
-
-		if (eventJobDTO.getMonkeyScriptType() == null || "".equalsIgnoreCase(eventJobDTO.getMonkeyScriptType())) {
-			logger.error("Monkey Script Type is blank");
-			final String error = "Monkey Script Type is blank.";
-			eventJobDTO.setExecStatus(error);
-			eventJobDTO.setReturnCode("1");
-			eventData.put(eventJobDTO.getEventId(), error + completeString);
-			return new ResponseEntity<>(eventJobDTO, HttpStatus.OK);
-		} else if (eventJobDTO.getMonkeyScriptContent() == null
-				|| "".equalsIgnoreCase(eventJobDTO.getMonkeyScriptContent())) {
-			logger.error("Monkey Script Content is blank");
-			final String error = "Monkey Script Content is blank.";
-			eventJobDTO.setExecStatus(error);
-			eventJobDTO.setReturnCode("1");
-			eventData.put(eventJobDTO.getEventId(), error + completeString);
+		StringBuilder errorMsg = new StringBuilder();
+		if (validateEventJobDTO(eventJobDTO, errorMsg)) {
+			logger.error(errorMsg.toString());
+			eventJobDTO.getEventMonkeyList().forEach(eventMonkeyDTO -> {
+				eventMonkeyDTO.setReturnCode("000");
+				eventMonkeyDTO.setExecStatus(errorMsg.toString());
+			});
+			eventData.put(eventJobDTO.getEventId(), errorMsg + completeString);
 			return new ResponseEntity<>(eventJobDTO, HttpStatus.OK);
 		}
 
-		eventData.put(eventJobDTO.getEventId(), startString);
 		eventJobDTO.setExecStatus(startString);
+		eventData.put(eventJobDTO.getEventId(), startString);
+		eventJobDTO.getEventMonkeyList().forEach(
+				eventMonkeyDTO -> eventMonkeyDTO.setExecStatus(startString + eventMonkeyDTO.getMonkeyStrategy()));
+
 		eventJobService.executeJob(eventJobDTO, eventData);
 
-		if (eventJobDTO.getExecStatus() != null) {
-			int maxLength = (eventJobDTO.getExecStatus().length() < 32765) ? eventJobDTO.getExecStatus().length()
-					: 32765;
-			eventJobDTO.setExecStatus(eventJobDTO.getExecStatus().substring(0, maxLength));
-		}
+		eventJobDTO.getEventMonkeyList().forEach(eventMonkeyDTO -> {
+			if (eventMonkeyDTO.getExecStatus() != null) {
+				int maxLength = (eventMonkeyDTO.getExecStatus().length() < 32765)
+						? eventMonkeyDTO.getExecStatus().length() : 32765;
+				eventMonkeyDTO.setExecStatus(eventMonkeyDTO.getExecStatus().substring(0, maxLength));
+			}
+		});
+
 		return new ResponseEntity<>(eventJobDTO, HttpStatus.OK);
+	}
+
+	/**
+	 * This method validates the Event Job DTO for Monkey Script Type and Monkey
+	 * Strategy Content.
+	 * 
+	 * @param eventJobDTO
+	 * @param errorMsg
+	 * @return
+	 */
+	private boolean validateEventJobDTO(EventJobDTO eventJobDTO, StringBuilder errorMsg) {
+		boolean validationError = false;
+		for (EventMonkeyStrategyDTO dto : eventJobDTO.getEventMonkeyList()) {
+			if (dto.getMonkeyScriptType() == null || "".equalsIgnoreCase(dto.getMonkeyScriptType())) {
+				errorMsg.append("Monkey Script Type is blank for Monkey Strategy : " + dto.getMonkeyStrategy()
+						+ " . So Scenario Execution is terminated.");
+				validationError = true;
+			} else if (dto.getMonkeyScriptContent() == null || "".equalsIgnoreCase(dto.getMonkeyScriptContent())) {
+				errorMsg.append("Monkey Script Content is empty for Monkey Strategy : " + dto.getMonkeyStrategy()
+						+ " . So Scenario Execution is terminated.");
+				validationError = true;
+			}
+
+			if (validationError)
+				break;
+		}
+		return validationError;
 	}
 
 	/**
@@ -122,18 +158,20 @@ public class EventJobExecutionController {
 	 * @param eventId
 	 * @return
 	 */
+	@ApiOperation(value = "This API streams real time Event Job status for given Event ID", response = ResponseBodyEmitter.class)
 	@RequestMapping(value = "/eventStatus/{eventId}", method = RequestMethod.GET)
 	public ResponseBodyEmitter getEventStream(@PathVariable("eventId") String eventId) {
-		logger.debug("Event ID in the request : " + eventId);
-		final SseEmitter emitter = new SseEmitter();
+		final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+		logger.debug("Event ID in the request : %S ", eventId);
 		ExecutorService service = Executors.newSingleThreadExecutor();
 		service.execute(() -> checkEvetnStatus(eventId, emitter));
 		service.shutdown();
 		return emitter;
 	}
 
-	
 	private void checkEvetnStatus(String eventId, SseEmitter emitter) {
+		entryFlag = true;
+		retry = 0;
 		while (true) {
 			try {
 				if (sendEventStatus(emitter, eventId)) {
@@ -141,7 +179,7 @@ public class EventJobExecutionController {
 				}
 				Thread.sleep(500);
 			} catch (Exception e) {
-				logger.error("Error in getEventStream method: " + e.getMessage());
+				logger.error("Error in checkEvetnStatus method: " + e.getMessage());
 				emitter.completeWithError(e);
 				return;
 			}
@@ -156,7 +194,7 @@ public class EventJobExecutionController {
 			retry = 0;
 			eventStatus = eventStatus.replaceAll("\\r\\n|\\r|\\n", " @#");
 			if (eventStatus.endsWith(completeString)) {
-				eventStatus = eventStatus.replace(completeString, "");
+				// eventStatus = eventStatus.replace(completeString, "");
 				emitter.send(eventStatus, org.springframework.http.MediaType.TEXT_PLAIN);
 				eventData.remove(eventId);
 				return true;
@@ -166,7 +204,7 @@ public class EventJobExecutionController {
 		} else {
 			retry++;
 			if (checkCondition()) {
-				logger.error("No Event data available to stream for event ID: " + eventId);
+				logger.error("No Event data available to stream for event ID: %S", eventId);
 				eventData.remove(eventId);
 				emitter.send("No Event data available to stream for event ID: " + eventId,
 						org.springframework.http.MediaType.TEXT_PLAIN);
