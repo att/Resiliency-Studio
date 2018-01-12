@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.att.tta.rs.controller.ApplicationRestControllerTest
--------------------------------------------------------------------------------
-Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 24.902 sec
